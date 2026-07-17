@@ -5,6 +5,7 @@ import "./admin.css";
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userRole, setUserRole] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
@@ -15,6 +16,7 @@ export default function AdminPage() {
   // Modal states
   const [showMemberModal, setShowMemberModal] = useState(false);
   const [showExpenseModal, setShowExpenseModal] = useState(false);
+  const [showDonationModal, setShowDonationModal] = useState(false);
 
   // Expanded tab states for horizontal navbar
   const [complaints, setComplaints] = useState([]);
@@ -49,11 +51,21 @@ export default function AdminPage() {
   });
   const [editingMember, setEditingMember] = useState(null);
   const [newExpense, setNewExpense] = useState({
+    title: "",
     category: "",
     desc: "",
     amount: "",
-    status: "APPROVED",
+    expense_date: new Date().toISOString().split("T")[0],
+    status: "PENDING",
     fund_id: "",
+  });
+  const [newDonation, setNewDonation] = useState({
+    title: "",
+    category: "",
+    fund_id: "",
+    amount: "",
+    date: new Date().toISOString().split("T")[0],
+    description: "",
   });
 
   // Data states (using localstorage backings with high quality defaults)
@@ -61,6 +73,7 @@ export default function AdminPage() {
   const [expenses, setExpenses] = useState([]);
   const [funds, setFunds] = useState([]);
   const [contributions, setContributions] = useState([]);
+  const [donations, setDonations] = useState([]);
   const [newFund, setNewFund] = useState({
     name: "",
     type: "MONTHLY",
@@ -198,7 +211,18 @@ export default function AdminPage() {
 
     try {
       const fetchedExpenses = await fetchAPI("/expenses");
-      setExpenses(fetchedExpenses);
+      setExpenses(
+        fetchedExpenses.map((e) => ({
+          id: e.id,
+          title: e.title,
+          category: e.category || "GENERAL",
+          desc: e.description || "",
+          amount: Number(e.amount),
+          date: e.expense_date ? e.expense_date.split("T")[0] : new Date(e.created_at).toISOString().split("T")[0],
+          status: e.status,
+          fund_id: e.fund_id,
+        }))
+      );
     } catch (err) {
       console.warn("Failed to fetch expenses from backend:", err.message);
       const local = localStorage.getItem("admin_expenses");
@@ -213,7 +237,7 @@ export default function AdminPage() {
           name: f.fund_name,
           fund_name: f.fund_name,
           type: f.fund_type,
-          amount: Number(f.balance || 0),
+          amount: Number(f.base_amount || 0),
           balance: Number(f.balance || 0),
           totalCollection: Number(f.total_collection || 0),
           status: f.status,
@@ -279,6 +303,15 @@ export default function AdminPage() {
     }
 
     try {
+      const fetchedDonations = await fetchAPI("/contributions/admin-list");
+      setDonations(fetchedDonations);
+    } catch (err) {
+      console.warn("Failed to fetch donations from backend:", err.message);
+      const local = localStorage.getItem("admin_donations");
+      if (local) setDonations(JSON.parse(local));
+    }
+
+    try {
       const summaryRes = await fetchAPI("/dashboard/admin-summary");
       if (summaryRes.success && summaryRes.data) {
         setStats({
@@ -299,17 +332,20 @@ export default function AdminPage() {
       const token = localStorage.getItem("admin_token");
       if (auth === "true" && token) {
         try {
-          await fetchAPI("/auth/me");
+          const userData = await fetchAPI("/auth/me");
           setIsAuthenticated(true);
+          setUserRole(userData.role || "");
           loadAllData();
         } catch (err) {
           console.warn("Session expired or invalid, logging out:", err.message);
           localStorage.removeItem("admin_token");
           localStorage.removeItem("admin_auth");
           setIsAuthenticated(false);
+          setUserRole("");
         }
       } else {
         setIsAuthenticated(false);
+        setUserRole("");
       }
     };
     checkTokenValidity();
@@ -337,7 +373,9 @@ export default function AdminPage() {
       });
       localStorage.setItem("admin_token", data.token);
       localStorage.setItem("admin_auth", "true");
+      localStorage.setItem("admin_role", data.role || "");
       setIsAuthenticated(true);
+      setUserRole(data.role || "");
       setLoginError("");
       loadAllData();
     } catch (err) {
@@ -347,7 +385,9 @@ export default function AdminPage() {
       );
       if (username.toLowerCase() === "admin" && password === "admin123") {
         setIsAuthenticated(true);
+        setUserRole("SUPER_ADMIN");
         localStorage.setItem("admin_auth", "true");
+        localStorage.setItem("admin_role", "SUPER_ADMIN");
         setLoginError("");
         loadAllData();
       } else {
@@ -358,8 +398,10 @@ export default function AdminPage() {
 
   const handleLogout = () => {
     setIsAuthenticated(false);
+    setUserRole("");
     localStorage.removeItem("admin_auth");
     localStorage.removeItem("admin_token");
+    localStorage.removeItem("admin_role");
   };
 
   const handleAddMember = async (e) => {
@@ -446,7 +488,7 @@ export default function AdminPage() {
     setShowMemberModal(false);
   };
 
-  const handleAddFund = (e) => {
+  const handleAddFund = async (e) => {
     e.preventDefault();
     if (!newFund.name || !newFund.amount) return;
     const fundObj = {
@@ -457,16 +499,37 @@ export default function AdminPage() {
       totalCollection: 0,
       status: "ACTIVE",
     };
-    setFunds([...funds, fundObj]);
-    setNewFund({ name: "", type: "MONTHLY", amount: "" });
 
-    // Log activity
-    const newLog = {
-      id: Date.now(),
-      text: `Admin created a new fund: ${newFund.name} (${newFund.type})`,
-      time: "Just now",
-    };
-    setAuditLogs([newLog, ...auditLogs]);
+    try {
+      await fetchAPI("/funds", {
+        method: "POST",
+        body: JSON.stringify({
+          fund_name: newFund.name,
+          fund_type: newFund.type,
+          description: `Base Amount: ${newFund.amount}`,
+          base_amount: Number(newFund.amount),
+        }),
+      });
+      loadAllData();
+      setNewFund({ name: "", type: "MONTHLY", amount: "" });
+    } catch (err) {
+      console.warn(
+        "Failed to store fund in database, saving locally:",
+        err.message
+      );
+      const updated = [...funds, fundObj];
+      setFunds(updated);
+      localStorage.setItem("admin_funds", JSON.stringify(updated));
+      setNewFund({ name: "", type: "MONTHLY", amount: "" });
+
+      // Log activity locally
+      const newLog = {
+        id: Date.now(),
+        text: `Admin created a new fund (Local Only): ${newFund.name} (${newFund.type})`,
+        time: "Just now",
+      };
+      setAuditLogs([newLog, ...auditLogs]);
+    }
   };
 
   const handleCreateMeeting = (e) => {
@@ -515,17 +578,39 @@ export default function AdminPage() {
     setAuditLogs([newLog, ...auditLogs]);
   };
 
-  const handleDeleteFund = (id) => {
-    setFunds(funds.filter((f) => f.id !== id));
+  const handleDeleteFund = async (id) => {
+    if (
+      !confirm(
+        "Are you sure you want to delete this fund? This will also remove related ledger entries and contributions."
+      )
+    ) {
+      return;
+    }
+    try {
+      await fetchAPI(`/funds/${id}`, {
+        method: "DELETE",
+      });
+      loadAllData();
+    } catch (err) {
+      console.warn(
+        "Failed to delete fund from database, deleting locally:",
+        err.message
+      );
+      const updated = funds.filter((f) => f.id !== id);
+      setFunds(updated);
+      localStorage.setItem("admin_funds", JSON.stringify(updated));
+    }
   };
 
   const handleAddExpense = async (e) => {
     e.preventDefault();
-    if (!newExpense.category || !newExpense.amount) return;
-
-    const selectedFundId = newExpense.fund_id || (funds[0]?.id || "");
-    if (!selectedFundId) {
-      alert("Please create a fund category first.");
+    if (
+      !newExpense.title ||
+      !newExpense.amount ||
+      !newExpense.expense_date ||
+      !newExpense.fund_id
+    ) {
+      alert("Please fill in all required fields (*).");
       return;
     }
 
@@ -533,25 +618,29 @@ export default function AdminPage() {
       await fetchAPI("/expenses", {
         method: "POST",
         body: JSON.stringify({
-          title: newExpense.category,
-          category: "GENERAL",
+          title: newExpense.title,
+          category: newExpense.category || "GENERAL",
           description: newExpense.desc || "",
           amount: Number(newExpense.amount),
-          expense_date: new Date().toISOString().split("T")[0],
-          fund_id: Number(selectedFundId),
+          expense_date: newExpense.expense_date,
+          fund_id: Number(newExpense.fund_id),
         }),
       });
       loadAllData();
     } catch (err) {
-      console.warn("Failed to store expense in database, saving locally:", err.message);
+      console.warn(
+        "Failed to store expense in database, saving locally:",
+        err.message
+      );
       const expenseObj = {
         id: Date.now(),
-        category: newExpense.category,
+        title: newExpense.title,
+        category: newExpense.category || "GENERAL",
         desc: newExpense.desc,
         amount: Number(newExpense.amount),
-        date: new Date().toISOString().split("T")[0],
-        status: newExpense.status,
-        fund_id: selectedFundId,
+        date: newExpense.expense_date,
+        status: "PENDING",
+        fund_id: newExpense.fund_id,
       };
 
       const updated = [expenseObj, ...expenses];
@@ -560,8 +649,209 @@ export default function AdminPage() {
     }
 
     // Reset Form
-    setNewExpense({ category: "", desc: "", amount: "", status: "APPROVED", fund_id: "" });
+    setNewExpense({
+      title: "",
+      category: "",
+      desc: "",
+      amount: "",
+      expense_date: new Date().toISOString().split("T")[0],
+      status: "PENDING",
+      fund_id: "",
+    });
     setShowExpenseModal(false);
+  };
+
+  const handleApproveExpense = async (id) => {
+    if (
+      !confirm(
+        "Are you sure you want to approve this expense? This will debit the corresponding fund balance."
+      )
+    ) {
+      return;
+    }
+    try {
+      await fetchAPI(`/expenses/${id}/approve`, {
+        method: "PUT",
+      });
+      loadAllData();
+    } catch (err) {
+      console.warn(
+        "Failed to approve expense in database, falling back locally:",
+        err.message
+      );
+      const updated = expenses.map((e) => {
+        if (e.id === id) {
+          return { ...e, status: "APPROVED" };
+        }
+        return e;
+      });
+      setExpenses(updated);
+      localStorage.setItem("admin_expenses", JSON.stringify(updated));
+    }
+  };
+
+  const handleCancelExpense = async (id) => {
+    const reason = prompt("Please enter the reason for cancelling this expense:");
+    if (reason === null) return;
+    if (!reason.trim()) {
+      alert("Reason is required to cancel an expense.");
+      return;
+    }
+    try {
+      await fetchAPI(`/expenses/${id}/cancel`, {
+        method: "PUT",
+        body: JSON.stringify({ reason }),
+      });
+      loadAllData();
+    } catch (err) {
+      console.warn(
+        "Failed to cancel expense in database, falling back locally:",
+        err.message
+      );
+      const updated = expenses.map((e) => {
+        if (e.id === id) {
+          return { ...e, status: "CANCELLED" };
+        }
+        return e;
+      });
+      setExpenses(updated);
+      localStorage.setItem("admin_expenses", JSON.stringify(updated));
+    }
+  };
+
+  const handleAddDonation = async (e) => {
+    e.preventDefault();
+    if (!newDonation.title || !newDonation.amount || !newDonation.date || !newDonation.fund_id) {
+      alert("Please fill in all required fields (*).");
+      return;
+    }
+
+    try {
+      await fetchAPI("/contributions/admin", {
+        method: "POST",
+        body: JSON.stringify({
+          title: newDonation.title,
+          category: newDonation.category || "DONATION",
+          fund_id: Number(newDonation.fund_id),
+          amount: Number(newDonation.amount),
+          receipt_date: newDonation.date,
+          description: newDonation.description || "",
+        }),
+      });
+      loadAllData();
+    } catch (err) {
+      console.warn("Failed to store donation in database, saving locally:", err.message);
+      const selectedFund = funds.find(f => f.id === Number(newDonation.fund_id));
+      const donationObj = {
+        id: Date.now(),
+        date: newDonation.date,
+        title: newDonation.title,
+        category: newDonation.category || "DONATION",
+        fund_name: selectedFund ? selectedFund.name : "Unknown Fund",
+        amount: Number(newDonation.amount),
+        desc: newDonation.description,
+        status: "PENDING",
+      };
+
+      const updated = [donationObj, ...donations];
+      setDonations(updated);
+      localStorage.setItem("admin_donations", JSON.stringify(updated));
+    }
+
+    // Reset Form
+    setNewDonation({
+      title: "",
+      category: "",
+      fund_id: "",
+      amount: "",
+      date: new Date().toISOString().split("T")[0],
+      description: "",
+    });
+    setShowDonationModal(false);
+  };
+
+  const handleApproveDonation = async (item) => {
+    if (
+      !confirm(
+        `Are you sure you want to approve this donation of ₹${Number(
+          item.amount
+        ).toLocaleString()}? This will credit the fund balance.`
+      )
+    ) {
+      return;
+    }
+    const isMember = item.category === "MEMBER";
+    const endpoint = isMember
+      ? `/treasurer/approve-member/${item.id}`
+      : `/treasurer/approve-public/${item.id}`;
+
+    try {
+      await fetchAPI(endpoint, {
+        method: "PATCH",
+      });
+      loadAllData();
+    } catch (err) {
+      console.warn(
+        "Failed to approve donation in database, falling back locally:",
+        err.message
+      );
+      const updated = donations.map((d) => {
+        if (d.id === item.id) {
+          return { ...d, status: "APPROVED" };
+        }
+        return d;
+      });
+      setDonations(updated);
+      localStorage.setItem("admin_donations", JSON.stringify(updated));
+
+      const updatedFunds = funds.map((f) => {
+        if (f.name === item.fund_name) {
+          return {
+            ...f,
+            amount: Number(f.amount || 0),
+            balance: Number(f.balance || 0) + Number(item.amount),
+            totalCollection: Number(f.totalCollection || 0) + Number(item.amount),
+          };
+        }
+        return f;
+      });
+      setFunds(updatedFunds);
+      localStorage.setItem("admin_funds", JSON.stringify(updatedFunds));
+    }
+  };
+
+  const handleRejectDonation = async (item) => {
+    const reason = prompt("Please enter the reason for rejecting this donation:");
+    if (reason === null) return;
+    if (!reason.trim()) {
+      alert("Reason is required to reject a donation.");
+      return;
+    }
+    const isMember = item.category === "MEMBER";
+    const endpoint = isMember
+      ? `/treasurer/reject-member/${item.id}`
+      : `/treasurer/reject-public/${item.id}`;
+
+    try {
+      await fetchAPI(endpoint, {
+        method: "PATCH",
+        body: JSON.stringify({ reason }),
+      });
+      loadAllData();
+    } catch (err) {
+      console.warn(
+        "Failed to reject donation in database, falling back locally:",
+        err.message
+      );
+      const updated = donations.map((d) => {
+        if (d.id === item.id) {
+          return { ...d, status: "REJECTED" };
+        }
+        return d;
+      });
+      setDonations(updated);
+      localStorage.setItem("admin_donations", JSON.stringify(updated));
+    }
   };
 
   const handlePasswordUpdate = (e) => {
@@ -730,6 +1020,12 @@ export default function AdminPage() {
             onClick={() => setActiveTab("funds")}
           >
             Funds
+          </button>
+          <button
+            className={`navItem ${activeTab === "donations" ? "navItemActive" : ""}`}
+            onClick={() => setActiveTab("donations")}
+          >
+            Donations
           </button>
           <button
             className={`navItem ${activeTab === "expenses" ? "navItemActive" : ""}`}
@@ -3481,28 +3777,208 @@ export default function AdminPage() {
                   <thead>
                     <tr>
                       <th>Date</th>
+                      <th>Title</th>
                       <th>Category</th>
                       <th>Description</th>
                       <th>Amount</th>
                       <th>Status</th>
+                      {userRole === "SUPER_ADMIN" && (
+                        <th style={{ textAlign: "center" }}>ACTIONS</th>
+                      )}
                     </tr>
                   </thead>
                   <tbody>
                     {expenses.map((item) => (
                       <tr key={item.id}>
-                        <td>{item.date}</td>
+                        <td>
+                          {(() => {
+                            if (!item.date) return "";
+                            const parts = item.date.split("-");
+                            if (parts.length === 3 && parts[0].length === 4) {
+                              return `${parts[2]}-${parts[1]}-${parts[0]}`;
+                            }
+                            return item.date;
+                          })()}
+                        </td>
+                        <td style={{ fontWeight: "700", color: "var(--navy)" }}>
+                          {item.title}
+                        </td>
                         <td style={{ fontWeight: "600" }}>{item.category}</td>
                         <td>{item.desc}</td>
                         <td style={{ fontWeight: "700" }}>
                           ₹{item.amount.toLocaleString()}
                         </td>
                         <td>
-                          <span className="badge badgeSuccess">
+                          <span
+                            className={`badge ${
+                              item.status === "APPROVED"
+                                ? "badgeSuccess"
+                                : "badgeWarning"
+                            }`}
+                          >
                             {item.status}
                           </span>
                         </td>
+                        {userRole === "SUPER_ADMIN" && (
+                          <td style={{ textAlign: "center" }}>
+                            {item.status === "PENDING" && (
+                              <button
+                                type="button"
+                                onClick={() => handleApproveExpense(item.id)}
+                                style={{
+                                  background: "none",
+                                  border: "none",
+                                  color: "#10b981",
+                                  fontWeight: "700",
+                                  cursor: "pointer",
+                                  fontSize: "0.82rem",
+                                  marginRight: "8px",
+                                }}
+                              >
+                                Approve
+                              </button>
+                            )}
+                            {item.status === "APPROVED" && (
+                              <button
+                                type="button"
+                                onClick={() => handleCancelExpense(item.id)}
+                                style={{
+                                  background: "none",
+                                  border: "none",
+                                  color: "#ef4444",
+                                  fontWeight: "700",
+                                  cursor: "pointer",
+                                  fontSize: "0.82rem",
+                                }}
+                              >
+                                Cancel
+                              </button>
+                            )}
+                            {item.status === "CANCELLED" && "-"}
+                          </td>
+                        )}
                       </tr>
                     ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
+        )}
+
+        {activeTab === "donations" && (
+          <>
+            <div className="contentHeader">
+              <h2 className="pageTitle">Donation Logs</h2>
+              <button
+                className="addBtn"
+                onClick={() => setShowDonationModal(true)}
+              >
+                Record Donation
+              </button>
+            </div>
+
+            <div className="panelCard">
+              <div className="tableContainer">
+                <table className="adminTable">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Title</th>
+                      <th>Category</th>
+                      <th>Fund</th>
+                      <th>Amount</th>
+                      <th>Description</th>
+                      <th>Status</th>
+                      {userRole === "SUPER_ADMIN" && (
+                        <th style={{ textAlign: "center" }}>ACTIONS</th>
+                      )}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {donations.length === 0 ? (
+                      <tr>
+                        <td colSpan={userRole === "SUPER_ADMIN" ? 8 : 7} style={{ textAlign: "center", color: "#64748b" }}>
+                          No donations recorded yet.
+                        </td>
+                      </tr>
+                    ) : (
+                      donations.map((item) => (
+                        <tr key={item.id}>
+                          <td>
+                            {(() => {
+                              if (!item.date) return "";
+                              const parts = item.date.split("T")[0].split("-");
+                              if (parts.length === 3 && parts[0].length === 4) {
+                                return `${parts[2]}-${parts[1]}-${parts[0]}`;
+                              }
+                              return item.date.split("T")[0];
+                            })()}
+                          </td>
+                          <td style={{ fontWeight: "700", color: "var(--navy)" }}>
+                            {item.title}
+                          </td>
+                          <td style={{ fontWeight: "600" }}>{item.category}</td>
+                          <td style={{ fontWeight: "600" }}>{item.fund_name}</td>
+                          <td style={{ fontWeight: "700", color: "#10b981" }}>
+                            ₹{Number(item.amount).toLocaleString()}
+                          </td>
+                          <td>{item.desc || item.payment_note || "-"}</td>
+                          <td>
+                            <span
+                              className={`badge ${
+                                item.status === "APPROVED"
+                                  ? "badgeSuccess"
+                                  : item.status === "REJECTED" || item.status === "CANCELLED"
+                                  ? "badgeDanger"
+                                  : "badgeWarning"
+                              }`}
+                            >
+                              {item.status}
+                            </span>
+                          </td>
+                          {userRole === "SUPER_ADMIN" && (
+                            <td style={{ textAlign: "center" }}>
+                              {item.status === "PENDING" ? (
+                                <>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleApproveDonation(item)}
+                                    style={{
+                                      background: "none",
+                                      border: "none",
+                                      color: "#10b981",
+                                      fontWeight: "700",
+                                      cursor: "pointer",
+                                      fontSize: "0.82rem",
+                                      marginRight: "8px",
+                                    }}
+                                  >
+                                    Approve
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRejectDonation(item)}
+                                    style={{
+                                      background: "none",
+                                      border: "none",
+                                      color: "#ef4444",
+                                      fontWeight: "700",
+                                      cursor: "pointer",
+                                      fontSize: "0.82rem",
+                                    }}
+                                  >
+                                    Reject
+                                  </button>
+                                </>
+                              ) : (
+                                "-"
+                              )}
+                            </td>
+                          )}
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -3664,7 +4140,34 @@ export default function AdminPage() {
             </div>
 
             <div className="formGroup">
-              <label className="formLabel">Select Fund</label>
+              <label className="formLabel">Expense Title *</label>
+              <input
+                type="text"
+                className="inputField"
+                value={newExpense.title}
+                onChange={(e) =>
+                  setNewExpense({ ...newExpense, title: e.target.value })
+                }
+                placeholder="e.g. Purchase of saplings"
+                required
+              />
+            </div>
+
+            <div className="formGroup">
+              <label className="formLabel">Category</label>
+              <input
+                type="text"
+                className="inputField"
+                value={newExpense.category}
+                onChange={(e) =>
+                  setNewExpense({ ...newExpense, category: e.target.value })
+                }
+                placeholder="e.g. Tree Plantation Camp"
+              />
+            </div>
+
+            <div className="formGroup">
+              <label className="formLabel">Select Fund *</label>
               <select
                 className="inputField"
                 value={newExpense.fund_id}
@@ -3684,21 +4187,7 @@ export default function AdminPage() {
             </div>
 
             <div className="formGroup">
-              <label className="formLabel">Expense Category</label>
-              <input
-                type="text"
-                className="inputField"
-                value={newExpense.category}
-                onChange={(e) =>
-                  setNewExpense({ ...newExpense, category: e.target.value })
-                }
-                placeholder="e.g. Tree Plantation Camp"
-                required
-              />
-            </div>
-
-            <div className="formGroup">
-              <label className="formLabel">Amount (INR)</label>
+              <label className="formLabel">Amount (₹) *</label>
               <input
                 type="number"
                 className="inputField"
@@ -3707,6 +4196,19 @@ export default function AdminPage() {
                   setNewExpense({ ...newExpense, amount: e.target.value })
                 }
                 placeholder="e.g. 5000"
+                required
+              />
+            </div>
+
+            <div className="formGroup">
+              <label className="formLabel">Expense Date *</label>
+              <input
+                type="date"
+                className="inputField"
+                value={newExpense.expense_date}
+                onChange={(e) =>
+                  setNewExpense({ ...newExpense, expense_date: e.target.value })
+                }
                 required
               />
             </div>
@@ -3730,6 +4232,124 @@ export default function AdminPage() {
                 type="button"
                 className="btnCancel"
                 onClick={() => setShowExpenseModal(false)}
+              >
+                Cancel
+              </button>
+              <button type="submit" className="btnSubmit">
+                Save Entry
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+      {/* --- RECORD DONATION MODAL --- */}
+      {showDonationModal && (
+        <div className="modalBackdrop">
+          <form className="modalContent" onSubmit={handleAddDonation}>
+            <div className="modalHeader">
+              <h3 className="modalTitle">Record Donation / Income</h3>
+              <button
+                type="button"
+                className="closeBtn"
+                onClick={() => setShowDonationModal(false)}
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="formGroup">
+              <label className="formLabel">Donation Title *</label>
+              <input
+                type="text"
+                className="inputField"
+                value={newDonation.title}
+                onChange={(e) =>
+                  setNewDonation({ ...newDonation, title: e.target.value })
+                }
+                placeholder="e.g. Temple Festival Fund Contribution"
+                required
+              />
+            </div>
+
+            <div className="formGroup">
+              <label className="formLabel">Category</label>
+              <input
+                type="text"
+                className="inputField"
+                value={newDonation.category}
+                onChange={(e) =>
+                  setNewDonation({ ...newDonation, category: e.target.value })
+                }
+                placeholder="e.g. Special Event"
+              />
+            </div>
+
+            <div className="formGroup">
+              <label className="formLabel">Select Fund *</label>
+              <select
+                className="inputField"
+                value={newDonation.fund_id}
+                onChange={(e) =>
+                  setNewDonation({ ...newDonation, fund_id: e.target.value })
+                }
+                style={{ appearance: "none", background: "#ffffff" }}
+                required
+              >
+                <option value="">-- Choose Fund --</option>
+                {funds.map((f) => (
+                  <option key={f.id} value={f.id}>
+                    {f.name} (Balance: ₹{f.amount.toLocaleString()})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="formGroup">
+              <label className="formLabel">Amount (₹) *</label>
+              <input
+                type="number"
+                className="inputField"
+                value={newDonation.amount}
+                onChange={(e) =>
+                  setNewDonation({ ...newDonation, amount: e.target.value })
+                }
+                placeholder="e.g. 5000"
+                required
+              />
+            </div>
+
+            <div className="formGroup">
+              <label className="formLabel">Donation Date *</label>
+              <input
+                type="date"
+                className="inputField"
+                value={newDonation.date}
+                onChange={(e) =>
+                  setNewDonation({ ...newDonation, date: e.target.value })
+                }
+                required
+              />
+            </div>
+
+            <div className="formGroup">
+              <label className="formLabel">Description</label>
+              <textarea
+                className="inputField"
+                rows="3"
+                value={newDonation.description}
+                onChange={(e) =>
+                  setNewDonation({ ...newDonation, description: e.target.value })
+                }
+                placeholder="Describe details of the donation"
+                style={{ resize: "none" }}
+              />
+            </div>
+
+            <div className="modalFooter">
+              <button
+                type="button"
+                className="btnCancel"
+                onClick={() => setShowDonationModal(false)}
               >
                 Cancel
               </button>
