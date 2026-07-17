@@ -1,0 +1,220 @@
+.section {
+  padding: var(--section-py) 0;
+  background: var(--white);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 48px;
+  align-items: start;
+}
+
+/* Activities */
+.activitiesCol {}
+
+.sectionHeader {
+  margin-bottom: 28px;
+}
+
+.title {
+  font-size: clamp(1.4rem, 2.5vw, 1.8rem);
+  font-weight: 800;
+  color: var(--navy);
+}
+
+.titleAccent {
+  color: var(--saffron);
+}
+
+.activitiesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.activityCard {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  transition: all var(--transition-base);
+}
+
+.activityCard:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.activityImageWrap {
+  overflow: hidden;
+  height: 160px;
+}
+
+.activityImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-slow);
+}
+
+.activityCard:hover .activityImage {
+  transform: scale(1.08);
+}
+
+.activityInfo {
+  padding: 16px;
+}
+
+.activityTitle {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 6px;
+}
+
+.activityDesc {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.learnMore {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--saffron);
+  transition: gap var(--transition-fast);
+}
+
+.learnMore:hover {
+  gap: 8px;
+}
+
+/* Events */
+.eventsCol {
+  background: var(--off-white);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+}
+
+.eventsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.viewAll {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--saffron);
+}
+
+.viewAll:hover {
+  gap: 8px;
+}
+
+.eventsList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.eventCard {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px;
+  background: var(--white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base);
+}
+
+.eventCard:hover {
+  transform: translateX(4px);
+  box-shadow: var(--shadow-md);
+}
+
+.eventDate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 56px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 2px solid;
+}
+
+.eventMonth {
+  padding: 4px 12px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.eventDay {
+  padding: 6px 12px;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--navy);
+}
+
+.eventInfo {
+  flex: 1;
+}
+
+.eventTitle {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 4px;
+}
+
+.eventLocation {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.viewAllBottom {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--saffron);
+  margin-top: 20px;
+}
+
+.viewAllBottom:hover {
+  gap: 8px;
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 540px) {
+  .activitiesGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .eventsCol {
+    padding: 20px;
+  }
+}

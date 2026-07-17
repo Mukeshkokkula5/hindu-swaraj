@@ -1,0 +1,100 @@
+.testimonials {
+  padding: var(--section-py) 0;
+  background: var(--white);
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.carousel {
+  overflow: hidden;
+  border-radius: var(--radius-xl);
+}
+
+.carouselTrack {
+  display: flex;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.slide {
+  min-width: 100%;
+  padding: 0 20px;
+}
+
+.testimonialCard {
+  max-width: 750px;
+  margin: 0 auto;
+  background: var(--off-white);
+  border-radius: var(--radius-xl);
+  padding: 48px;
+  position: relative;
+}
+
+.quoteIcon {
+  margin-bottom: 16px;
+}
+
+.quote {
+  font-size: clamp(1rem, 1.5vw, 1.15rem);
+  color: var(--text-secondary);
+  line-height: 1.8;
+  margin-bottom: 32px;
+  font-style: italic;
+}
+
+.author {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.authorImage {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--saffron);
+}
+
+.authorName {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.authorRole {
+  font-size: 0.82rem;
+  color: var(--saffron);
+  font-weight: 500;
+}
+
+.dots {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 32px;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--border-light);
+  border: none;
+  transition: all var(--transition-base);
+  padding: 0;
+}
+
+.dotActive {
+  background: var(--saffron);
+  width: 32px;
+  border-radius: 6px;
+}
+
+@media (max-width: 600px) {
+  .testimonialCard {
+    padding: 28px 20px;
+  }
+}

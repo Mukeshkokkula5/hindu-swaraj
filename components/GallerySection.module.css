@@ -1,0 +1,152 @@
+.gallery {
+  padding: var(--section-py) 0;
+  background: var(--bg-section-alt);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 40px;
+}
+
+.viewAll {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--saffron);
+  transition: gap var(--transition-fast);
+}
+
+.viewAll:hover {
+  gap: 8px;
+}
+
+.masonryGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: 200px;
+  gap: 16px;
+}
+
+.gridItem {
+  position: relative;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.gridItemTall {
+  grid-row: span 2;
+}
+
+.gridItemWide {
+  grid-column: span 2;
+}
+
+.gridImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-slow);
+}
+
+.gridItem:hover .gridImage {
+  transform: scale(1.08);
+}
+
+.gridOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(11, 19, 43, 0.8), transparent 60%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 20px;
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
+.gridItem:hover .gridOverlay {
+  opacity: 1;
+}
+
+.gridCategory {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--saffron);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 4px;
+}
+
+.gridAlt {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--white);
+}
+
+/* Lightbox */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  animation: scaleIn 0.3s ease;
+}
+
+.lightboxClose {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  background: none;
+  color: var(--white);
+  font-size: 1.5rem;
+  padding: 8px;
+  z-index: 10;
+}
+
+.lightboxImage {
+  max-width: 90vw;
+  max-height: 80vh;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+}
+
+.lightboxCaption {
+  color: var(--white);
+  margin-top: 16px;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+@media (max-width: 900px) {
+  .masonryGrid {
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: 160px;
+  }
+}
+
+@media (max-width: 600px) {
+  .masonryGrid {
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: 140px;
+  }
+
+  .gridItemWide {
+    grid-column: span 1;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+}

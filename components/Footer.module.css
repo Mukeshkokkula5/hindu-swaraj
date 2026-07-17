@@ -1,0 +1,210 @@
+.footer {
+  background: var(--navy);
+  padding: 64px 0 0;
+}
+
+.footerGrid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: 40px;
+  padding-bottom: 48px;
+}
+
+.footerCol {}
+
+/* Logo */
+.footerLogo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.footerLogoImg {
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.footerBrand {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--white);
+  line-height: 1.2;
+  display: block;
+}
+
+.footerBrandSub {
+  font-size: 0.6rem;
+  font-weight: 500;
+  color: var(--saffron-light);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  display: block;
+}
+
+.footerTagline {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.7;
+}
+
+/* Footer titles */
+.footerTitle {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 20px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* Contact */
+.contactList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.contactItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.contactItem svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* Social */
+.socialIcons {
+  display: flex;
+  gap: 10px;
+}
+
+.socialIcon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.7);
+  transition: all var(--transition-fast);
+}
+
+.socialIcon:hover {
+  background: var(--saffron);
+  color: var(--white);
+  transform: translateY(-2px);
+}
+
+/* Links */
+.linksList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.footerLink {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+  transition: all var(--transition-fast);
+}
+
+.footerLink:hover {
+  color: var(--saffron);
+  padding-left: 4px;
+}
+
+/* Newsletter */
+.newsletterText {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.newsletterForm {
+  display: flex;
+  gap: 0;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.newsletterInput {
+  flex: 1;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  color: var(--white);
+  font-size: 0.85rem;
+  font-family: inherit;
+  outline: none;
+}
+
+.newsletterInput::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.subscribeBtn {
+  padding: 12px 20px;
+  background: var(--saffron);
+  color: var(--white);
+  font-size: 0.82rem;
+  font-weight: 600;
+  font-family: inherit;
+  transition: background var(--transition-fast);
+}
+
+.subscribeBtn:hover {
+  background: var(--saffron-dark);
+}
+
+/* Bottom bar */
+.bottomBar {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 20px 0;
+}
+
+.bottomBarInner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.madeWith {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.heart {
+  font-size: 0.9rem;
+}
+
+@media (max-width: 900px) {
+  .footerGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+}
+
+@media (max-width: 600px) {
+  .footerGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .bottomBarInner {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+}

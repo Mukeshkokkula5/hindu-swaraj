@@ -1,0 +1,104 @@
+.impact {
+  position: relative;
+  z-index: 10;
+  margin-top: -60px;
+  padding: 0 var(--section-px);
+}
+
+.impactContainer {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  background: linear-gradient(135deg, var(--saffron), var(--saffron-dark));
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(255, 107, 0, 0.3);
+}
+
+.counterCard {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 32px 28px;
+  position: relative;
+  transition: all var(--transition-base);
+}
+
+.counterCard:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 20%;
+  height: 60%;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.counterCard:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.counterIcon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.counterInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.counterValue {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--white);
+  line-height: 1.2;
+}
+
+.counterLabel {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  margin-top: 2px;
+}
+
+.counterSub {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.65);
+  margin-top: 2px;
+}
+
+@media (max-width: 1024px) {
+  .impactContainer {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .counterCard:nth-child(2)::after {
+    display: none;
+  }
+
+  .counterCard:nth-child(1)::after,
+  .counterCard:nth-child(3)::after {
+    display: block;
+  }
+}
+
+@media (max-width: 540px) {
+  .impactContainer {
+    grid-template-columns: 1fr;
+  }
+
+  .counterCard::after {
+    display: none !important;
+  }
+
+  .counterCard:not(:last-child) {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  .impact {
+    margin-top: -40px;
+  }
+}

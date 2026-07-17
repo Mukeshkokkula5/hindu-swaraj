@@ -1,0 +1,337 @@
+.donation {
+  padding: var(--section-py) 0;
+  background: var(--bg-section-alt);
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.subtitle {
+  margin: 0 auto;
+  text-align: center;
+}
+
+.donationBox {
+  max-width: 680px;
+  margin: 0 auto;
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  padding: 40px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid rgba(255, 107, 0, 0.08);
+}
+
+.tabContainer {
+  display: flex;
+  background: var(--off-white);
+  border-radius: var(--radius-full);
+  padding: 6px;
+  margin-bottom: 32px;
+  border: 1px solid var(--border-light);
+}
+
+.tabBtn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 20px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: transparent;
+  border-radius: var(--radius-full);
+  transition: all var(--transition-base);
+}
+
+.tabBtnActive {
+  background: var(--white);
+  color: var(--saffron);
+  box-shadow: var(--shadow-sm);
+}
+
+.amountSection {
+  margin-bottom: 32px;
+}
+
+.fieldLabel {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.amountsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.amountCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 16px;
+  background: var(--off-white);
+  border: 2px solid transparent;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-base);
+  cursor: pointer;
+}
+
+.amountCard:hover {
+  border-color: var(--saffron-light);
+  transform: translateY(-2px);
+}
+
+.amountCardActive {
+  border-color: var(--saffron);
+  background: rgba(255, 107, 0, 0.06);
+  box-shadow: 0 0 0 4px rgba(255, 107, 0, 0.1);
+}
+
+.currency {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.amount {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--navy);
+}
+
+.customInput {
+  display: flex;
+  align-items: center;
+  background: var(--off-white);
+  border-radius: var(--radius-md);
+  padding: 0 20px;
+  border: 2px solid var(--border-light);
+  transition: border-color var(--transition-fast);
+}
+
+.customInput:focus-within {
+  border-color: var(--saffron);
+  background: var(--white);
+}
+
+.customCurrency {
+  font-size: 1.2rem;
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-right: 8px;
+}
+
+.input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 14px 0;
+  font-size: 1rem;
+  font-family: inherit;
+  color: var(--navy);
+  outline: none;
+}
+
+.tabContent {
+  border-top: 1px solid var(--border-light);
+  padding-top: 32px;
+  margin-bottom: 24px;
+}
+
+.upiContent {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+}
+
+.qrWrapper {
+  background: var(--white);
+  padding: 16px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 232px;
+  min-height: 232px;
+  box-shadow: var(--shadow-sm);
+}
+
+.qrImage {
+  width: 200px;
+  height: 200px;
+  display: block;
+}
+
+.qrPlaceholder {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  text-align: center;
+  max-width: 180px;
+}
+
+.upiDetails {
+  flex: 1;
+}
+
+.qrInstructions {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.copyableField {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--off-white);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  border: 1px solid var(--border-light);
+}
+
+.fieldValueInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.detailLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.detailValue {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--navy);
+}
+
+.copyBtn {
+  background: var(--white);
+  color: var(--saffron);
+  border: 1px solid rgba(255, 107, 0, 0.3);
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+}
+
+.copyBtn:hover {
+  background: var(--saffron);
+  color: var(--white);
+  border-color: var(--saffron);
+}
+
+.bankInstructions {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+
+.bankGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.bankDetailItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--off-white);
+  padding: 14px 20px;
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--saffron);
+}
+
+.bankLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+}
+
+.bankVal {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--navy);
+}
+
+.bankValHighlight {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--navy);
+  letter-spacing: 0.5px;
+}
+
+.copyRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.copyTextBtn {
+  background: transparent;
+  color: var(--saffron);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color var(--transition-fast);
+}
+
+.copyTextBtn:hover {
+  background: rgba(255, 107, 0, 0.08);
+}
+
+.secureBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 16px;
+}
+
+.secureBadge svg {
+  color: var(--saffron);
+}
+
+@media (max-width: 640px) {
+  .amountsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .upiContent {
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .qrWrapper {
+    width: 100%;
+  }
+
+  .donationBox {
+    padding: 24px 16px;
+  }
+}
