@@ -27,9 +27,13 @@ export default function DonationSection() {
     upiId: '45378236294@sbi'
   };
 
-  // Generate UPI URI (Omit preset amount and use simplified payee name to ensure compatibility with all scanners)
-  const upiUri = `upi://pay?pa=${bankDetails.upiId}&pn=Hindu%20Swaraj&cu=INR`;
-  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiUri)}`;
+  // Generate UPI URIs
+  // 1. QR code URI (Omitting preset amount ensures compatibility with all scanner applications)
+  const upiQrUri = `upi://pay?pa=${bankDetails.upiId}&pn=Hindu%20Swaraj&cu=INR`;
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiQrUri)}`;
+
+  // 2. Mobile Intent URI (Including preset amount so it pre-fills inside the payee's app when clicked)
+  const upiIntentUri = `upi://pay?pa=${bankDetails.upiId}&pn=Hindu%20Swaraj&am=${currentAmount}&cu=INR`;
 
   const copyToClipboard = (text, fieldName) => {
     navigator.clipboard.writeText(text);
@@ -130,6 +134,28 @@ export default function DonationSection() {
                       {copiedField === 'upi' ? 'Copied!' : 'Copy'}
                     </button>
                   </div>
+                  <a
+                    href={upiIntentUri}
+                    className={styles.mobilePayBtn}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "8px",
+                      background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                      color: "#ffffff",
+                      padding: "12px 24px",
+                      borderRadius: "8px",
+                      fontWeight: "700",
+                      textDecoration: "none",
+                      marginTop: "16px",
+                      boxShadow: "0 4px 6px rgba(16, 185, 129, 0.2)",
+                      width: "100%",
+                      textAlign: "center"
+                    }}
+                  >
+                    ⚡ Pay via UPI App (Mobile Only)
+                  </a>
                 </div>
               </div>
             ) : (
