@@ -69,7 +69,11 @@ const numberToWords = (num) => {
   return str.trim();
 };
 
-const downloadReceiptPDF = (donation, triggerPrint = true, setLoading = null) => {
+const downloadReceiptPDF = (
+  donation,
+  triggerPrint = true,
+  setLoading = null,
+) => {
   if (setLoading) {
     setLoading(true);
     setTimeout(() => {
@@ -86,7 +90,6 @@ const downloadReceiptPDF = (donation, triggerPrint = true, setLoading = null) =>
 
     const logoUrl = window.location.origin + "/images/logo_v2.png";
     const sigUrl = window.location.origin + "/images/signature.jpg";
-
 
     const dateStr = donation.date
       ? new Date(donation.date).toLocaleDateString("en-IN", {
@@ -743,7 +746,6 @@ const downloadReceiptPDF = (donation, triggerPrint = true, setLoading = null) =>
   }
 };
 
-
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState("");
@@ -826,6 +828,8 @@ export default function AdminPage() {
   const [funds, setFunds] = useState([]);
   const [contributions, setContributions] = useState([]);
   const [donations, setDonations] = useState([]);
+  const [onlineDonations, setOnlineDonations] = useState([]);
+  const [donationTab, setDonationTab] = useState("online");
   const [newFund, setNewFund] = useState({
     name: "",
     type: "MONTHLY",
@@ -1093,6 +1097,13 @@ export default function AdminPage() {
       console.warn("Failed to fetch donations from backend:", err.message);
       const local = localStorage.getItem("admin_donations");
       if (local) setDonations(JSON.parse(local));
+    }
+
+    try {
+      const fetchedOnline = await fetchAPI("/payment/transactions");
+      setOnlineDonations(fetchedOnline);
+    } catch (err) {
+      console.warn("Failed to fetch online transactions:", err.message);
     }
 
     try {
@@ -1651,7 +1662,7 @@ export default function AdminPage() {
         } finally {
           setLoading(false);
         }
-      }
+      },
     });
   };
 
@@ -1689,9 +1700,9 @@ export default function AdminPage() {
           })
         : "";
 
-      const baseUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || window.location.origin;
+      const baseUrl =
+        process.env.NEXT_PUBLIC_FRONTEND_URL || window.location.origin;
       const receiptUrl = `${baseUrl}/receipt/${donation.public_token || donation.id}`;
-
 
       const message = `*HINDU SWARAJ YOUTH WELFARE ASSOCIATION*
 
@@ -1764,7 +1775,7 @@ _This is an official computer-generated receipt._`;
         } finally {
           setLoading(false);
         }
-      }
+      },
     });
   };
 
@@ -4902,213 +4913,147 @@ _This is an official computer-generated receipt._`;
               </button>
             </div>
 
+            <div
+              style={{
+                display: "flex",
+                gap: "10px",
+                marginBottom: "20px",
+                borderBottom: "1px solid #e2e8f0",
+                paddingBottom: "10px",
+              }}
+            >
+              <button
+                onClick={() => setDonationTab("online")}
+                style={{
+                  padding: "8px 16px",
+                  borderRadius: "6px",
+                  border: "none",
+                  fontWeight: "600",
+                  cursor: "pointer",
+                  backgroundColor:
+                    donationTab === "online" ? "var(--saffron)" : "transparent",
+                  color: donationTab === "online" ? "white" : "#64748b",
+                  transition: "all 0.2s",
+                }}
+              >
+                Online (Razorpay)
+              </button>
+              <button
+                onClick={() => setDonationTab("offline")}
+                style={{
+                  padding: "8px 16px",
+                  borderRadius: "6px",
+                  border: "none",
+                  fontWeight: "600",
+                  cursor: "pointer",
+                  backgroundColor:
+                    donationTab === "offline"
+                      ? "var(--saffron)"
+                      : "transparent",
+                  color: donationTab === "offline" ? "white" : "#64748b",
+                  transition: "all 0.2s",
+                }}
+              >
+                Offline (Personal Entries)
+              </button>
+            </div>
+
             <div className="panelCard">
               <div className="tableContainer">
-                <table className="adminTable">
-                  <thead>
-                    <tr>
-                      <th>Date</th>
-                      <th>Donor Name</th>
-                      <th>Mobile Number</th>
-                      <th>Fund Category</th>
-                      <th>Amount</th>
-                      <th>Description</th>
-                      <th>Status</th>
-                      <th>Receipt</th>
-                      {userRole === "SUPER_ADMIN" && (
-                        <th style={{ textAlign: "center" }}>ACTIONS</th>
-                      )}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {donations.length === 0 ? (
+                {donationTab === "offline" ? (
+                  <table className="adminTable">
+                    <thead>
                       <tr>
-                        <td
-                          colSpan={userRole === "SUPER_ADMIN" ? 9 : 8}
-                          style={{ textAlign: "center", color: "#64748b" }}
-                        >
-                          No donations recorded yet.
-                        </td>
+                        <th>Date</th>
+                        <th>Donor Name</th>
+                        <th>Mobile Number</th>
+                        <th>Fund Category</th>
+                        <th>Amount</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th>Receipt</th>
+                        {userRole === "SUPER_ADMIN" && (
+                          <th style={{ textAlign: "center" }}>ACTIONS</th>
+                        )}
                       </tr>
-                    ) : (
-                      donations.map((item) => (
-                        <tr key={item.id}>
-                          <td>
-                            {(() => {
-                              if (!item.date) return "";
-                              const parts = item.date.split("T")[0].split("-");
-                              if (parts.length === 3 && parts[0].length === 4) {
-                                return `${parts[2]}-${parts[1]}-${parts[0]}`;
-                              }
-                              return item.date.split("T")[0];
-                            })()}
-                          </td>
+                    </thead>
+                    <tbody>
+                      {donations.length === 0 ? (
+                        <tr>
                           <td
-                            style={{ fontWeight: "700", color: "var(--navy)" }}
+                            colSpan={userRole === "SUPER_ADMIN" ? 9 : 8}
+                            style={{ textAlign: "center", color: "#64748b" }}
                           >
-                            {item.title}
+                            No donations recorded yet.
                           </td>
-                          <td>{item.phone || "-"}</td>
-                          <td style={{ fontWeight: "600" }}>
-                            {item.fund_name}
-                          </td>
-                          <td style={{ fontWeight: "700", color: "#10b981" }}>
-                            ₹{Number(item.amount).toLocaleString()}
-                          </td>
-                          <td>{item.desc || item.payment_note || "-"}</td>
-                          <td>
-                            <span
-                              className={`badge ${
-                                item.status === "APPROVED"
-                                  ? "badgeSuccess"
-                                  : item.status === "REJECTED" ||
-                                      item.status === "CANCELLED"
-                                    ? "badgeDanger"
-                                    : "badgeWarning"
-                              }`}
-                            >
-                              {item.status}
-                            </span>
-                          </td>
-                          <td>
-                            <div
+                        </tr>
+                      ) : (
+                        donations.map((item) => (
+                          <tr key={item.id}>
+                            <td>
+                              {(() => {
+                                if (!item.date) return "";
+                                const parts = item.date
+                                  .split("T")[0]
+                                  .split("-");
+                                if (
+                                  parts.length === 3 &&
+                                  parts[0].length === 4
+                                ) {
+                                  return `${parts[2]}-${parts[1]}-${parts[0]}`;
+                                }
+                                return item.date.split("T")[0];
+                              })()}
+                            </td>
+                            <td
                               style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "10px",
+                                fontWeight: "700",
+                                color: "var(--navy)",
                               }}
                             >
-                              {/* View Receipt */}
-                              <button
-                                type="button"
-                                onClick={() => downloadReceiptPDF(item, false, setLoading)}
-                                title="View Receipt"
-                                style={{
-                                  background: "none",
-                                  border: "none",
-                                  color: "#2563eb",
-                                  cursor: "pointer",
-                                  display: "flex",
-                                  alignItems: "center",
-                                }}
+                              {item.title}
+                            </td>
+                            <td>{item.phone || "-"}</td>
+                            <td style={{ fontWeight: "600" }}>
+                              {item.fund_name}
+                            </td>
+                            <td style={{ fontWeight: "700", color: "#10b981" }}>
+                              ₹{Number(item.amount).toLocaleString()}
+                            </td>
+                            <td>{item.desc || item.payment_note || "-"}</td>
+                            <td>
+                              <span
+                                className={`badge ${
+                                  item.status === "APPROVED"
+                                    ? "badgeSuccess"
+                                    : item.status === "REJECTED" ||
+                                        item.status === "CANCELLED"
+                                      ? "badgeDanger"
+                                      : "badgeWarning"
+                                }`}
                               >
-                                <svg
-                                  width="16"
-                                  height="16"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth="2"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z" />
-                                  <circle cx="12" cy="12" r="3" />
-                                </svg>
-                              </button>
-
-                              {/* Download Receipt */}
-                              <button
-                                type="button"
-                                onClick={() => downloadReceiptPDF(item, true, setLoading)}
-                                title="Download / Print Receipt"
-                                style={{
-                                  background: "none",
-                                  border: "none",
-                                  color: "#10b981",
-                                  cursor: "pointer",
-                                  display: "flex",
-                                  alignItems: "center",
-                                }}
-                              >
-                                <svg
-                                  width="16"
-                                  height="16"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth="2"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
-                                </svg>
-                              </button>
-
-                              {/* WhatsApp Share */}
-                              <button
-                                type="button"
-                                onClick={() => shareOnWhatsApp(item)}
-                                title="Share via WhatsApp"
-                                style={{
-                                  background: "none",
-                                  border: "none",
-                                  color: "#25d366",
-                                  cursor: "pointer",
-                                  display: "flex",
-                                  alignItems: "center",
-                                }}
-                              >
-                                <svg
-                                  width="16"
-                                  height="16"
-                                  fill="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path d="M12.031 0A12.015 12.015 0 0 0 0 12.03c0 2.159.569 4.261 1.644 6.131L0 24l6.196-1.625c1.803.985 3.829 1.505 5.83 1.505C18.66 23.88 24 18.54 24 12.03 24 5.4 18.66 0 12.03 0zm5.952 17.067c-.244.685-1.22 1.252-1.682 1.343-.456.09-1.02.164-3.03-.667-2.57-1.061-4.22-3.69-4.35-3.86-.13-.17-1.04-1.38-1.04-2.63s.65-1.86.88-2.1c.23-.24.5-.3.67-.3h.48c.15 0 .35-.06.55.42.2.49.68 1.66.74 1.78.06.12.1.26.02.42-.08.16-.12.26-.24.4-.12.14-.25.3-.36.43-.12.12-.25.26-.1.52.15.26.68 1.12 1.46 1.82.99.9 1.83 1.18 2.09 1.31.26.13.41.11.56-.06.15-.17.65-.75.82-.99.18-.24.35-.2.6-.11.24.09 1.55.73 1.81.86.26.13.44.2.5.31.07.11.07.64-.17 1.33z" />
-                                </svg>
-                              </button>
-                            </div>
-                          </td>
-                          {userRole === "SUPER_ADMIN" && (
-                            <td style={{ textAlign: "center" }}>
+                                {item.status}
+                              </span>
+                            </td>
+                            <td>
                               <div
                                 style={{
                                   display: "flex",
                                   alignItems: "center",
-                                  justifyContent: "center",
-                                  gap: "8px",
+                                  gap: "10px",
                                 }}
                               >
-                                {item.status === "PENDING" && (
-                                  <>
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        handleApproveDonation(item)
-                                      }
-                                      style={{
-                                        background: "none",
-                                        border: "none",
-                                        color: "#10b981",
-                                        fontWeight: "700",
-                                        cursor: "pointer",
-                                        fontSize: "0.82rem",
-                                      }}
-                                    >
-                                      Approve
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={() => handleRejectDonation(item)}
-                                      style={{
-                                        background: "none",
-                                        border: "none",
-                                        color: "#ef4444",
-                                        fontWeight: "700",
-                                        cursor: "pointer",
-                                        fontSize: "0.82rem",
-                                      }}
-                                    >
-                                      Reject
-                                    </button>
-                                    <span style={{ color: "#cbd5e1" }}>|</span>
-                                  </>
-                                )}
+                                {/* View Receipt */}
                                 <button
                                   type="button"
-                                  onClick={() => handleEditDonation(item)}
-                                  title="Edit Donation"
+                                  onClick={() =>
+                                    downloadReceiptPDF(item, false, setLoading)
+                                  }
+                                  title="View Receipt"
                                   style={{
                                     background: "none",
                                     border: "none",
-                                    color: "#3b82f6",
+                                    color: "#2563eb",
                                     cursor: "pointer",
                                     display: "flex",
                                     alignItems: "center",
@@ -5122,17 +5067,22 @@ _This is an official computer-generated receipt._`;
                                     strokeWidth="2"
                                     viewBox="0 0 24 24"
                                   >
-                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4Z" />
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z" />
+                                    <circle cx="12" cy="12" r="3" />
                                   </svg>
                                 </button>
+
+                                {/* Download Receipt */}
                                 <button
                                   type="button"
-                                  onClick={() => handleDeleteDonation(item.id)}
-                                  title="Delete Donation"
+                                  onClick={() =>
+                                    downloadReceiptPDF(item, true, setLoading)
+                                  }
+                                  title="Download / Print Receipt"
                                   style={{
                                     background: "none",
                                     border: "none",
-                                    color: "#ef4444",
+                                    color: "#10b981",
                                     cursor: "pointer",
                                     display: "flex",
                                     alignItems: "center",
@@ -5146,30 +5096,264 @@ _This is an official computer-generated receipt._`;
                                     strokeWidth="2"
                                     viewBox="0 0 24 24"
                                   >
-                                    <polyline points="3 6 5 6 21 6"></polyline>
-                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                    <line
-                                      x1="10"
-                                      y1="11"
-                                      x2="10"
-                                      y2="17"
-                                    ></line>
-                                    <line
-                                      x1="14"
-                                      y1="11"
-                                      x2="14"
-                                      y2="17"
-                                    ></line>
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
+                                  </svg>
+                                </button>
+
+                                {/* WhatsApp Share */}
+                                <button
+                                  type="button"
+                                  onClick={() => shareOnWhatsApp(item)}
+                                  title="Share via WhatsApp"
+                                  style={{
+                                    background: "none",
+                                    border: "none",
+                                    color: "#25d366",
+                                    cursor: "pointer",
+                                    display: "flex",
+                                    alignItems: "center",
+                                  }}
+                                >
+                                  <svg
+                                    width="16"
+                                    height="16"
+                                    fill="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path d="M12.031 0A12.015 12.015 0 0 0 0 12.03c0 2.159.569 4.261 1.644 6.131L0 24l6.196-1.625c1.803.985 3.829 1.505 5.83 1.505C18.66 23.88 24 18.54 24 12.03 24 5.4 18.66 0 12.03 0zm5.952 17.067c-.244.685-1.22 1.252-1.682 1.343-.456.09-1.02.164-3.03-.667-2.57-1.061-4.22-3.69-4.35-3.86-.13-.17-1.04-1.38-1.04-2.63s.65-1.86.88-2.1c.23-.24.5-.3.67-.3h.48c.15 0 .35-.06.55.42.2.49.68 1.66.74 1.78.06.12.1.26.02.42-.08.16-.12.26-.24.4-.12.14-.25.3-.36.43-.12.12-.25.26-.1.52.15.26.68 1.12 1.46 1.82.99.9 1.83 1.18 2.09 1.31.26.13.41.11.56-.06.15-.17.65-.75.82-.99.18-.24.35-.2.6-.11.24.09 1.55.73 1.81.86.26.13.44.2.5.31.07.11.07.64-.17 1.33z" />
                                   </svg>
                                 </button>
                               </div>
                             </td>
-                          )}
+                            {userRole === "SUPER_ADMIN" && (
+                              <td style={{ textAlign: "center" }}>
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    gap: "8px",
+                                  }}
+                                >
+                                  {item.status === "PENDING" && (
+                                    <>
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          handleApproveDonation(item)
+                                        }
+                                        style={{
+                                          background: "none",
+                                          border: "none",
+                                          color: "#10b981",
+                                          fontWeight: "700",
+                                          cursor: "pointer",
+                                          fontSize: "0.82rem",
+                                        }}
+                                      >
+                                        Approve
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          handleRejectDonation(item)
+                                        }
+                                        style={{
+                                          background: "none",
+                                          border: "none",
+                                          color: "#ef4444",
+                                          fontWeight: "700",
+                                          cursor: "pointer",
+                                          fontSize: "0.82rem",
+                                        }}
+                                      >
+                                        Reject
+                                      </button>
+                                      <span style={{ color: "#cbd5e1" }}>
+                                        |
+                                      </span>
+                                    </>
+                                  )}
+                                  <button
+                                    type="button"
+                                    onClick={() => handleEditDonation(item)}
+                                    title="Edit Donation"
+                                    style={{
+                                      background: "none",
+                                      border: "none",
+                                      color: "#3b82f6",
+                                      cursor: "pointer",
+                                      display: "flex",
+                                      alignItems: "center",
+                                    }}
+                                  >
+                                    <svg
+                                      width="16"
+                                      height="16"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth="2"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4Z" />
+                                    </svg>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      handleDeleteDonation(item.id)
+                                    }
+                                    title="Delete Record"
+                                    style={{
+                                      background: "none",
+                                      border: "none",
+                                      color: "#ef4444",
+                                      cursor: "pointer",
+                                      display: "flex",
+                                      alignItems: "center",
+                                    }}
+                                  >
+                                    <svg
+                                      width="16"
+                                      height="16"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth="2"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <polyline points="3 6 5 6 21 6"></polyline>
+                                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                      <line
+                                        x1="10"
+                                        y1="11"
+                                        x2="10"
+                                        y2="17"
+                                      ></line>
+                                      <line
+                                        x1="14"
+                                        y1="11"
+                                        x2="14"
+                                        y2="17"
+                                      ></line>
+                                    </svg>
+                                  </button>
+                                </div>
+                              </td>
+                            )}
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                ) : (
+                  <table className="adminTable">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Order ID</th>
+                        <th>Donor Name</th>
+                        <th>Mobile Number</th>
+                        <th>Email</th>
+                        <th>FUND CATEGORY</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Receipt</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {onlineDonations.length === 0 ? (
+                        <tr>
+                          <td
+                            colSpan={8}
+                            style={{
+                              textAlign: "center",
+                              color: "#64748b",
+                              padding: "30px",
+                            }}
+                          >
+                            No online transactions found.
+                          </td>
                         </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
+                      ) : (
+                        onlineDonations.map((item) => (
+                          <tr key={item.id}>
+                            <td>
+                              {new Date(item.created_at).toLocaleDateString(
+                                "en-IN",
+                              )}
+                            </td>
+                            <td
+                              style={{
+                                fontFamily: "monospace",
+                                color: "var(--navy)",
+                              }}
+                            >
+                              {item.order_id}
+                            </td>
+                            <td style={{ fontWeight: "700" }}>
+                              {item.payer_name}
+                            </td>
+                            <td>{item.mobile_number || "-"}</td>
+                            <td>{item.email || "-"}</td>
+                            <td style={{ fontWeight: "700" }}>
+                              {item.fund_type || "General Donation"}
+                            </td>
+                            <td style={{ fontWeight: "700", color: "#10b981" }}>
+                              ₹{Number(item.amount).toLocaleString("en-IN")}
+                            </td>
+                            <td>
+                              <span
+                                className={`badge ${
+                                  item.status === "SUCCESS"
+                                    ? "badgeSuccess"
+                                    : item.status === "PENDING"
+                                      ? "badgeWarning"
+                                      : "badgeDanger"
+                                }`}
+                              >
+                                {item.status}
+                              </span>
+                            </td>
+                            <td>
+                              {item.status === "SUCCESS" && (
+                                <a
+                                  href={`http://localhost:4000/receipts/verify/${item.order_id}`}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  style={{
+                                    color: "#2563eb",
+                                    textDecoration: "none",
+                                    fontWeight: "600",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "4px",
+                                  }}
+                                >
+                                  View
+                                  <svg
+                                    width="14"
+                                    height="14"
+                                    fill="currentColor"
+                                    viewBox="0 0 16 16"
+                                  >
+                                    <path
+                                      fillRule="evenodd"
+                                      d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z"
+                                    />
+                                    <path
+                                      fillRule="evenodd"
+                                      d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z"
+                                    />
+                                  </svg>
+                                </a>
+                              )}
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                )}
               </div>
             </div>
           </>
@@ -5559,17 +5743,51 @@ _This is an official computer-generated receipt._`;
 
       {confirmDialog.show && (
         <div className="modalBackdrop" style={{ zIndex: 10000 }}>
-          <div className="modalContent" style={{ maxWidth: "420px", textAlign: "center", padding: "30px 24px" }}>
-            <h3 className="modalTitle" style={{ marginBottom: "14px", color: "var(--navy)", fontSize: "1.25rem" }}>Confirm Action</h3>
-            <p style={{ fontSize: "0.92rem", color: "#64748b", lineHeight: "1.5", marginBottom: "24px" }}>
+          <div
+            className="modalContent"
+            style={{
+              maxWidth: "420px",
+              textAlign: "center",
+              padding: "30px 24px",
+            }}
+          >
+            <h3
+              className="modalTitle"
+              style={{
+                marginBottom: "14px",
+                color: "var(--navy)",
+                fontSize: "1.25rem",
+              }}
+            >
+              Confirm Action
+            </h3>
+            <p
+              style={{
+                fontSize: "0.92rem",
+                color: "#64748b",
+                lineHeight: "1.5",
+                marginBottom: "24px",
+              }}
+            >
               {confirmDialog.message}
             </p>
-            <div className="modalFooter" style={{ justifyContent: "center", gap: "12px", marginTop: "0" }}>
+            <div
+              className="modalFooter"
+              style={{ justifyContent: "center", gap: "12px", marginTop: "0" }}
+            >
               <button
                 type="button"
                 className="btnCancel"
                 style={{ padding: "8px 20px" }}
-                onClick={() => setConfirmDialog({ show: false, message: "", onConfirm: null, confirmBtnText: "Confirm", confirmBtnColor: "var(--saffron)" })}
+                onClick={() =>
+                  setConfirmDialog({
+                    show: false,
+                    message: "",
+                    onConfirm: null,
+                    confirmBtnText: "Confirm",
+                    confirmBtnColor: "var(--saffron)",
+                  })
+                }
               >
                 Cancel
               </button>
@@ -5584,7 +5802,13 @@ _This is an official computer-generated receipt._`;
                 }}
                 onClick={() => {
                   if (confirmDialog.onConfirm) confirmDialog.onConfirm();
-                  setConfirmDialog({ show: false, message: "", onConfirm: null, confirmBtnText: "Confirm", confirmBtnColor: "var(--saffron)" });
+                  setConfirmDialog({
+                    show: false,
+                    message: "",
+                    onConfirm: null,
+                    confirmBtnText: "Confirm",
+                    confirmBtnColor: "var(--saffron)",
+                  });
                 }}
               >
                 {confirmDialog.confirmBtnText}

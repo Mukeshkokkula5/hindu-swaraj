@@ -1,14 +1,48 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import styles from './DonationSection.module.css';
 
 const amounts = [100, 500, 1000, 5000];
 
 export default function DonationSection() {
+  const router = useRouter();
   const [selected, setSelected] = useState(500);
   const [custom, setCustom] = useState('');
-  const [activeTab, setActiveTab] = useState('upi'); // 'upi' or 'bank'
-  const [copiedField, setCopiedField] = useState(null);
+  
+  // Donor Form State
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    mobile: '',
+    address: '',
+    fundType: 'Youth Development Programs'
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [fundTypes, setFundTypes] = useState([]);
+
+  useEffect(() => {
+    const fetchFundTypes = async () => {
+      try {
+        const baseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000').replace(/\/$/, '');
+        const response = await fetch(`${baseUrl}/contributions/funds`);
+        if (response.ok) {
+          const data = await response.json();
+          setFundTypes(data);
+          if (data.length > 0) {
+            setFormData(prev => ({ ...prev, fundType: data[0] }));
+          }
+        } else {
+          console.error(`API Error: ${response.status} - ${await response.text()}`);
+        }
+      } catch (err) {
+        console.error('Failed to fetch fund types. Is the backend running? Error:', err);
+      }
+    };
+    fetchFundTypes();
+  }, []);
 
   const getAmount = () => {
     if (custom) return parseFloat(custom) || 0;
@@ -17,28 +51,118 @@ export default function DonationSection() {
 
   const currentAmount = getAmount();
 
-  // SBI Current Account Details
-  const bankDetails = {
-    name: 'HINDUSWARAJ YOUTH WELFARE ASSOCIATION J AGTIAL',
-    accountNumber: '45378236294',
-    ifsc: 'SBIN0020135',
-    bank: 'State Bank of India (SBI)',
-    branch: 'Ashok Nagar Branch, Jagtial',
-    upiId: '45378236294@sbi'
+  const handleInputChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
   };
 
-  // Generate UPI URIs
-  // 1. QR code URI (Omitting preset amount ensures compatibility with all scanner applications)
-  const upiQrUri = `upi://pay?pa=${bankDetails.upiId}&pn=Hindu%20Swaraj&cu=INR`;
-  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiQrUri)}`;
+  const loadRazorpay = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
 
-  // 2. Mobile Intent URI (Including preset amount so it pre-fills inside the payee's app when clicked)
-  const upiIntentUri = `upi://pay?pa=${bankDetails.upiId}&pn=Hindu%20Swaraj&am=${currentAmount}&cu=INR`;
+  const handlePayment = async (e) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+    setLoading(true);
 
-  const copyToClipboard = (text, fieldName) => {
-    navigator.clipboard.writeText(text);
-    setCopiedField(fieldName);
-    setTimeout(() => setCopiedField(null), 2000);
+    if (currentAmount < 1) {
+      setError("Please enter a valid amount greater than ₹1.");
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.name || !formData.email || !formData.mobile || !formData.address) {
+      setError("All fields are mandatory to proceed with payment.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      // 1. Load Razorpay Script
+      const res = await loadRazorpay();
+      if (!res) {
+        setError("Razorpay SDK failed to load. Are you online?");
+        setLoading(false);
+        return;
+      }
+
+      // 2. Create Order on Backend
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000'}/payment/create-order`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          payer_name: formData.name,
+          email: formData.email,
+          mobile_number: formData.mobile,
+          address: formData.address,
+          amount: currentAmount,
+          fund_type: formData.fundType
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to create order");
+      }
+
+      // 3. Initialize Razorpay Checkout
+      const options = {
+        key: data.key_id, // Passed from backend
+        amount: data.amount,
+        currency: data.currency,
+        name: "Hindu Swaraj Youth Welfare Association",
+        description: "Donation for Youth & Community Welfare",
+        image: "/logo.png", // Replace with your actual logo path if you have one
+        order_id: data.order_id,
+        handler: async function (response) {
+          // Verify on backend
+          try {
+            await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000'}/payment/verify`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature
+              })
+            });
+          } catch (e) {
+            console.error(e);
+          }
+          
+          setSuccess(`Payment Successful! Redirecting...`);
+          // Redirect to the success page with the payment ID
+          router.push(`/payment-success?payment_id=${response.razorpay_payment_id}`);
+        },
+        prefill: {
+          name: formData.name,
+          email: formData.email,
+          contact: formData.mobile
+        },
+        theme: {
+          color: "#059669"
+        }
+      };
+
+      const paymentObject = new window.Razorpay(options);
+      paymentObject.open();
+
+    } catch (err) {
+      console.error(err);
+      setError(err.message || "Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -53,166 +177,137 @@ export default function DonationSection() {
         </div>
 
         <div className={styles.donationBox}>
-          {/* Tab Switcher */}
-          <div className={styles.tabContainer}>
-            <button
-              className={`${styles.tabBtn} ${activeTab === 'upi' ? styles.tabBtnActive : ''}`}
-              onClick={() => setActiveTab('upi')}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-              Scan &amp; Pay (UPI)
-            </button>
-            <button
-              className={`${styles.tabBtn} ${activeTab === 'bank' ? styles.tabBtnActive : ''}`}
-              onClick={() => setActiveTab('bank')}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
-              Bank Transfer (NEFT/IMPS)
-            </button>
-          </div>
-
-          {/* Amount Selector */}
-          <div className={styles.amountSection}>
-            <label className={styles.fieldLabel}>Select Contribution Amount (INR)</label>
-            <div className={styles.amountsGrid}>
-              {amounts.map((amt) => (
-                <button
-                  key={amt}
-                  className={`${styles.amountCard} ${selected === amt && !custom ? styles.amountCardActive : ''}`}
-                  onClick={() => { setSelected(amt); setCustom(''); }}
-                >
-                  <span className={styles.currency}>₹</span>
-                  <span className={styles.amount}>{amt.toLocaleString()}</span>
-                </button>
-              ))}
-            </div>
-
-            <div className={styles.customInput}>
-              <span className={styles.customCurrency}>₹</span>
-              <input
-                type="number"
-                placeholder="Enter Custom Amount"
-                value={custom}
-                onChange={(e) => { setCustom(e.target.value); setSelected(0); }}
-                className={styles.input}
-                min="1"
-              />
-            </div>
-          </div>
-
-          {/* Tab Content */}
-          <div className={styles.tabContent}>
-            {activeTab === 'upi' ? (
-              <div className={styles.upiContent}>
-                <div className={styles.qrWrapper}>
-                  {currentAmount > 0 ? (
-                    <img
-                      src={qrCodeUrl}
-                      alt="UPI QR Code for Donation"
-                      className={styles.qrImage}
-                    />
-                  ) : (
-                    <div className={styles.qrPlaceholder}>
-                      Please choose or enter a valid amount.
-                    </div>
-                  )}
-                </div>
-                <div className={styles.upiDetails}>
-                  <p className={styles.qrInstructions}>
-                    Scan this QR code using any UPI app (PhonePe, Google Pay, BHIM, Paytm) to pay <strong>₹{currentAmount.toLocaleString()}</strong> instantly.
-                  </p>
-                  <div className={styles.copyableField}>
-                    <div className={styles.fieldValueInfo}>
-                      <span className={styles.detailLabel}>UPI ID</span>
-                      <span className={styles.detailValue}>{bankDetails.upiId}</span>
-                    </div>
-                    <button
-                      className={styles.copyBtn}
-                      onClick={() => copyToClipboard(bankDetails.upiId, 'upi')}
-                      aria-label="Copy UPI ID"
-                    >
-                      {copiedField === 'upi' ? 'Copied!' : 'Copy'}
-                    </button>
-                  </div>
-                  <a
-                    href={upiIntentUri}
-                    className={styles.mobilePayBtn}
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: "8px",
-                      background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
-                      color: "#ffffff",
-                      padding: "12px 24px",
-                      borderRadius: "8px",
-                      fontWeight: "700",
-                      textDecoration: "none",
-                      marginTop: "16px",
-                      boxShadow: "0 4px 6px rgba(16, 185, 129, 0.2)",
-                      width: "100%",
-                      textAlign: "center"
-                    }}
+          
+          <form onSubmit={handlePayment}>
+            {/* Amount Selector */}
+            <div className={styles.amountSection}>
+              <label className={styles.fieldLabel}>Select Contribution Amount (INR)</label>
+              <div className={styles.amountsGrid}>
+                {amounts.map((amt) => (
+                  <button
+                    key={amt}
+                    type="button"
+                    className={`${styles.amountCard} ${selected === amt && !custom ? styles.amountCardActive : ''}`}
+                    onClick={() => { setSelected(amt); setCustom(''); }}
                   >
-                    ⚡ Pay via UPI App (Mobile Only)
-                  </a>
-                </div>
+                    <span className={styles.currency}>₹</span>
+                    <span className={styles.amount}>{amt.toLocaleString()}</span>
+                  </button>
+                ))}
               </div>
-            ) : (
-              <div className={styles.bankContent}>
-                <p className={styles.bankInstructions}>
-                  Transfer directly to the organization&apos;s bank account via Net Banking or Mobile Banking app.
-                </p>
 
-                <div className={styles.bankGrid}>
-                  <div className={styles.bankDetailItem}>
-                    <span className={styles.bankLabel}>ACCOUNT NAME</span>
-                    <span className={styles.bankVal}>{bankDetails.name}</span>
-                  </div>
-
-                  <div className={styles.bankDetailItem}>
-                    <span className={styles.bankLabel}>BANK NAME</span>
-                    <span className={styles.bankVal}>{bankDetails.bank}</span>
-                  </div>
-
-                  <div className={styles.bankDetailItem}>
-                    <span className={styles.bankLabel}>ACCOUNT NUMBER</span>
-                    <div className={styles.copyRow}>
-                      <span className={styles.bankValHighlight}>{bankDetails.accountNumber}</span>
-                      <button
-                        className={styles.copyTextBtn}
-                        onClick={() => copyToClipboard(bankDetails.accountNumber, 'account')}
-                      >
-                        {copiedField === 'account' ? 'Copied' : 'Copy'}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className={styles.bankDetailItem}>
-                    <span className={styles.bankLabel}>IFSC CODE</span>
-                    <div className={styles.copyRow}>
-                      <span className={styles.bankValHighlight}>{bankDetails.ifsc}</span>
-                      <button
-                        className={styles.copyTextBtn}
-                        onClick={() => copyToClipboard(bankDetails.ifsc, 'ifsc')}
-                      >
-                        {copiedField === 'ifsc' ? 'Copied' : 'Copy'}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className={styles.bankDetailItem}>
-                    <span className={styles.bankLabel}>BRANCH NAME</span>
-                    <span className={styles.bankVal}>{bankDetails.branch}</span>
-                  </div>
-                </div>
+              <div className={styles.customInput}>
+                <span className={styles.customCurrency}>₹</span>
+                <input
+                  type="number"
+                  placeholder="Enter Custom Amount"
+                  value={custom}
+                  onChange={(e) => { setCustom(e.target.value); setSelected(0); }}
+                  className={styles.input}
+                  min="1"
+                />
               </div>
-            )}
-          </div>
+            </div>
 
-          <p className={styles.secureBadge}>
+            <hr style={{ margin: '30px 0', border: 'none', borderTop: '1px solid #e2e8f0' }} />
+
+            {/* Donor Details Form */}
+            <div className={styles.donorDetailsSection}>
+              <label className={styles.fieldLabel} style={{ marginBottom: '15px', display: 'block' }}>Donor Details</label>
+              
+              <div style={{ marginBottom: '15px' }}>
+                <select
+                  name="fundType"
+                  value={formData.fundType}
+                  onChange={handleInputChange}
+                  className={styles.formInput}
+                  required
+                >
+                  {fundTypes.length > 0 ? (
+                    fundTypes.map((type, idx) => (
+                      <option key={idx} value={type}>{type}</option>
+                    ))
+                  ) : (
+                    <option value="General Donation">General Donation</option>
+                  )}
+                </select>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
+                <input 
+                  type="text" 
+                  name="name"
+                  placeholder="Full Name *" 
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  className={styles.formInput} 
+                  required
+                />
+                <input 
+                  type="text" 
+                  name="mobile"
+                  placeholder="Mobile Number *" 
+                  value={formData.mobile}
+                  onChange={handleInputChange}
+                  className={styles.formInput} 
+                  required
+                />
+              </div>
+              
+              <input 
+                type="email" 
+                name="email"
+                placeholder="Email Address *" 
+                value={formData.email}
+                onChange={handleInputChange}
+                className={styles.formInput} 
+                style={{ marginBottom: '15px' }}
+                required
+              />
+
+              <textarea 
+                name="address"
+                placeholder="Full Address *" 
+                value={formData.address}
+                onChange={handleInputChange}
+                className={styles.formInput} 
+                style={{ resize: 'vertical', minHeight: '80px', marginBottom: '20px' }}
+                required
+              ></textarea>
+
+              {error && <p style={{ color: '#ef4444', marginBottom: '15px', fontSize: '14px' }}>{error}</p>}
+              {success && <p style={{ color: '#10b981', marginBottom: '15px', fontSize: '14px', fontWeight: 'bold' }}>{success}</p>}
+
+              <button
+                type="submit"
+                disabled={loading}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                  background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                  color: "#ffffff",
+                  padding: "16px 24px",
+                  borderRadius: "8px",
+                  fontWeight: "700",
+                  textDecoration: "none",
+                  border: "none",
+                  cursor: loading ? "not-allowed" : "pointer",
+                  width: "100%",
+                  fontSize: "16px",
+                  boxShadow: "0 4px 6px rgba(16, 185, 129, 0.2)",
+                  opacity: loading ? 0.7 : 1
+                }}
+              >
+                {loading ? "Processing..." : `Proceed to Pay ₹${currentAmount.toLocaleString()}`}
+              </button>
+            </div>
+          </form>
+
+          <p className={styles.secureBadge} style={{ marginTop: '20px' }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
-            Official welfare account registered under SBI Jagtial
+            Secured via Razorpay Payment Gateway
           </p>
         </div>
       </div>
