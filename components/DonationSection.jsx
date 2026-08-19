@@ -5,19 +5,37 @@ import styles from './DonationSection.module.css';
 
 const amounts = [100, 500, 1000, 5000];
 
-export default function DonationSection() {
+export default function DonationSection({ 
+  compact = false, 
+  defaultEmail = '', 
+  defaultName = '', 
+  defaultMobile = '',
+  memberId = null
+}) {
   const router = useRouter();
   const [selected, setSelected] = useState(500);
   const [custom, setCustom] = useState('');
   
   // Donor Form State
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    mobile: '',
+    name: defaultName || '',
+    email: defaultEmail || '',
+    mobile: defaultMobile || '',
     address: '',
     fundType: 'Youth Development Programs'
   });
+
+  useEffect(() => {
+    if (defaultEmail || defaultName || defaultMobile) {
+      setFormData(prev => ({
+        ...prev,
+        name: defaultName || prev.name,
+        email: defaultEmail || prev.email,
+        mobile: defaultMobile || prev.mobile
+      }));
+    }
+  }, [defaultEmail, defaultName, defaultMobile]);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -105,7 +123,8 @@ export default function DonationSection() {
           mobile_number: formData.mobile,
           address: formData.address,
           amount: currentAmount,
-          fund_type: formData.fundType
+          fund_type: formData.fundType,
+          member_id: memberId
         })
       });
 
@@ -125,9 +144,11 @@ export default function DonationSection() {
         image: "/logo.png", // Replace with your actual logo path if you have one
         order_id: data.order_id,
         handler: async function (response) {
+          setLoading(true);
+          setSuccess("Verifying payment... Please wait.");
           // Verify on backend
           try {
-            await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000'}/payment/verify`, {
+            const verifyRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000'}/payment/verify`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -136,13 +157,19 @@ export default function DonationSection() {
                 razorpay_signature: response.razorpay_signature
               })
             });
+            
+            if (verifyRes.ok) {
+              setSuccess(`Payment Successful! Redirecting...`);
+              // Redirect to the success page with the payment ID
+              router.push(`/payment-success?payment_id=${response.razorpay_payment_id}`);
+            } else {
+              throw new Error('Verification failed');
+            }
           } catch (e) {
             console.error(e);
+            setError("Payment verification failed. Please contact support.");
+            setLoading(false);
           }
-          
-          setSuccess(`Payment Successful! Redirecting...`);
-          // Redirect to the success page with the payment ID
-          router.push(`/payment-success?payment_id=${response.razorpay_payment_id}`);
         },
         prefill: {
           name: formData.name,
@@ -166,7 +193,7 @@ export default function DonationSection() {
   };
 
   return (
-    <section className={styles.donation} id="donate">
+    <section className={styles.donation} id="donate" style={compact ? { padding: "20px 0", background: "transparent" } : {}}>
       <div className="container">
         <div className={styles.header}>
           <span className="section-label">CONTRIBUTION PORTAL</span>
@@ -300,7 +327,21 @@ export default function DonationSection() {
                   opacity: loading ? 0.7 : 1
                 }}
               >
-                {loading ? "Processing..." : `Proceed to Pay ₹${currentAmount.toLocaleString()}`}
+                {loading ? (
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ animation: 'spin 1s linear infinite' }}>
+                      <line x1="12" y1="2" x2="12" y2="6"></line>
+                      <line x1="12" y1="18" x2="12" y2="22"></line>
+                      <line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line>
+                      <line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line>
+                      <line x1="2" y1="12" x2="6" y2="12"></line>
+                      <line x1="18" y1="12" x2="22" y2="12"></line>
+                      <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line>
+                      <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line>
+                    </svg>
+                    Processing...
+                  </span>
+                ) : `Proceed to Pay ₹${currentAmount.toLocaleString()}`}
               </button>
             </div>
           </form>

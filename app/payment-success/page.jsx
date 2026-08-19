@@ -31,11 +31,16 @@ function SuccessContent() {
       )}
 
       <a 
-        href="/#donate" 
+        href="#" 
         onClick={(e) => {
           e.preventDefault();
           setIsNavigating(true);
-          router.push('/#donate');
+          const token = typeof window !== 'undefined' ? localStorage.getItem("admin_token") : null;
+          if (token) {
+            router.push('/admin');
+          } else {
+            router.push('/#donate');
+          }
         }}
         style={{ 
           display: 'inline-flex', 

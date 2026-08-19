@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import DonationSection from "../../components/DonationSection";
 import "./admin.css";
 
 const numberToWords = (num) => {
@@ -749,6 +750,7 @@ const downloadReceiptPDF = (
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState("");
+  const [currentUser, setCurrentUser] = useState(null);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -764,6 +766,10 @@ export default function AdminPage() {
 
   // Dashboard state
   const [activeTab, setActiveTab] = useState("overview");
+  
+  // Member Specific state
+  const isMember = userRole === "MEMBER";
+  const [myDonations, setMyDonations] = useState([]);
 
   // Modal states
   const [showMemberModal, setShowMemberModal] = useState(false);
@@ -973,66 +979,124 @@ export default function AdminPage() {
     return response.json();
   };
 
-  const loadAllData = async () => {
-    try {
-      const fetchedMembers = await fetchAPI("/members");
-      setMembers(
-        fetchedMembers.map((m) => ({
-          id: m.member_id || m.id,
-          dbId: m.id,
-          name: m.name,
-          email: m.personal_email,
-          role: m.role,
-          phone: m.phone,
-          status: m.active ? "ACTIVE" : "INACTIVE",
-        })),
-      );
-    } catch (err) {
-      console.warn("Failed to fetch members from backend:", err.message);
-      const local = localStorage.getItem("admin_members");
-      if (local) setMembers(JSON.parse(local));
-    }
+  const loadAllData = async (role = userRole) => {
+    const isMem = role === "MEMBER";
 
-    try {
-      const fetchedExpenses = await fetchAPI("/expenses");
-      setExpenses(
-        fetchedExpenses.map((e) => ({
-          id: e.id,
-          title: e.title,
-          category: e.category || "GENERAL",
-          desc: e.description || "",
-          amount: Number(e.amount),
-          date: e.expense_date
-            ? e.expense_date.split("T")[0]
-            : new Date(e.created_at).toISOString().split("T")[0],
-          status: e.status,
-          fund_id: e.fund_id,
-        })),
-      );
-    } catch (err) {
-      console.warn("Failed to fetch expenses from backend:", err.message);
-      const local = localStorage.getItem("admin_expenses");
-      if (local) setExpenses(JSON.parse(local));
-    }
+    if (!isMem) {
+      try {
+        const fetchedMembers = await fetchAPI("/members");
+        setMembers(
+          fetchedMembers.map((m) => ({
+            id: m.member_id || m.id,
+            dbId: m.id,
+            name: m.name,
+            email: m.personal_email,
+            role: m.role,
+            phone: m.phone,
+            status: m.active ? "ACTIVE" : "INACTIVE",
+          })),
+        );
+      } catch (err) {
+        console.warn("Failed to fetch members from backend:", err.message);
+        const local = localStorage.getItem("admin_members");
+        if (local) setMembers(JSON.parse(local));
+      }
 
-    try {
-      const fetchedFunds = await fetchAPI("/funds");
-      setFunds(
-        fetchedFunds.map((f) => ({
-          id: f.id,
-          name: f.fund_name,
-          fund_name: f.fund_name,
-          type: f.fund_type,
-          amount: Number(f.base_amount || 0),
-          balance: Number(f.balance || 0),
-          totalCollection: Number(f.total_collection || 0),
-          status: f.status,
-        })),
-      );
-    } catch (err) {
-      console.warn("Failed to fetch funds from backend:", err.message);
-      const local = localStorage.getItem("admin_funds");
-      if (local) setFunds(JSON.parse(local));
+      try {
+        const fetchedExpenses = await fetchAPI("/expenses");
+        setExpenses(
+          fetchedExpenses.map((e) => ({
+            id: e.id,
+            title: e.title,
+            category: e.category || "GENERAL",
+            desc: e.description || "",
+            amount: Number(e.amount),
+            date: e.expense_date
+              ? e.expense_date.split("T")[0]
+              : new Date(e.created_at).toISOString().split("T")[0],
+            status: e.status,
+            fund_id: e.fund_id,
+          })),
+        );
+      } catch (err) {
+        console.warn("Failed to fetch expenses from backend:", err.message);
+        const local = localStorage.getItem("admin_expenses");
+        if (local) setExpenses(JSON.parse(local));
+      }
+
+      try {
+        const fetchedFunds = await fetchAPI("/funds");
+        setFunds(
+          fetchedFunds.map((f) => ({
+            id: f.id,
+            name: f.fund_name,
+            fund_name: f.fund_name,
+            type: f.fund_type,
+            amount: Number(f.base_amount || 0),
+            balance: Number(f.balance || 0),
+            totalCollection: Number(f.total_collection || 0),
+            status: f.status,
+          })),
+        );
+      } catch (err) {
+        console.warn("Failed to fetch funds from backend:", err.message);
+        const local = localStorage.getItem("admin_funds");
+        if (local) setFunds(JSON.parse(local));
+      }
+
+      try {
+        const fetchedLogs = await fetchAPI("/admin/audit-logs");
+        if (Array.isArray(fetchedLogs)) {
+          setAuditLogs(
+            fetchedLogs.map((log) => ({
+              id: log.id,
+              text: `${log.action} performed on ${log.entity}`,
+              time: new Date(log.created_at).toLocaleString(),
+            })),
+          );
+        }
+      } catch (err) {
+        console.warn("Failed to fetch logs from backend:", err.message);
+        const local = localStorage.getItem("admin_logs");
+        if (local) setAuditLogs(JSON.parse(local));
+      }
+
+      try {
+        const fetchedConts = await fetchAPI("/contributions/all");
+        setContributions(fetchedConts);
+      } catch (err) {
+        console.warn("Failed to fetch contributions from backend:", err.message);
+      }
+
+      try {
+        const fetchedDonations = await fetchAPI("/contributions/admin-list");
+        setDonations(fetchedDonations);
+      } catch (err) {
+        console.warn("Failed to fetch donations from backend:", err.message);
+        const local = localStorage.getItem("admin_donations");
+        if (local) setDonations(JSON.parse(local));
+      }
+
+      try {
+        const fetchedOnline = await fetchAPI("/payment/transactions");
+        setOnlineDonations(fetchedOnline);
+      } catch (err) {
+        console.warn("Failed to fetch online transactions:", err.message);
+      }
+
+      try {
+        const summaryRes = await fetchAPI("/dashboard/admin-summary");
+        if (summaryRes.success && summaryRes.data) {
+          setStats({
+            totalMembers: summaryRes.data.total_members,
+            approvedReceipts: summaryRes.data.approved_receipts,
+            totalCollection: summaryRes.data.total_collection,
+            cancelledReceipts: summaryRes.data.cancelled_receipts,
+          });
+        }
+      } catch (err) {
+        console.warn("Failed to fetch admin summary:", err.message);
+      }
     }
 
     try {
@@ -1067,57 +1131,10 @@ export default function AdminPage() {
     }
 
     try {
-      const fetchedLogs = await fetchAPI("/admin/audit-logs");
-      if (Array.isArray(fetchedLogs)) {
-        setAuditLogs(
-          fetchedLogs.map((log) => ({
-            id: log.id,
-            text: `${log.action} performed on ${log.entity}`,
-            time: new Date(log.created_at).toLocaleString(),
-          })),
-        );
-      }
+      const fetchedMyOnline = await fetchAPI("/payment/my-transactions");
+      setMyDonations(fetchedMyOnline);
     } catch (err) {
-      console.warn("Failed to fetch logs from backend:", err.message);
-      const local = localStorage.getItem("admin_logs");
-      if (local) setAuditLogs(JSON.parse(local));
-    }
-
-    try {
-      const fetchedConts = await fetchAPI("/contributions/all");
-      setContributions(fetchedConts);
-    } catch (err) {
-      console.warn("Failed to fetch contributions from backend:", err.message);
-    }
-
-    try {
-      const fetchedDonations = await fetchAPI("/contributions/admin-list");
-      setDonations(fetchedDonations);
-    } catch (err) {
-      console.warn("Failed to fetch donations from backend:", err.message);
-      const local = localStorage.getItem("admin_donations");
-      if (local) setDonations(JSON.parse(local));
-    }
-
-    try {
-      const fetchedOnline = await fetchAPI("/payment/transactions");
-      setOnlineDonations(fetchedOnline);
-    } catch (err) {
-      console.warn("Failed to fetch online transactions:", err.message);
-    }
-
-    try {
-      const summaryRes = await fetchAPI("/dashboard/admin-summary");
-      if (summaryRes.success && summaryRes.data) {
-        setStats({
-          totalMembers: summaryRes.data.total_members,
-          approvedReceipts: summaryRes.data.approved_receipts,
-          totalCollection: summaryRes.data.total_collection,
-          cancelledReceipts: summaryRes.data.cancelled_receipts,
-        });
-      }
-    } catch (err) {
-      console.warn("Failed to fetch dashboard summary:", err.message);
+      console.warn("Failed to fetch personal transactions:", err.message);
     }
   };
 
@@ -1130,7 +1147,13 @@ export default function AdminPage() {
           const userData = await fetchAPI("/auth/me");
           setIsAuthenticated(true);
           setUserRole(userData.role || "");
-          loadAllData();
+          setCurrentUser(userData);
+          if (userData.role === "MEMBER") {
+            setActiveTab("donation_history");
+          } else {
+            setActiveTab("overview");
+          }
+          loadAllData(userData.role || "");
         } catch (err) {
           console.warn("Session expired or invalid, logging out:", err.message);
           localStorage.removeItem("admin_token");
@@ -1161,6 +1184,7 @@ export default function AdminPage() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const data = await fetchAPI("/auth/login", {
         method: "POST",
@@ -1171,8 +1195,13 @@ export default function AdminPage() {
       localStorage.setItem("admin_role", data.role || "");
       setIsAuthenticated(true);
       setUserRole(data.role || "");
+      if (data.role === "MEMBER") {
+        setActiveTab("donation_history");
+      } else {
+        setActiveTab("overview");
+      }
       setLoginError("");
-      loadAllData();
+      loadAllData(data.role || "");
     } catch (err) {
       console.warn(
         "Backend login failed, falling back to local simulation:",
@@ -1181,13 +1210,16 @@ export default function AdminPage() {
       if (username.toLowerCase() === "admin" && password === "admin123") {
         setIsAuthenticated(true);
         setUserRole("SUPER_ADMIN");
+        setActiveTab("overview");
         localStorage.setItem("admin_auth", "true");
         localStorage.setItem("admin_role", "SUPER_ADMIN");
         setLoginError("");
-        loadAllData();
+        loadAllData("SUPER_ADMIN");
       } else {
         setLoginError("Invalid credentials.");
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -1650,7 +1682,7 @@ export default function AdminPage() {
           await fetchAPI(`/contributions/${id}`, {
             method: "DELETE",
           });
-          loadAllData();
+          loadAllData(userData.role || "");
         } catch (err) {
           console.warn(
             "Failed to delete donation from database, deleting locally:",
@@ -1743,7 +1775,7 @@ _This is an official computer-generated receipt._`;
           await fetchAPI(endpoint, {
             method: "PATCH",
           });
-          loadAllData();
+          loadAllData(userData.role || "");
         } catch (err) {
           console.warn(
             "Failed to approve donation in database, falling back locally:",
@@ -1973,18 +2005,27 @@ _This is an official computer-generated receipt._`;
                 </div>
               </div>
 
-              <button type="submit" className="loginBtn">
-                Sign In
-                <svg
-                  width="16"
-                  height="16"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                >
-                  <polyline points="9 18 15 12 9 6" />
-                </svg>
+              <button type="submit" className="loginBtn" disabled={loading}>
+                {loading ? (
+                  <>
+                    Logging in...
+                    <div className="spinner" style={{ width: '16px', height: '16px', marginLeft: '8px', borderWidth: '2px' }} />
+                  </>
+                ) : (
+                  <>
+                    Sign In
+                    <svg
+                      width="16"
+                      height="16"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                  </>
+                )}
               </button>
             </form>
           </div>
@@ -2012,42 +2053,64 @@ _This is an official computer-generated receipt._`;
         </div>
 
         <nav className="navMenu">
-          <button
-            className={`navItem ${activeTab === "overview" ? "navItemActive" : ""}`}
-            onClick={() => setActiveTab("overview")}
-          >
-            Dashboard
-          </button>
-          <button
-            className={`navItem ${activeTab === "members" ? "navItemActive" : ""}`}
-            onClick={() => setActiveTab("members")}
-          >
-            Members
-          </button>
-          <button
-            className={`navItem ${activeTab === "funds" ? "navItemActive" : ""}`}
-            onClick={() => setActiveTab("funds")}
-          >
-            Funds
-          </button>
-          <button
-            className={`navItem ${activeTab === "donations" ? "navItemActive" : ""}`}
-            onClick={() => setActiveTab("donations")}
-          >
-            Donations
-          </button>
-          <button
-            className={`navItem ${activeTab === "expenses" ? "navItemActive" : ""}`}
-            onClick={() => setActiveTab("expenses")}
-          >
-            Expenses
-          </button>
-          <button
-            className={`navItem ${activeTab === "reports" ? "navItemActive" : ""}`}
-            onClick={() => setActiveTab("reports")}
-          >
-            Reports
-          </button>
+          {!isMember && (
+            <>
+              <button
+                className={`navItem ${activeTab === "overview" ? "navItemActive" : ""}`}
+                onClick={() => setActiveTab("overview")}
+              >
+                Dashboard
+              </button>
+              <button
+                className={`navItem ${activeTab === "members" ? "navItemActive" : ""}`}
+                onClick={() => setActiveTab("members")}
+              >
+                Members
+              </button>
+              <button
+                className={`navItem ${activeTab === "funds" ? "navItemActive" : ""}`}
+                onClick={() => setActiveTab("funds")}
+              >
+                Funds
+              </button>
+              <button
+                className={`navItem ${activeTab === "donations" ? "navItemActive" : ""}`}
+                onClick={() => setActiveTab("donations")}
+              >
+                Donations
+              </button>
+              <button
+                className={`navItem ${activeTab === "expenses" ? "navItemActive" : ""}`}
+                onClick={() => setActiveTab("expenses")}
+              >
+                Expenses
+              </button>
+              <button
+                className={`navItem ${activeTab === "reports" ? "navItemActive" : ""}`}
+                onClick={() => setActiveTab("reports")}
+              >
+                Reports
+              </button>
+            </>
+          )}
+
+          {isMember && (
+            <>
+              <button
+                className={`navItem ${activeTab === "pay_donation" ? "navItemActive" : ""}`}
+                onClick={() => setActiveTab("pay_donation")}
+              >
+                Pay Donation
+              </button>
+              <button
+                className={`navItem ${activeTab === "donation_history" ? "navItemActive" : ""}`}
+                onClick={() => setActiveTab("donation_history")}
+              >
+                My Donation History
+              </button>
+            </>
+          )}
+
           <button
             className={`navItem ${activeTab === "meetings" ? "navItemActive" : ""}`}
             onClick={() => setActiveTab("meetings")}
@@ -2066,12 +2129,15 @@ _This is an official computer-generated receipt._`;
           >
             Suggestions
           </button>
-          <button
-            className={`navItem ${activeTab === "logs" ? "navItemActive" : ""}`}
-            onClick={() => setActiveTab("logs")}
-          >
-            Audit Logs
-          </button>
+          
+          {!isMember && (
+            <button
+              className={`navItem ${activeTab === "logs" ? "navItemActive" : ""}`}
+              onClick={() => setActiveTab("logs")}
+            >
+              Audit Logs
+            </button>
+          )}
 
           <button className="logoutBtn" onClick={handleLogout}>
             Log Out
@@ -3506,6 +3572,106 @@ _This is an official computer-generated receipt._`;
             </div>
           </>
         )}
+
+          {activeTab === "pay_donation" && (
+            <>
+              <div className="contentHeader">
+                <h2 className="pageTitle">Pay Donation</h2>
+              </div>
+              <div>
+                <DonationSection 
+                  compact={true} 
+                  defaultEmail={currentUser?.personal_email}
+                  defaultName={currentUser?.name}
+                  defaultMobile={currentUser?.phone}
+                  memberId={currentUser?.id}
+                />
+              </div>
+            </>
+          )}
+
+          {activeTab === "donation_history" && (
+            <>
+              <div className="contentHeader">
+                <h2 className="pageTitle">My Donation History</h2>
+              </div>
+              
+              <div className="panelCard">
+                <div className="tableContainer">
+                  <table className="adminTable">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Order ID</th>
+                        <th>Fund Type</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Receipt</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {myDonations.length === 0 ? (
+                        <tr>
+                          <td
+                            colSpan={6}
+                            style={{
+                              textAlign: "center",
+                              color: "#64748b",
+                              padding: "30px",
+                            }}
+                          >
+                            No personal transactions found.
+                          </td>
+                        </tr>
+                      ) : (
+                        myDonations.map((item) => (
+                          <tr key={item.id}>
+                            <td>
+                              {new Date(item.created_at).toLocaleDateString("en-IN")}
+                            </td>
+                            <td style={{ fontFamily: "monospace", color: "var(--navy)" }}>
+                              {item.order_id}
+                            </td>
+                            <td style={{ fontWeight: "700" }}>
+                              {item.fund_type || "General Donation"}
+                            </td>
+                            <td style={{ fontWeight: "700", color: "#10b981" }}>
+                              ₹{Number(item.amount).toLocaleString("en-IN")}
+                            </td>
+                            <td>
+                              <span
+                                className={`badge ${
+                                  item.status === "SUCCESS"
+                                    ? "badgeSuccess"
+                                    : item.status === "PENDING"
+                                      ? "badgeWarning"
+                                      : "badgeDanger"
+                                }`}
+                              >
+                                {item.status}
+                              </span>
+                            </td>
+                            <td>
+                              {item.status === "SUCCESS" && (
+                                <a
+                                  href={`http://localhost:4000/receipts/verify/${item.order_id}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="viewReceiptBtn"
+                                >
+                                  View <span style={{ marginLeft: "4px" }}>↗</span>
+                                </a>
+                              )}
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </>
+          )}
 
         {activeTab === "meetings" && (
           <>
