@@ -29,9 +29,9 @@ export default function HeroSection() {
       {/* Sanskrit Quote Banner */}
       <div className={styles.quoteBanner}>
         <span className={styles.quoteText}>
-          || स्वराज्य हा माझा जन्मसिद्ध हक्क आहे आणि तो मी मिळवणारच ||
+          || स्वराज्य हा माझा जन्मसिद्ध हक्क आहे आणि तो मी मिळवणारच! 🚩 ||
         </span>
-        <span className={styles.quoteAttribution}>- छत्रपती शिवाजी महाराज</span>
+        <span className={styles.quoteAttribution}>— लोकमान्य बाळ गंगाधर टिळक</span>
       </div>
 
       <div className={styles.heroContent}>

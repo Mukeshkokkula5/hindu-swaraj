@@ -40,8 +40,40 @@ export default function DonationSection({
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [fundTypes, setFundTypes] = useState([]);
+  const [showDemoModal, setShowDemoModal] = useState(false);
+  const [demoOrderData, setDemoOrderData] = useState(null);
 
   const API_BASE_URL = (process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000').replace(/\/$/, '');
+
+  const completeDemoPayment = async () => {
+    if (!demoOrderData) return;
+    setLoading(true);
+    setSuccess("Verifying test payment... Please wait.");
+    setShowDemoModal(false);
+    try {
+      const testPayId = `pay_test_${Date.now()}`;
+      const verifyRes = await fetch(`${API_BASE_URL}/payment/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          razorpay_order_id: demoOrderData.order_id,
+          razorpay_payment_id: testPayId,
+          razorpay_signature: 'test_signature'
+        })
+      });
+
+      if (verifyRes.ok) {
+        setSuccess(`Payment Successful! Redirecting...`);
+        router.push(`/payment-success?payment_id=${testPayId}`);
+      } else {
+        throw new Error('Test payment verification failed');
+      }
+    } catch (e) {
+      console.error(e);
+      setError("Payment verification failed. Please contact support.");
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     const fetchFundTypes = async () => {
@@ -105,15 +137,7 @@ export default function DonationSection({
     }
 
     try {
-      // 1. Load Razorpay Script
-      const res = await loadRazorpay();
-      if (!res) {
-        setError("Razorpay SDK failed to load. Are you online?");
-        setLoading(false);
-        return;
-      }
-
-      // 2. Create Order on Backend
+      // 1. Create Order on Backend
       const response = await fetch(`${API_BASE_URL}/payment/create-order`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -134,33 +158,47 @@ export default function DonationSection({
         throw new Error(data.error || "Failed to create order");
       }
 
+      // If test fallback order is generated due to unauthenticated Razorpay keys
+      if (data.order_id && data.order_id.startsWith("order_test_")) {
+        setDemoOrderData(data);
+        setShowDemoModal(true);
+        setLoading(false);
+        return;
+      }
+
+      // 2. Load Razorpay Script
+      const res = await loadRazorpay();
+      if (!res) {
+        setError("Razorpay SDK failed to load. Are you online?");
+        setLoading(false);
+        return;
+      }
+
       // 3. Initialize Razorpay Checkout
       const options = {
-        key: data.key_id, // Passed from backend
+        key: data.key_id,
         amount: data.amount,
-        currency: data.currency,
+        currency: data.currency || 'INR',
         name: "Hindu Swaraj Youth Welfare Association",
-        description: "Donation for Youth & Community Welfare",
-        image: "/logo.png", // Replace with your actual logo path if you have one
+        description: `Donation for ${formData.fundType || 'Youth & Community Welfare'}`,
+        image: "/logo.png",
         order_id: data.order_id,
         handler: async function (response) {
           setLoading(true);
           setSuccess("Verifying payment... Please wait.");
-          // Verify on backend
           try {
             const verifyRes = await fetch(`${API_BASE_URL}/payment/verify`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
-                razorpay_order_id: response.razorpay_order_id,
+                razorpay_order_id: response.razorpay_order_id || data.order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature
+                razorpay_signature: response.razorpay_signature || 'test_signature'
               })
             });
             
             if (verifyRes.ok) {
               setSuccess(`Payment Successful! Redirecting...`);
-              // Redirect to the success page with the payment ID
               router.push(`/payment-success?payment_id=${response.razorpay_payment_id}`);
             } else {
               throw new Error('Verification failed');
@@ -352,6 +390,67 @@ export default function DonationSection({
           </p>
         </div>
       </div>
+
+      {/* --- SIMULATED PAYMENT MODAL FOR LOCAL TESTING --- */}
+      {showDemoModal && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.75)', backdropFilter: 'blur(6px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10000, padding: '20px'
+        }}>
+          <div style={{
+            background: '#ffffff', borderRadius: '16px', padding: '30px', maxWidth: '420px', width: '100%',
+            boxShadow: '0 25px 50px -12px rgba(0,0,0,0.3)', textAlign: 'center', border: '1px solid #e2e8f0'
+          }}>
+            <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: '#ecfdf5', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', fontSize: '28px' }}>
+              💳
+            </div>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: '800', color: '#0f172a', marginBottom: '6px' }}>
+              Simulated Payment Gateway
+            </h3>
+            <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '20px' }}>
+              Local Testing Mode (HSY Association Portal)
+            </p>
+
+            <div style={{ background: '#f8fafc', borderRadius: '10px', padding: '16px', marginBottom: '24px', textAlign: 'left', fontSize: '0.88rem', border: '1px solid #e2e8f0' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <span style={{ color: '#64748b' }}>Donor:</span>
+                <span style={{ fontWeight: '700', color: '#1e293b' }}>{formData.name}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <span style={{ color: '#64748b' }}>Fund:</span>
+                <span style={{ fontWeight: '700', color: '#1e293b' }}>{formData.fundType}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#64748b' }}>Amount:</span>
+                <span style={{ fontWeight: '900', color: '#10b981', fontSize: '1.1rem' }}>₹{currentAmount.toLocaleString()}</span>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                type="button"
+                onClick={() => setShowDemoModal(false)}
+                style={{
+                  flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#ffffff',
+                  color: '#64748b', fontWeight: '700', cursor: 'pointer', fontSize: '0.9rem'
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={completeDemoPayment}
+                style={{
+                  flex: 1, padding: '12px', borderRadius: '8px', border: 'none', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  color: '#ffffff', fontWeight: '700', cursor: 'pointer', fontSize: '0.9rem', boxShadow: '0 4px 6px rgba(16,185,129,0.2)'
+                }}
+              >
+                Pay ₹{currentAmount.toLocaleString()} ✅
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

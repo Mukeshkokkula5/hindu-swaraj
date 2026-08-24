@@ -764,11 +764,27 @@ export default function AdminPage() {
     confirmBtnColor: "var(--saffron)",
   });
 
+  // Forgot Password Flow States
+  const [forgotMode, setForgotMode] = useState("none"); // "none" | "request_otp" | "verify_reset" | "success"
+  const [forgotIdentifier, setForgotIdentifier] = useState("");
+  const [forgotOtp, setForgotOtp] = useState("");
+  const [forgotNewPassword, setForgotNewPassword] = useState("");
+  const [forgotConfirmPassword, setForgotConfirmPassword] = useState("");
+  const [forgotShowPassword, setForgotShowPassword] = useState(false);
+  const [forgotMaskedEmail, setForgotMaskedEmail] = useState("");
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotError, setForgotError] = useState("");
+  const [forgotSuccess, setForgotSuccess] = useState("");
+  const [forgotCountdown, setForgotCountdown] = useState(0);
+
   // Dashboard state
   const [activeTab, setActiveTab] = useState("overview");
   
-  // Member Specific state
-  const isMember = userRole === "MEMBER";
+  // Member / Role Specific state
+  const normalizedRole = (userRole || "").toUpperCase().replace(/\s+/g, "_");
+  const isMember = normalizedRole === "MEMBER";
+  const isEC = normalizedRole === "EC_MEMBER" || normalizedRole === "EC" || normalizedRole === "EXECUTIVE_COMMITTEE" || normalizedRole === "EXECUTIVE";
+  const isSuperAdmin = normalizedRole === "SUPER_ADMIN";
   const [myDonations, setMyDonations] = useState([]);
 
   // Modal states
@@ -825,8 +841,17 @@ export default function AdminPage() {
     date: new Date().toISOString().split("T")[0],
     description: "",
     phone: "",
+    member_id: "",
   });
   const [editingDonation, setEditingDonation] = useState(null);
+  const [memberSearchQuery, setMemberSearchQuery] = useState("");
+  const [rejectionModal, setRejectionModal] = useState({
+    isOpen: false,
+    item: null,
+    reason: "",
+    type: "DONATION",
+    error: "",
+  });
 
   // Data states (using localstorage backings with high quality defaults)
   const [members, setMembers] = useState([]);
@@ -842,6 +867,13 @@ export default function AdminPage() {
     amount: "",
   });
   const [auditLogs, setAuditLogs] = useState([]);
+  const [auditPagination, setAuditPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalCount: 0,
+    limit: 10,
+  });
+  const [auditPage, setAuditPage] = useState(1);
   const [stats, setStats] = useState({
     totalMembers: 0,
     totalFunds: 0,
@@ -982,6 +1014,43 @@ export default function AdminPage() {
     }
     return response.json();
   };
+  const fetchAuditLogs = async (page = 1) => {
+    try {
+      const res = await fetchAPI(`/admin/audit-logs?page=${page}&limit=10`);
+      let logsList = [];
+      let paginationData = { currentPage: page, totalPages: 1, totalCount: 0, limit: 10 };
+
+      if (Array.isArray(res)) {
+        logsList = res;
+        paginationData = { currentPage: 1, totalPages: 1, totalCount: res.length, limit: res.length || 10 };
+      } else if (res && Array.isArray(res.logs)) {
+        logsList = res.logs;
+        paginationData = res.pagination || paginationData;
+      }
+
+      setAuditLogs(
+        logsList.map((log) => ({
+          id: log.id,
+          action: log.action,
+          entity: log.entity,
+          performedBy: log.performer_name || log.performed_by || "System",
+          text: `${log.action} performed on ${log.entity}`,
+          time: new Date(log.created_at).toLocaleString(),
+        }))
+      );
+      setAuditPagination(paginationData);
+    } catch (err) {
+      console.warn("Failed to fetch logs from backend:", err.message);
+      const local = localStorage.getItem("admin_logs");
+      if (local) setAuditLogs(JSON.parse(local));
+    }
+  };
+
+  useEffect(() => {
+    if (isAuthenticated && userRole === "SUPER_ADMIN" && activeTab === "logs") {
+      fetchAuditLogs(auditPage);
+    }
+  }, [auditPage, activeTab, isAuthenticated, userRole]);
 
   const loadAllData = async (role = userRole) => {
     const isMem = role === "MEMBER";
@@ -1048,22 +1117,7 @@ export default function AdminPage() {
         if (local) setFunds(JSON.parse(local));
       }
 
-      try {
-        const fetchedLogs = await fetchAPI("/admin/audit-logs");
-        if (Array.isArray(fetchedLogs)) {
-          setAuditLogs(
-            fetchedLogs.map((log) => ({
-              id: log.id,
-              text: `${log.action} performed on ${log.entity}`,
-              time: new Date(log.created_at).toLocaleString(),
-            })),
-          );
-        }
-      } catch (err) {
-        console.warn("Failed to fetch logs from backend:", err.message);
-        const local = localStorage.getItem("admin_logs");
-        if (local) setAuditLogs(JSON.parse(local));
-      }
+      fetchAuditLogs(1);
 
       try {
         const fetchedConts = await fetchAPI("/contributions/all");
@@ -1224,6 +1278,111 @@ export default function AdminPage() {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Forgot Password Countdown Effect
+  useEffect(() => {
+    let timer;
+    if (forgotCountdown > 0) {
+      timer = setInterval(() => {
+        setForgotCountdown((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [forgotCountdown]);
+
+  const handleSendOtp = async (e) => {
+    if (e) e.preventDefault();
+    if (!forgotIdentifier.trim()) {
+      setForgotError("Please enter your Username or Registered Email.");
+      return;
+    }
+    setForgotLoading(true);
+    setForgotError("");
+    setForgotSuccess("");
+    try {
+      const data = await fetchAPI("/auth/forgot-password", {
+        method: "POST",
+        body: JSON.stringify({ username: forgotIdentifier.trim() }),
+      });
+      setForgotMaskedEmail(data.maskedEmail || "");
+      setForgotMode("verify_reset");
+      setForgotSuccess(data.message || "OTP sent successfully to your email.");
+      setForgotCountdown(60);
+    } catch (err) {
+      setForgotError(
+        err.message || "Failed to send OTP. Please check your credentials."
+      );
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    if (forgotCountdown > 0 || forgotLoading) return;
+    setForgotLoading(true);
+    setForgotError("");
+    setForgotSuccess("");
+    try {
+      const data = await fetchAPI("/auth/forgot-password", {
+        method: "POST",
+        body: JSON.stringify({ username: forgotIdentifier.trim() }),
+      });
+      setForgotSuccess("A fresh OTP has been sent to your email.");
+      setForgotCountdown(60);
+    } catch (err) {
+      setForgotError(err.message || "Failed to resend OTP.");
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
+  const handleResetPassword = async (e) => {
+    e.preventDefault();
+    if (!forgotOtp.trim()) {
+      setForgotError("Please enter the 6-digit OTP received in your email.");
+      return;
+    }
+    if (forgotOtp.trim().length < 6) {
+      setForgotError("OTP must be 6 digits.");
+      return;
+    }
+    if (!forgotNewPassword) {
+      setForgotError("Please enter a new password.");
+      return;
+    }
+    if (forgotNewPassword.length < 6) {
+      setForgotError("Password must be at least 6 characters long.");
+      return;
+    }
+    if (forgotNewPassword !== forgotConfirmPassword) {
+      setForgotError("New Password and Confirm Password do not match.");
+      return;
+    }
+
+    setForgotLoading(true);
+    setForgotError("");
+    setForgotSuccess("");
+    try {
+      const data = await fetchAPI("/auth/reset-password", {
+        method: "POST",
+        body: JSON.stringify({
+          username: forgotIdentifier.trim(),
+          otp: forgotOtp.trim(),
+          newPassword: forgotNewPassword,
+        }),
+      });
+      setForgotMode("success");
+      setForgotSuccess(
+        data.message || "Password reset successfully! You can now log in."
+      );
+    } catch (err) {
+      setForgotError(
+        err.message || "Failed to reset password. Please check your OTP."
+      );
+    } finally {
+      setForgotLoading(false);
     }
   };
 
@@ -1524,35 +1683,8 @@ export default function AdminPage() {
     }
   };
 
-  const handleCancelExpense = async (id) => {
-    const reason = prompt(
-      "Please enter the reason for cancelling this expense:",
-    );
-    if (reason === null) return;
-    if (!reason.trim()) {
-      alert("Reason is required to cancel an expense.");
-      return;
-    }
-    try {
-      await fetchAPI(`/expenses/${id}/cancel`, {
-        method: "PUT",
-        body: JSON.stringify({ reason }),
-      });
-      loadAllData();
-    } catch (err) {
-      console.warn(
-        "Failed to cancel expense in database, falling back locally:",
-        err.message,
-      );
-      const updated = expenses.map((e) => {
-        if (e.id === id) {
-          return { ...e, status: "CANCELLED" };
-        }
-        return e;
-      });
-      setExpenses(updated);
-      localStorage.setItem("admin_expenses", JSON.stringify(updated));
-    }
+  const handleCancelExpense = (id) => {
+    openCancelExpenseModal(id);
   };
 
   const handleAddDonation = async (e) => {
@@ -1592,6 +1724,7 @@ export default function AdminPage() {
             receipt_date: newDonation.date,
             description: newDonation.description || "",
             donor_phone: newDonation.phone || "",
+            member_id: newDonation.member_id || null,
           }),
         });
       }
@@ -1654,6 +1787,7 @@ export default function AdminPage() {
       phone: "",
     });
     setEditingDonation(null);
+    setMemberSearchQuery("");
     setShowDonationModal(false);
   };
 
@@ -1815,39 +1949,86 @@ _This is an official computer-generated receipt._`;
     });
   };
 
-  const handleRejectDonation = async (item) => {
-    const reason = prompt(
-      "Please enter the reason for rejecting this donation:",
-    );
-    if (reason === null) return;
-    if (!reason.trim()) {
-      alert("Reason is required to reject a donation.");
+  const openRejectDonationModal = (item) => {
+    setRejectionModal({
+      isOpen: true,
+      item,
+      reason: "",
+      type: "DONATION",
+      error: "",
+    });
+  };
+
+  const openCancelExpenseModal = (id) => {
+    setRejectionModal({
+      isOpen: true,
+      item: { id },
+      reason: "",
+      type: "EXPENSE",
+      error: "",
+    });
+  };
+
+  const handleConfirmRejection = async (e) => {
+    e.preventDefault();
+    if (!rejectionModal.reason || !rejectionModal.reason.trim()) {
+      setRejectionModal((prev) => ({
+        ...prev,
+        error: "Reason is required to proceed.",
+      }));
       return;
     }
-    const isMember = item.category === "MEMBER";
-    const endpoint = isMember
-      ? `/treasurer/reject-member/${item.id}`
-      : `/treasurer/reject-public/${item.id}`;
 
-    try {
-      await fetchAPI(endpoint, {
-        method: "PATCH",
-        body: JSON.stringify({ reason }),
-      });
-      loadAllData();
-    } catch (err) {
-      console.warn(
-        "Failed to reject donation in database, falling back locally:",
-        err.message,
-      );
-      const updated = donations.map((d) => {
-        if (d.id === item.id) {
-          return { ...d, status: "REJECTED" };
-        }
-        return d;
-      });
-      setDonations(updated);
-      localStorage.setItem("admin_donations", JSON.stringify(updated));
+    const { item, reason, type } = rejectionModal;
+    setRejectionModal({ isOpen: false, item: null, reason: "", type: "DONATION", error: "" });
+
+    if (type === "DONATION") {
+      const isMember = item.category === "MEMBER";
+      const endpoint = isMember
+        ? `/treasurer/reject-member/${item.id}`
+        : `/treasurer/reject-public/${item.id}`;
+
+      try {
+        await fetchAPI(endpoint, {
+          method: "PATCH",
+          body: JSON.stringify({ reason }),
+        });
+        loadAllData();
+      } catch (err) {
+        console.warn(
+          "Failed to reject donation in database, falling back locally:",
+          err.message,
+        );
+        const updated = donations.map((d) => {
+          if (d.id === item.id) {
+            return { ...d, status: "REJECTED" };
+          }
+          return d;
+        });
+        setDonations(updated);
+        localStorage.setItem("admin_donations", JSON.stringify(updated));
+      }
+    } else if (type === "EXPENSE") {
+      try {
+        await fetchAPI(`/expenses/${item.id}/cancel`, {
+          method: "PUT",
+          body: JSON.stringify({ reason }),
+        });
+        loadAllData();
+      } catch (err) {
+        console.warn(
+          "Failed to cancel expense in database, falling back locally:",
+          err.message,
+        );
+        const updated = expenses.map((e) => {
+          if (e.id === item.id) {
+            return { ...e, status: "CANCELLED" };
+          }
+          return e;
+        });
+        setExpenses(updated);
+        localStorage.setItem("admin_expenses", JSON.stringify(updated));
+      }
     }
   };
 
@@ -1884,89 +2065,34 @@ _This is an official computer-generated receipt._`;
                 />
               </div>
               <h2 className="brandTitle">HINDU SWARAJ</h2>
-              <p className="brandSubtitle">Youth Welfare Association</p>
+                       <p className="brandSubtitle">Youth Welfare Association</p>
 
               <div className="quoteBox">
                 <p className="quoteLine">
-                  "स्वराज्य हा माझा जन्मसिद्ध हक्क आहे आणि तो मी मिळवणारच"
+                  "स्वराज्य हा माझा जन्मसिद्ध हक्क आहे आणि तो मी मिळवणारच!" 🚩
                 </p>
-                <span className="quoteAuthor">- छत्रपती शिवाजी महाराज</span>
+                <span className="quoteAuthor">— लोकमान्य बाळ गंगाधर टिळक</span>
               </div>
             </div>
           </div>
 
           {/* Right Side: Form Panel */}
           <div className="loginFormSide">
-            <form className="loginFormCard" onSubmit={handleLogin}>
-              <div className="formHeader">
-                <h3 className="formTitle">Welcome Back</h3>
-                <p className="formSubtitle">
-                  Enter credentials to access the Control Center
-                </p>
-              </div>
-
-              {loginError && <div className="errorMsg">{loginError}</div>}
-
-              <div className="formGroup">
-                <label className="formLabel">Username</label>
-                <div className="inputWrapper">
-                  <span className="inputIcon">
-                    <svg
-                      width="18"
-                      height="18"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                      <circle cx="12" cy="7" r="4" />
-                    </svg>
-                  </span>
-                  <input
-                    type="text"
-                    className="inputField"
-                    placeholder="Enter your username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    required
-                  />
+            {forgotMode === "none" && (
+              <form className="loginFormCard" onSubmit={handleLogin}>
+                <div className="formHeader">
+                  <h3 className="formTitle">Welcome Back</h3>
+                  <p className="formSubtitle">
+                    Enter credentials to access the Control Center
+                  </p>
                 </div>
-              </div>
 
-              <div className="formGroup">
-                <label className="formLabel">Password</label>
-                <div className="inputWrapper">
-                  <span className="inputIcon">
-                    <svg
-                      width="18"
-                      height="18"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      viewBox="0 0 24 24"
-                    >
-                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                    </svg>
-                  </span>
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    className="inputField passwordField"
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                  <button
-                    type="button"
-                    className="eyeButton"
-                    onClick={() => setShowPassword(!showPassword)}
-                    aria-label={
-                      showPassword ? "Hide password" : "Show password"
-                    }
-                  >
-                    {showPassword ? (
+                {loginError && <div className="loginAlert error">{loginError}</div>}
+
+                <div className="formGroup">
+                  <label className="formLabel">Username</label>
+                  <div className="inputWrapper">
+                    <span className="inputIcon">
                       <svg
                         width="18"
                         height="18"
@@ -1975,10 +2101,276 @@ _This is an official computer-generated receipt._`;
                         strokeWidth="2"
                         viewBox="0 0 24 24"
                       >
-                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
-                        <line x1="1" y1="1" x2="23" y2="23" />
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
                       </svg>
+                    </span>
+                    <input
+                      type="text"
+                      className="inputField"
+                      placeholder="Enter your username or email"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="formGroup">
+                  <label className="formLabel">Password</label>
+                  <div className="inputWrapper">
+                    <span className="inputIcon">
+                      <svg
+                        width="18"
+                        height="18"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
+                      >
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                      </svg>
+                    </span>
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      className="inputField passwordField"
+                      placeholder="Enter your password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
+                    <button
+                      type="button"
+                      className="eyeButton"
+                      onClick={() => setShowPassword(!showPassword)}
+                      aria-label={
+                        showPassword ? "Hide password" : "Show password"
+                      }
+                    >
+                      {showPassword ? (
+                        <svg
+                          width="18"
+                          height="18"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                          <line x1="1" y1="1" x2="23" y2="23" />
+                        </svg>
+                      ) : (
+                        <svg
+                          width="18"
+                          height="18"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                          <circle cx="12" cy="7" r="3" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                  <div className="forgotPasswordWrapper">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setForgotMode("request_otp");
+                        setForgotIdentifier(username || "");
+                        setForgotError("");
+                        setForgotSuccess("");
+                      }}
+                      className="forgotPasswordLink"
+                      style={{ background: "none", border: "none", cursor: "pointer" }}
+                    >
+                      Forgot Password?
+                    </button>
+                  </div>
+                </div>
+
+                <button type="submit" className="loginBtn" disabled={loading}>
+                  {loading ? (
+                    <>
+                      Logging in...
+                      <div className="spinner" style={{ width: '16px', height: '16px', marginLeft: '8px', borderWidth: '2px' }} />
+                    </>
+                  ) : (
+                    <>
+                      Sign In
+                      <svg
+                        width="16"
+                        height="16"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
+                      >
+                        <polyline points="9 18 15 12 9 6" />
+                      </svg>
+                    </>
+                  )}
+                </button>
+              </form>
+            )}
+
+            {forgotMode === "request_otp" && (
+              <form className="loginFormCard" onSubmit={handleSendOtp}>
+                <button
+                  type="button"
+                  className="backButtonLink"
+                  onClick={() => {
+                    setForgotMode("none");
+                    setForgotError("");
+                    setForgotSuccess("");
+                  }}
+                >
+                  <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <polyline points="15 18 9 12 15 6" />
+                  </svg>
+                  Back to Sign In
+                </button>
+
+                <div className="formHeader">
+                  <h3 className="formTitle">Forgot Password</h3>
+                  <p className="formSubtitle">
+                    Enter your Username or Registered Email to receive a 6-digit OTP.
+                  </p>
+                </div>
+
+                {forgotError && <div className="loginAlert error">{forgotError}</div>}
+                {forgotSuccess && <div className="loginAlert success">{forgotSuccess}</div>}
+
+                <div className="formGroup">
+                  <label className="formLabel">Username / Email</label>
+                  <div className="inputWrapper">
+                    <span className="inputIcon">
+                      <svg
+                        width="18"
+                        height="18"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                      </svg>
+                    </span>
+                    <input
+                      type="text"
+                      className="inputField"
+                      placeholder="e.g. admin@hsy.org or your email"
+                      value={forgotIdentifier}
+                      onChange={(e) => setForgotIdentifier(e.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <button type="submit" className="loginBtn" disabled={forgotLoading}>
+                  {forgotLoading ? (
+                    <>
+                      Sending OTP...
+                      <div className="spinner" style={{ width: '16px', height: '16px', marginLeft: '8px', borderWidth: '2px' }} />
+                    </>
+                  ) : (
+                    <>
+                      Send Reset OTP
+                      <svg
+                        width="16"
+                        height="16"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
+                      >
+                        <polyline points="9 18 15 12 9 6" />
+                      </svg>
+                    </>
+                  )}
+                </button>
+              </form>
+            )}
+
+            {forgotMode === "verify_reset" && (
+              <form className="loginFormCard" onSubmit={handleResetPassword}>
+                <button
+                  type="button"
+                  className="backButtonLink"
+                  onClick={() => {
+                    setForgotMode("request_otp");
+                    setForgotError("");
+                    setForgotSuccess("");
+                  }}
+                >
+                  <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <polyline points="15 18 9 12 15 6" />
+                  </svg>
+                  Change Account
+                </button>
+
+                <div className="formHeader">
+                  <h3 className="formTitle">Reset Password</h3>
+                  <p className="formSubtitle">
+                    Enter the 6-digit OTP sent to {forgotMaskedEmail ? <b>{forgotMaskedEmail}</b> : "your email"} and set your new password.
+                  </p>
+                </div>
+
+                {forgotError && <div className="loginAlert error">{forgotError}</div>}
+                {forgotSuccess && <div className="loginAlert success">{forgotSuccess}</div>}
+
+                <div className="formGroup">
+                  <label className="formLabel">6-Digit OTP</label>
+                  <div className="inputWrapper">
+                    <span className="inputIcon">
+                      <svg
+                        width="18"
+                        height="18"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                      </svg>
+                    </span>
+                    <input
+                      type="text"
+                      className="inputField otpInputField"
+                      placeholder="000000"
+                      maxLength={6}
+                      value={forgotOtp}
+                      onChange={(e) => setForgotOtp(e.target.value.replace(/\D/g, ""))}
+                      required
+                    />
+                  </div>
+                  <div className="resendOtpContainer">
+                    {forgotCountdown > 0 ? (
+                      <span className="countdownText">
+                        Resend OTP in <b>{forgotCountdown}s</b>
+                      </span>
                     ) : (
+                      <span className="countdownText">Didn't receive the OTP?</span>
+                    )}
+                    <button
+                      type="button"
+                      className="resendBtn"
+                      onClick={handleResendOtp}
+                      disabled={forgotCountdown > 0 || forgotLoading}
+                    >
+                      Resend OTP
+                    </button>
+                  </div>
+                </div>
+
+                <div className="formGroup">
+                  <label className="formLabel">New Password</label>
+                  <div className="inputWrapper">
+                    <span className="inputIcon">
                       <svg
                         width="18"
                         height="18"
@@ -1987,51 +2379,143 @@ _This is an official computer-generated receipt._`;
                         strokeWidth="2"
                         viewBox="0 0 24 24"
                       >
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                        <circle cx="12" cy="12" r="3" />
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                       </svg>
-                    )}
-                  </button>
-                </div>
-                <div className="forgotPasswordWrapper">
-                  <a
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      alert(
-                        "Password recovery instructions have been simulated. In a live system, this would trigger an email reset flow.",
-                      );
-                    }}
-                    className="forgotPasswordLink"
-                  >
-                    Forgot Password?
-                  </a>
-                </div>
-              </div>
-
-              <button type="submit" className="loginBtn" disabled={loading}>
-                {loading ? (
-                  <>
-                    Logging in...
-                    <div className="spinner" style={{ width: '16px', height: '16px', marginLeft: '8px', borderWidth: '2px' }} />
-                  </>
-                ) : (
-                  <>
-                    Sign In
-                    <svg
-                      width="16"
-                      height="16"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      viewBox="0 0 24 24"
+                    </span>
+                    <input
+                      type={forgotShowPassword ? "text" : "password"}
+                      className="inputField passwordField"
+                      placeholder="Enter new password (min. 6 characters)"
+                      value={forgotNewPassword}
+                      onChange={(e) => setForgotNewPassword(e.target.value)}
+                      required
+                    />
+                    <button
+                      type="button"
+                      className="eyeButton"
+                      onClick={() => setForgotShowPassword(!forgotShowPassword)}
                     >
-                      <polyline points="9 18 15 12 9 6" />
-                    </svg>
-                  </>
-                )}
-              </button>
-            </form>
+                      {forgotShowPassword ? (
+                        <svg
+                          width="18"
+                          height="18"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                          <line x1="1" y1="1" x2="23" y2="23" />
+                        </svg>
+                      ) : (
+                        <svg
+                          width="18"
+                          height="18"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                          <circle cx="12" cy="7" r="3" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="formGroup">
+                  <label className="formLabel">Confirm New Password</label>
+                  <div className="inputWrapper">
+                    <span className="inputIcon">
+                      <svg
+                        width="18"
+                        height="18"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
+                      >
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                      </svg>
+                    </span>
+                    <input
+                      type={forgotShowPassword ? "text" : "password"}
+                      className="inputField"
+                      placeholder="Confirm your new password"
+                      value={forgotConfirmPassword}
+                      onChange={(e) => setForgotConfirmPassword(e.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <button type="submit" className="loginBtn" disabled={forgotLoading}>
+                  {forgotLoading ? (
+                    <>
+                      Updating Password...
+                      <div className="spinner" style={{ width: '16px', height: '16px', marginLeft: '8px', borderWidth: '2px' }} />
+                    </>
+                  ) : (
+                    <>
+                      Reset Password
+                      <svg
+                        width="16"
+                        height="16"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
+                      >
+                        <polyline points="9 18 15 12 9 6" />
+                      </svg>
+                    </>
+                  )}
+                </button>
+              </form>
+            )}
+
+            {forgotMode === "success" && (
+              <div className="loginFormCard forgotSuccessBox">
+                <div className="successIconCircle">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <h3 className="formTitle" style={{ marginBottom: "8px" }}>Password Reset Complete!</h3>
+                <p className="formSubtitle" style={{ marginBottom: "24px", lineHeight: "1.5" }}>
+                  Your password has been changed successfully. You can now sign in using your new password.
+                </p>
+                <button
+                  type="button"
+                  className="loginBtn"
+                  onClick={() => {
+                    setUsername(forgotIdentifier);
+                    setPassword("");
+                    setForgotMode("none");
+                    setForgotOtp("");
+                    setForgotNewPassword("");
+                    setForgotConfirmPassword("");
+                    setForgotError("");
+                    setForgotSuccess("");
+                  }}
+                >
+                  Sign In Now
+                  <svg
+                    width="16"
+                    height="16"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -2058,13 +2542,16 @@ _This is an official computer-generated receipt._`;
 
         <nav className="navMenu">
           {!isMember && (
+            <button
+              className={`navItem ${activeTab === "overview" ? "navItemActive" : ""}`}
+              onClick={() => setActiveTab("overview")}
+            >
+              Dashboard
+            </button>
+          )}
+
+          {!isMember && !isEC && (
             <>
-              <button
-                className={`navItem ${activeTab === "overview" ? "navItemActive" : ""}`}
-                onClick={() => setActiveTab("overview")}
-              >
-                Dashboard
-              </button>
               <button
                 className={`navItem ${activeTab === "members" ? "navItemActive" : ""}`}
                 onClick={() => setActiveTab("members")}
@@ -2098,7 +2585,7 @@ _This is an official computer-generated receipt._`;
             </>
           )}
 
-          {isMember && (
+          {(isMember || isEC) && (
             <>
               <button
                 className={`navItem ${activeTab === "pay_donation" ? "navItemActive" : ""}`}
@@ -2134,7 +2621,7 @@ _This is an official computer-generated receipt._`;
             Suggestions
           </button>
           
-          {!isMember && (
+          {!isMember && !isEC && (
             <button
               className={`navItem ${activeTab === "logs" ? "navItemActive" : ""}`}
               onClick={() => setActiveTab("logs")}
@@ -2171,7 +2658,9 @@ _This is an official computer-generated receipt._`;
                 }}
               >
                 Welcome,{" "}
-                <span style={{ color: "#2563eb" }}>Super Admin 👋</span>
+                <span style={{ color: "#2563eb" }}>
+                  {currentUser?.name || (isSuperAdmin ? "Super Admin" : isEC ? "EC Member" : "User")} 👋
+                </span>
               </h2>
               <p
                 className="welcomeSubtitle"
@@ -2181,7 +2670,7 @@ _This is an official computer-generated receipt._`;
                   marginTop: "4px",
                 }}
               >
-                Admin Dashboard
+                {isEC ? "Executive Committee Dashboard" : isSuperAdmin ? "Admin Dashboard" : "Dashboard"}
               </p>
             </div>
 
@@ -2319,587 +2808,6 @@ _This is an official computer-generated receipt._`;
                       <line x1="9" y1="9" x2="15" y2="15" />
                     </svg>
                   </div>
-                </div>
-              </div>
-            </div>
-
-            {/* 💰 Fund Balances Section */}
-            <div className="panelCard" style={{ marginBottom: "24px" }}>
-              <div
-                className="panelHeader"
-                style={{
-                  borderBottom: "1px solid #f1f5f9",
-                  paddingBottom: "12px",
-                  marginBottom: "16px",
-                }}
-              >
-                <h3
-                  className="panelTitle"
-                  style={{
-                    fontSize: "1rem",
-                    fontWeight: "700",
-                    textTransform: "none",
-                    color: "#1e293b",
-                  }}
-                >
-                  💰 Fund Balances
-                </h3>
-              </div>
-              <div
-                className="fundBalancesList"
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
-                  gap: "16px",
-                }}
-              >
-                {funds.map((item, idx) => {
-                  const colors = [
-                    {
-                      bg: "rgba(128, 10, 13, 0.03)",
-                      border: "rgba(128, 10, 13, 0.08)",
-                    },
-                    {
-                      bg: "rgba(216, 88, 24, 0.03)",
-                      border: "rgba(216, 88, 24, 0.08)",
-                    },
-                    {
-                      bg: "rgba(212, 160, 23, 0.03)",
-                      border: "rgba(212, 160, 23, 0.08)",
-                    },
-                  ];
-                  const color = colors[idx % colors.length];
-                  return (
-                    <div
-                      key={item.id}
-                      style={{
-                        padding: "16px",
-                        background: color.bg,
-                        borderRadius: "8px",
-                        border: `1px solid ${color.border}`,
-                      }}
-                    >
-                      <div
-                        style={{
-                          color: "#64748b",
-                          fontSize: "0.78rem",
-                          fontWeight: "600",
-                          textTransform: "uppercase",
-                        }}
-                      >
-                        {item.fund_name}
-                      </div>
-                      <div
-                        style={{
-                          fontSize: "1.4rem",
-                          fontWeight: "800",
-                          color: "var(--navy)",
-                          marginTop: "4px",
-                        }}
-                      >
-                        ₹{Number(item.balance || 0).toLocaleString()}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Two Column Section for Cashflow and Fund-wise Balance */}
-            <div className="dashboardGrid" style={{ marginBottom: "24px" }}>
-              <div className="panelCard">
-                <div
-                  className="panelHeader"
-                  style={{
-                    borderBottom: "1px solid #f1f5f9",
-                    paddingBottom: "12px",
-                    marginBottom: "16px",
-                  }}
-                >
-                  <h3
-                    className="panelTitle"
-                    style={{
-                      fontSize: "1rem",
-                      fontWeight: "700",
-                      textTransform: "none",
-                      color: "#1e293b",
-                    }}
-                  >
-                    📊 Monthly Cashflow
-                  </h3>
-                </div>
-                <div
-                  className="monthlyCashflowChart"
-                  style={{
-                    width: "100%",
-                    height: "180px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <svg
-                    viewBox="0 0 400 150"
-                    style={{ width: "100%", height: "100%" }}
-                  >
-                    <defs>
-                      <linearGradient
-                        id="chartGradient"
-                        x1="0"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                      >
-                        <stop
-                          offset="0%"
-                          stopColor="var(--saffron)"
-                          stopOpacity="0.2"
-                        />
-                        <stop
-                          offset="100%"
-                          stopColor="var(--saffron)"
-                          stopOpacity="0.0"
-                        />
-                      </linearGradient>
-                    </defs>
-                    <line
-                      x1="40"
-                      y1="10"
-                      x2="380"
-                      y2="10"
-                      stroke="#f1f5f9"
-                      strokeWidth="1"
-                      strokeDasharray="4 4"
-                    />
-                    <line
-                      x1="40"
-                      y1="37.5"
-                      x2="380"
-                      y2="37.5"
-                      stroke="#f1f5f9"
-                      strokeWidth="1"
-                      strokeDasharray="4 4"
-                    />
-                    <line
-                      x1="40"
-                      y1="65"
-                      x2="380"
-                      y2="65"
-                      stroke="#f1f5f9"
-                      strokeWidth="1"
-                      strokeDasharray="4 4"
-                    />
-                    <line
-                      x1="40"
-                      y1="92.5"
-                      x2="380"
-                      y2="92.5"
-                      stroke="#f1f5f9"
-                      strokeWidth="1"
-                      strokeDasharray="4 4"
-                    />
-                    <line
-                      x1="40"
-                      y1="10"
-                      x2="40"
-                      y2="120"
-                      stroke="#cbd5e1"
-                      strokeWidth="1"
-                    />
-                    <line
-                      x1="40"
-                      y1="120"
-                      x2="380"
-                      y2="120"
-                      stroke="#cbd5e1"
-                      strokeWidth="1"
-                    />
-                    <path d={cashflowAreaPath} fill="url(#chartGradient)" />
-                    <path
-                      d={cashflowLinePath}
-                      fill="none"
-                      stroke="var(--saffron)"
-                      strokeWidth="3"
-                    />
-                    {cashflowPoints.map((p, idx) => (
-                      <circle
-                        key={idx}
-                        cx={p.x}
-                        cy={p.y}
-                        r="3"
-                        fill="var(--maroon)"
-                      />
-                    ))}
-                    {cashflowPoints.length > 0 && (
-                      <>
-                        <circle
-                          cx={cashflowPoints[cashflowPoints.length - 1].x}
-                          cy={cashflowPoints[cashflowPoints.length - 1].y}
-                          r="5"
-                          fill="var(--maroon)"
-                          stroke="#ffffff"
-                          strokeWidth="2"
-                        />
-                        <line
-                          x1={cashflowPoints[cashflowPoints.length - 1].x}
-                          y1={cashflowPoints[cashflowPoints.length - 1].y}
-                          x2={cashflowPoints[cashflowPoints.length - 1].x}
-                          y2="120"
-                          stroke="var(--maroon)"
-                          strokeWidth="1"
-                          strokeDasharray="2 2"
-                        />
-                      </>
-                    )}
-                    <text
-                      x="25"
-                      y="15"
-                      fill="#64748b"
-                      fontSize="9"
-                      textAnchor="end"
-                    >
-                      {Math.round(maxCashflowVal / 1000)}k
-                    </text>
-                    <text
-                      x="25"
-                      y="42.5"
-                      fill="#64748b"
-                      fontSize="9"
-                      textAnchor="end"
-                    >
-                      {Math.round((maxCashflowVal * 0.75) / 1000)}k
-                    </text>
-                    <text
-                      x="25"
-                      y="70"
-                      fill="#64748b"
-                      fontSize="9"
-                      textAnchor="end"
-                    >
-                      {Math.round((maxCashflowVal * 0.5) / 1000)}k
-                    </text>
-                    <text
-                      x="25"
-                      y="97.5"
-                      fill="#64748b"
-                      fontSize="9"
-                      textAnchor="end"
-                    >
-                      {Math.round((maxCashflowVal * 0.25) / 1000)}k
-                    </text>
-                    <text
-                      x="25"
-                      y="125"
-                      fill="#64748b"
-                      fontSize="9"
-                      textAnchor="end"
-                    >
-                      0
-                    </text>
-                    {cashflowPoints.map((p, idx) => (
-                      <text
-                        key={idx}
-                        x={p.x}
-                        y="138"
-                        fill="#64748b"
-                        fontSize="9"
-                        textAnchor="middle"
-                        fontWeight="600"
-                      >
-                        {p.label}
-                      </text>
-                    ))}
-                  </svg>
-                </div>
-              </div>
-
-              <div className="panelCard">
-                <div
-                  className="panelHeader"
-                  style={{
-                    borderBottom: "1px solid #f1f5f9",
-                    paddingBottom: "12px",
-                    marginBottom: "16px",
-                  }}
-                >
-                  <h3
-                    className="panelTitle"
-                    style={{
-                      fontSize: "1rem",
-                      fontWeight: "700",
-                      textTransform: "none",
-                      color: "#1e293b",
-                    }}
-                  >
-                    💼 Fund-wise Balance
-                  </h3>
-                </div>
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "16px",
-                  }}
-                >
-                  {funds.map((item, idx) => {
-                    const balanceVal = Number(item.balance || 0);
-                    const pct =
-                      totalFundsBalance > 0
-                        ? Math.round((balanceVal / totalFundsBalance) * 100)
-                        : 0;
-                    const barColors = [
-                      "var(--maroon)",
-                      "var(--saffron)",
-                      "var(--gold)",
-                    ];
-                    const barColor = barColors[idx % barColors.length];
-                    return (
-                      <div key={item.id}>
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            fontSize: "0.82rem",
-                            fontWeight: "600",
-                            marginBottom: "4px",
-                            color: "var(--navy)",
-                          }}
-                        >
-                          <span>{item.fund_name}</span>
-                          <span>{pct}%</span>
-                        </div>
-                        <div
-                          style={{
-                            height: "6px",
-                            background: "#f1f5f9",
-                            borderRadius: "3px",
-                            overflow: "hidden",
-                          }}
-                        >
-                          <div
-                            style={{
-                              height: "100%",
-                              width: `${pct}%`,
-                              background: barColor,
-                              borderRadius: "3px",
-                            }}
-                          ></div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-
-            {/* Announcements Panel */}
-            <div className="panelCard" style={{ marginBottom: "24px" }}>
-              <div
-                className="panelHeader"
-                style={{
-                  borderBottom: "1px solid #f1f5f9",
-                  paddingBottom: "12px",
-                  marginBottom: "16px",
-                }}
-              >
-                <h3
-                  className="panelTitle"
-                  style={{
-                    fontSize: "1rem",
-                    fontWeight: "700",
-                    textTransform: "none",
-                    color: "#1e293b",
-                  }}
-                >
-                  📢 Latest Announcements
-                </h3>
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "12px",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "12px",
-                    padding: "12px",
-                    background: "#f8fafc",
-                    borderRadius: "8px",
-                  }}
-                >
-                  <div style={{ fontSize: "1.2rem" }}>📢</div>
-                  <div>
-                    <h4
-                      style={{
-                        fontSize: "0.88rem",
-                        fontWeight: "700",
-                        color: "var(--navy)",
-                      }}
-                    >
-                      Tree Plantation Drive 2026
-                    </h4>
-                    <p
-                      style={{
-                        fontSize: "0.82rem",
-                        color: "#64748b",
-                        marginTop: "2px",
-                      }}
-                    >
-                      Sapling plantation campaign is scheduled on July 22nd at
-                      Aravind Nagar Central Ground.
-                    </p>
-                  </div>
-                </div>
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "12px",
-                    padding: "12px",
-                    background: "#f8fafc",
-                    borderRadius: "8px",
-                  }}
-                >
-                  <div style={{ fontSize: "1.2rem" }}>🎉</div>
-                  <div>
-                    <h4
-                      style={{
-                        fontSize: "0.88rem",
-                        fontWeight: "700",
-                        color: "var(--navy)",
-                      }}
-                    >
-                      Blood Donation Camp Successful
-                    </h4>
-                    <p
-                      style={{
-                        fontSize: "0.82rem",
-                        color: "#64748b",
-                        marginTop: "2px",
-                      }}
-                    >
-                      Over 150 volunteers registered and donated successfully
-                      during the community campaign.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Contributions Panel */}
-            <div className="panelCard" style={{ marginBottom: "24px" }}>
-              <div
-                className="panelHeader"
-                style={{
-                  borderBottom: "1px solid #f1f5f9",
-                  paddingBottom: "12px",
-                  marginBottom: "16px",
-                }}
-              >
-                <h3
-                  className="panelTitle"
-                  style={{
-                    fontSize: "1rem",
-                    fontWeight: "700",
-                    textTransform: "none",
-                    color: "#1e293b",
-                  }}
-                >
-                  📰 Recent Contributions
-                </h3>
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "12px",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    padding: "8px 12px",
-                    borderBottom: "1px solid #f1f5f9",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "12px",
-                      alignItems: "center",
-                    }}
-                  >
-                    <span style={{ fontSize: "1.1rem" }}>👤</span>
-                    <div>
-                      <div
-                        style={{
-                          fontSize: "0.88rem",
-                          fontWeight: "700",
-                          color: "var(--navy)",
-                        }}
-                      >
-                        Ramesh Goud
-                      </div>
-                      <div style={{ fontSize: "0.78rem", color: "#64748b" }}>
-                        Contributed to Youth Event Fund
-                      </div>
-                    </div>
-                  </div>
-                  <span
-                    style={{
-                      fontWeight: "700",
-                      color: "#10b981",
-                      fontSize: "0.9rem",
-                    }}
-                  >
-                    +₹15,000
-                  </span>
-                </div>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    padding: "8px 12px",
-                    borderBottom: "1px solid #f1f5f9",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "12px",
-                      alignItems: "center",
-                    }}
-                  >
-                    <span style={{ fontSize: "1.1rem" }}>👤</span>
-                    <div>
-                      <div
-                        style={{
-                          fontSize: "0.88rem",
-                          fontWeight: "700",
-                          color: "var(--navy)",
-                        }}
-                      >
-                        Suresh Kumar
-                      </div>
-                      <div style={{ fontSize: "0.78rem", color: "#64748b" }}>
-                        Contributed to Sapling Plantation Fund
-                      </div>
-                    </div>
-                  </div>
-                  <span
-                    style={{
-                      fontWeight: "700",
-                      color: "#10b981",
-                      fontSize: "0.9rem",
-                    }}
-                  >
-                    +₹8,000
-                  </span>
                 </div>
               </div>
             </div>
@@ -3656,9 +3564,13 @@ _This is an official computer-generated receipt._`;
                               </span>
                             </td>
                             <td>
-                              {item.status === "SUCCESS" && (
+                              {(item.status === "SUCCESS" || item.status === "APPROVED") && (
                                 <a
-                                  href={`${API_BASE_URL}/receipts/verify/${item.order_id}`}
+                                  href={
+                                    item.source === "OFFLINE"
+                                      ? `/receipt/${item.id}`
+                                      : `${API_BASE_URL}/receipts/verify/${item.order_id}`
+                                  }
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="viewReceiptBtn"
@@ -5326,7 +5238,7 @@ _This is an official computer-generated receipt._`;
                                       <button
                                         type="button"
                                         onClick={() =>
-                                          handleRejectDonation(item)
+                                          openRejectDonationModal(item)
                                         }
                                         style={{
                                           background: "none",
@@ -5531,27 +5443,210 @@ _This is an official computer-generated receipt._`;
 
         {activeTab === "logs" && (
           <>
-            <div className="contentHeader">
+            <div
+              className="contentHeader"
+              style={{
+                display: "flex",
+                justify: "space-between",
+                alignItems: "center",
+                flexWrap: "wrap",
+                gap: "10px",
+              }}
+            >
               <h2 className="pageTitle">Audit Logs</h2>
+              <span
+                style={{
+                  fontSize: "0.85rem",
+                  color: "var(--text-secondary, #64748b)",
+                  fontWeight: "600",
+                }}
+              >
+                Total Records: {auditPagination.totalCount || auditLogs.length}
+              </span>
             </div>
 
             <div className="panelCard">
               <div className="timeline" style={{ padding: "10px 0" }}>
-                {auditLogs.map((log) => (
-                  <div key={log.id} className="timelineItem">
-                    <div className="timelineDot" />
-                    <div className="timelineContent">
-                      <p
-                        className="timelineText"
-                        style={{ fontSize: "0.95rem" }}
-                      >
-                        {log.text}
-                      </p>
-                      <span className="timelineTime">{log.time}</span>
+                {auditLogs.length === 0 ? (
+                  <p
+                    style={{
+                      textAlign: "center",
+                      color: "#64748b",
+                      padding: "20px",
+                    }}
+                  >
+                    No audit logs found.
+                  </p>
+                ) : (
+                  auditLogs.map((log) => (
+                    <div
+                      key={log.id}
+                      className="timelineItem"
+                      style={{
+                        display: "flex",
+                        gap: "14px",
+                        marginBottom: "18px",
+                        alignItems: "flex-start",
+                      }}
+                    >
+                      <div
+                        className="timelineDot"
+                        style={{
+                          width: "10px",
+                          height: "10px",
+                          borderRadius: "50%",
+                          background: "var(--saffron, #d85818)",
+                          marginTop: "6px",
+                          flexShrink: 0,
+                        }}
+                      />
+                      <div className="timelineContent" style={{ flex: 1 }}>
+                        <div
+                          style={{
+                            display: "flex",
+                            justify: "space-between",
+                            alignItems: "center",
+                            flexWrap: "wrap",
+                            gap: "8px",
+                          }}
+                        >
+                          <p
+                            className="timelineText"
+                            style={{
+                              fontSize: "0.95rem",
+                              fontWeight: "600",
+                              margin: 0,
+                              color: "var(--navy, #1e293b)",
+                            }}
+                          >
+                            {log.text}
+                          </p>
+                          <span
+                            style={{
+                              fontSize: "0.78rem",
+                              background: "#f1f5f9",
+                              color: "#334155",
+                              padding: "3px 10px",
+                              borderRadius: "12px",
+                              fontWeight: "600",
+                              border: "1px solid #e2e8f0",
+                            }}
+                          >
+                            👤 {log.performedBy || "System"}
+                          </span>
+                        </div>
+                        <span
+                          className="timelineTime"
+                          style={{
+                            fontSize: "0.8rem",
+                            color: "#94a3b8",
+                            display: "block",
+                            marginTop: "4px",
+                          }}
+                        >
+                          📅 {log.time}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
+
+              {/* --- PAGINATION CONTROLS --- */}
+              {auditPagination.totalPages > 1 && (
+                <div
+                  style={{
+                    display: "flex",
+                    justify: "space-between",
+                    alignItems: "center",
+                    paddingTop: "16px",
+                    marginTop: "16px",
+                    borderTop: "1px solid #e2e8f0",
+                    flexWrap: "wrap",
+                    gap: "10px",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: "0.85rem",
+                      color: "#64748b",
+                      fontWeight: "600",
+                    }}
+                  >
+                    Page {auditPagination.currentPage} of{" "}
+                    {auditPagination.totalPages}
+                  </div>
+                  <div style={{ display: "flex", gap: "8px" }}>
+                    <button
+                      type="button"
+                      disabled={auditPagination.currentPage <= 1}
+                      onClick={() =>
+                        setAuditPage((prev) => Math.max(prev - 1, 1))
+                      }
+                      style={{
+                        padding: "6px 14px",
+                        borderRadius: "6px",
+                        border: "1px solid #cbd5e1",
+                        background:
+                          auditPagination.currentPage <= 1
+                            ? "#f8fafc"
+                            : "#ffffff",
+                        color:
+                          auditPagination.currentPage <= 1
+                            ? "#94a3b8"
+                            : "#1e293b",
+                        fontWeight: "600",
+                        fontSize: "0.85rem",
+                        cursor:
+                          auditPagination.currentPage <= 1
+                            ? "not-allowed"
+                            : "pointer",
+                        transition: "all 0.2s",
+                      }}
+                    >
+                      ← Previous
+                    </button>
+
+                    <button
+                      type="button"
+                      disabled={
+                        auditPagination.currentPage >=
+                        auditPagination.totalPages
+                      }
+                      onClick={() =>
+                        setAuditPage((prev) =>
+                          Math.min(prev + 1, auditPagination.totalPages),
+                        )
+                      }
+                      style={{
+                        padding: "6px 14px",
+                        borderRadius: "6px",
+                        border: "1px solid #cbd5e1",
+                        background:
+                          auditPagination.currentPage >=
+                          auditPagination.totalPages
+                            ? "#f8fafc"
+                            : "#ffffff",
+                        color:
+                          auditPagination.currentPage >=
+                          auditPagination.totalPages
+                            ? "#94a3b8"
+                            : "#1e293b",
+                        fontWeight: "600",
+                        fontSize: "0.85rem",
+                        cursor:
+                          auditPagination.currentPage >=
+                          auditPagination.totalPages
+                            ? "not-allowed"
+                            : "pointer",
+                        transition: "all 0.2s",
+                      }}
+                    >
+                      Next →
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </>
         )}
@@ -5832,6 +5927,57 @@ _This is an official computer-generated receipt._`;
             </div>
 
             <div className="formGroup">
+              <label className="formLabel">Assign Member (Optional)</label>
+              <input
+                type="text"
+                className="inputField"
+                placeholder="🔍 Search member by ID, Name or Mobile..."
+                value={memberSearchQuery}
+                onChange={(e) => setMemberSearchQuery(e.target.value)}
+                style={{ marginBottom: "8px" }}
+              />
+              <select
+                className="inputField"
+                value={newDonation.member_id || ""}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  const selectedMem = members.find(
+                    (m) => String(m.dbId || m.id) === String(val)
+                  );
+                  setNewDonation({
+                    ...newDonation,
+                    member_id: val,
+                    ...(selectedMem
+                      ? {
+                          title: newDonation.title || selectedMem.name || "",
+                          phone: newDonation.phone || selectedMem.phone || "",
+                        }
+                      : {}),
+                  });
+                }}
+                style={{ appearance: "none", background: "#ffffff" }}
+              >
+                <option value="">-- None (General / Non-Member) --</option>
+                {members
+                  .filter((m) => {
+                    if (!memberSearchQuery.trim()) return true;
+                    const q = memberSearchQuery.toLowerCase().trim();
+                    return (
+                      (m.id && String(m.id).toLowerCase().includes(q)) ||
+                      (m.name && String(m.name).toLowerCase().includes(q)) ||
+                      (m.phone && String(m.phone).toLowerCase().includes(q)) ||
+                      (m.email && String(m.email).toLowerCase().includes(q))
+                    );
+                  })
+                  .map((m) => (
+                    <option key={m.dbId || m.id} value={m.dbId || m.id}>
+                      {m.name} ({m.id}) {m.phone ? ` - 📞 ${m.phone}` : ""}
+                    </option>
+                  ))}
+              </select>
+            </div>
+
+            <div className="formGroup">
               <label className="formLabel">Select Fund Category *</label>
               <select
                 className="inputField"
@@ -5985,6 +6131,89 @@ _This is an official computer-generated receipt._`;
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* --- REJECTION / CANCELLATION REASON MODAL --- */}
+      {rejectionModal.isOpen && (
+        <div className="modalBackdrop">
+          <form className="modalContent" onSubmit={handleConfirmRejection} style={{ maxWidth: "450px" }}>
+            <div className="modalHeader">
+              <h3 className="modalTitle">
+                {rejectionModal.type === "DONATION" ? "Reject Donation" : "Cancel Expense"}
+              </h3>
+              <button
+                type="button"
+                className="closeBtn"
+                onClick={() => setRejectionModal({ isOpen: false, item: null, reason: "", type: "DONATION", error: "" })}
+              >
+                ×
+              </button>
+            </div>
+
+            <p style={{ fontSize: "0.9rem", color: "#64748b", marginBottom: "16px", marginTop: "8px" }}>
+              Please enter the reason for {rejectionModal.type === "DONATION" ? "rejecting this donation" : "cancelling this expense"}:
+            </p>
+
+            <div className="formGroup">
+              <label className="formLabel">Rejection Reason *</label>
+              <textarea
+                className="inputField"
+                rows="3"
+                value={rejectionModal.reason}
+                onChange={(e) =>
+                  setRejectionModal((prev) => ({
+                    ...prev,
+                    reason: e.target.value,
+                    error: "",
+                  }))
+                }
+                placeholder="Enter detailed reason for rejection..."
+                style={{ resize: "none" }}
+                required
+                autoFocus
+              />
+            </div>
+
+            {rejectionModal.error && (
+              <p style={{ color: "#ef4444", fontSize: "0.85rem", marginBottom: "12px", fontWeight: "600" }}>
+                {rejectionModal.error}
+              </p>
+            )}
+
+            <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", marginTop: "20px" }}>
+              <button
+                type="button"
+                className="secondaryBtn"
+                onClick={() => setRejectionModal({ isOpen: false, item: null, reason: "", type: "DONATION", error: "" })}
+                style={{
+                  padding: "10px 18px",
+                  borderRadius: "6px",
+                  border: "1px solid #cbd5e1",
+                  background: "#ffffff",
+                  cursor: "pointer",
+                  fontWeight: "600",
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                style={{
+                  padding: "10px 18px",
+                  borderRadius: "6px",
+                  border: "none",
+                  background: "#ef4444",
+                  color: "#ffffff",
+                  fontWeight: "700",
+                  cursor: "pointer",
+                  boxShadow: "0 4px 6px rgba(239, 68, 68, 0.2)",
+                }}
+              >
+                Confirm {rejectionModal.type === "DONATION" ? "Rejection" : "Cancellation"}
+              </button>
+            </div>
+          </form>
         </div>
       )}
 
