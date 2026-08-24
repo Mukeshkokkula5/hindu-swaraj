@@ -27,7 +27,9 @@ export default function PublicReceiptPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
+  const API_BASE_URL = (
+    process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000"
+  ).replace(/\/$/, "");
 
   useEffect(() => {
     if (!token) return;

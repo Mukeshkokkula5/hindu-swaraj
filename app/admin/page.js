@@ -946,6 +946,11 @@ export default function AdminPage() {
   const defaultLogs = [];
 
   const API_BASE_URL = "http://localhost:4000";
+  const API_BASE_URL =
+    (process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000").replace(
+      /\/$/,
+      ""
+    );
 
   const fetchAPI = async (path, options = {}) => {
     const token =
@@ -3654,7 +3659,7 @@ _This is an official computer-generated receipt._`;
                             <td>
                               {item.status === "SUCCESS" && (
                                 <a
-                                  href={`http://localhost:4000/receipts/verify/${item.order_id}`}
+                                  href={`${API_BASE_URL}/receipts/verify/${item.order_id}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="viewReceiptBtn"
@@ -5483,7 +5488,7 @@ _This is an official computer-generated receipt._`;
                             <td>
                               {item.status === "SUCCESS" && (
                                 <a
-                                  href={`http://localhost:4000/receipts/verify/${item.order_id}`}
+                                  href={`${API_BASE_URL}/receipts/verify/${item.order_id}`}
                                   target="_blank"
                                   rel="noreferrer"
                                   style={{

@@ -41,11 +41,12 @@ export default function DonationSection({
   const [success, setSuccess] = useState('');
   const [fundTypes, setFundTypes] = useState([]);
 
+  const API_BASE_URL = (process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000').replace(/\/$/, '');
+
   useEffect(() => {
     const fetchFundTypes = async () => {
       try {
-        const baseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000').replace(/\/$/, '');
-        const response = await fetch(`${baseUrl}/contributions/funds`);
+        const response = await fetch(`${API_BASE_URL}/contributions/funds`);
         if (response.ok) {
           const data = await response.json();
           setFundTypes(data);
@@ -60,7 +61,7 @@ export default function DonationSection({
       }
     };
     fetchFundTypes();
-  }, []);
+  }, [API_BASE_URL]);
 
   const getAmount = () => {
     if (custom) return parseFloat(custom) || 0;
@@ -88,18 +89,17 @@ export default function DonationSection({
 
   const handlePayment = async (e) => {
     e.preventDefault();
+    if (!formData.name || !formData.mobile || !formData.email || !currentAmount || !formData.fundType || !formData.address) {
+      setError("Please fill all required fields and select an amount.");
+      return;
+    }
+
     setError('');
     setSuccess('');
     setLoading(true);
 
     if (currentAmount < 1) {
       setError("Please enter a valid amount greater than ₹1.");
-      setLoading(false);
-      return;
-    }
-
-    if (!formData.name || !formData.email || !formData.mobile || !formData.address) {
-      setError("All fields are mandatory to proceed with payment.");
       setLoading(false);
       return;
     }
@@ -114,7 +114,7 @@ export default function DonationSection({
       }
 
       // 2. Create Order on Backend
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000'}/payment/create-order`, {
+      const response = await fetch(`${API_BASE_URL}/payment/create-order`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -148,7 +148,7 @@ export default function DonationSection({
           setSuccess("Verifying payment... Please wait.");
           // Verify on backend
           try {
-            const verifyRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000'}/payment/verify`, {
+            const verifyRes = await fetch(`${API_BASE_URL}/payment/verify`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
