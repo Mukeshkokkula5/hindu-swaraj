@@ -140,7 +140,7 @@ export default function PublicReceiptPage() {
       })
     : "";
 
-  const receiptNo = `HSY/784/25/${String(donation.id || Date.now()).slice(-4)}`;
+  const receiptNo = donation.receipt_no || (donation.order_id ? donation.order_id.replace(/^order_/, "HSYWA-") : `HSYWA-${String(donation.id || Date.now()).slice(-8)}`);
   const amountWords = numberToWords(Number(donation.amount));
 
   return (
