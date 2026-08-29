@@ -23,18 +23,22 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
 }
 
 .logo {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   z-index: 1001;
+  text-decoration: none;
+  flex-shrink: 0;
 }
 
 .logoImg {
   border-radius: 50%;
   object-fit: cover;
+  flex-shrink: 0;
 }
 
 .logoText {
@@ -43,67 +47,224 @@
 }
 
 .logoTitle {
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 800;
   color: var(--white);
   letter-spacing: 0.5px;
   line-height: 1.2;
+  white-space: nowrap;
 }
 
 .logoSubtitle {
-  font-size: 0.65rem;
-  font-weight: 500;
+  font-size: 0.62rem;
+  font-weight: 600;
   color: var(--saffron-light);
-  letter-spacing: 2px;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .navLinks {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
+  flex-shrink: 1;
 }
 
 .navLink {
-  padding: 8px 14px;
-  font-size: 0.88rem;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.85);
+  padding: 6px 10px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.88);
   border-radius: var(--radius-sm);
   transition: all var(--transition-fast);
   white-space: nowrap;
+  text-decoration: none;
 }
 
 .navLink:hover {
   color: var(--white);
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.navLinkHighlight {
+  color: #ffd700 !important;
+  background: linear-gradient(135deg, rgba(255, 119, 0, 0.2) 0%, rgba(255, 215, 0, 0.15) 100%);
+  border: 1.5px solid rgba(255, 179, 0, 0.5);
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  box-shadow: 0 0 14px rgba(255, 179, 0, 0.25);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.navLinkHighlight:hover {
+  background: linear-gradient(135deg, rgba(255, 119, 0, 0.35) 0%, rgba(255, 215, 0, 0.3) 100%) !important;
+  border-color: #ffd700 !important;
+  color: #fff !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 18px rgba(255, 179, 0, 0.45);
+}
+
+/* Services Dropdown Wrapper */
+.dropdownContainer {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 360px;
+  background: rgba(11, 19, 43, 0.97);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1.5px solid rgba(255, 179, 0, 0.4);
+  border-radius: 18px;
+  padding: 10px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85), 0 0 30px rgba(255, 179, 0, 0.25);
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  animation: dropFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes dropFadeIn {
+  from { opacity: 0; transform: translate(-50%, -8px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.dropdownItemCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  text-decoration: none;
+  background: transparent;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.dropdownItemCard:hover {
+  background: rgba(255, 179, 0, 0.1);
+  border-color: rgba(255, 179, 0, 0.25);
+  transform: translateX(4px);
+}
+
+.dropdownIconWrap {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dropdownItemContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.dropdownItemTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.dropdownItemTitle {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.dropdownItemBadge {
+  font-size: 0.62rem;
+  font-weight: 900;
+  padding: 2px 6px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+}
+
+.badgeEmergency {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  border: 1px solid #ef4444;
+}
+
+.badgeBlood {
+  background: rgba(236, 72, 153, 0.2);
+  color: #f472b6;
+  border: 1px solid #ec4899;
+}
+
+.badgeNavaratri {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fcd34d;
+  border: 1px solid #f59e0b;
+}
+
+.badgeCommunity {
+  background: rgba(16, 185, 129, 0.2);
+  color: #6ee7b7;
+  border: 1px solid #10b981;
+}
+
+.badgeVolunteer {
+  background: rgba(59, 130, 246, 0.2);
+  color: #93c5fd;
+  border: 1px solid #3b82f6;
+}
+
+.dropdownItemDesc {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  margin-top: 2px;
+  line-height: 1.35;
 }
 
 .loginBtn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   color: var(--white);
   border: 1px solid rgba(255, 255, 255, 0.6);
-  padding: 8px 24px;
+  padding: 6px 14px;
   border-radius: 50px;
-  font-size: 0.85rem;
-  font-weight: 500;
+  font-size: 0.8rem;
+  font-weight: 600;
   text-decoration: none;
   transition: all 0.3s ease;
-  margin-left: 16px;
+  margin-left: 8px;
   background: transparent;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .loginBtn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.15);
   border-color: rgba(255, 255, 255, 1);
 }
 
 .donateBtn {
-  margin-left: 8px;
-  padding: 10px 24px !important;
-  font-size: 0.85rem !important;
+  margin-left: 6px;
+  padding: 7px 16px !important;
+  font-size: 0.82rem !important;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 /* Hamburger */
@@ -136,8 +297,8 @@
   transform: rotate(-45deg) translate(5px, -5px);
 }
 
-/* Mobile */
-@media (max-width: 1024px) {
+/* Mobile & Tablet Breakpoint */
+@media (max-width: 1180px) {
   .hamburger {
     display: flex;
   }
@@ -146,15 +307,17 @@
     position: fixed;
     top: 0;
     right: -100%;
-    width: 300px;
+    width: 320px;
     height: 100vh;
-    background: var(--navy);
+    background: #0b132b;
     flex-direction: column;
-    justify-content: center;
-    gap: 4px;
-    padding: 80px 32px 32px;
+    justify-content: flex-start;
+    gap: 8px;
+    padding: 90px 24px 32px;
     transition: right var(--transition-base);
-    box-shadow: -4px 0 30px rgba(0, 0, 0, 0.3);
+    box-shadow: -4px 0 30px rgba(0, 0, 0, 0.5);
+    overflow-y: auto;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
   }
 
   .navLinksOpen {
@@ -162,23 +325,31 @@
   }
 
   .navLink {
-    font-size: 1.05rem;
+    font-size: 1rem;
     padding: 12px 16px;
     width: 100%;
+    border-radius: 8px;
+  }
+
+  .navLinkHighlight {
+    border-radius: 8px;
+    text-align: center;
   }
 
   .loginBtn {
     margin-left: 0 !important;
-    margin-top: 16px;
+    margin-top: 12px;
     justify-content: center;
     width: 100%;
+    padding: 10px 16px;
   }
 
   .donateBtn {
     margin-left: 0 !important;
-    margin-top: 16px;
+    margin-top: 8px;
     justify-content: center;
     width: 100%;
+    padding: 12px 16px !important;
   }
 }
 

@@ -1,0 +1,3095 @@
+/* Navaratri Seva Page Styles */
+
+.pageWrapper {
+  min-height: 100vh;
+  background-color: #0d0604;
+  color: #fff4e6;
+  font-family: var(--font-outfit, system-ui, -apple-system, sans-serif);
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Festival Ambient Glows */
+.bgGlowTop {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 1200px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(255, 107, 0, 0.18) 0%, rgba(212, 160, 23, 0.08) 45%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.bgGlowCenter {
+  position: absolute;
+  top: 1400px;
+  right: -100px;
+  width: 700px;
+  height: 700px;
+  background: radial-gradient(circle, rgba(128, 10, 13, 0.2) 0%, rgba(255, 107, 0, 0.06) 50%, transparent 75%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Header / Festival Bar */
+.festivalHeader {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(18, 8, 5, 0.88);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(255, 154, 60, 0.2);
+  padding: 12px 0;
+}
+
+.headerInner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.backHomeBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #fed7aa;
+  text-decoration: none;
+  font-size: 0.92rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.backHomeBtn:hover {
+  color: #fff;
+  background: rgba(255, 107, 0, 0.25);
+  border-color: rgba(255, 107, 0, 0.4);
+  transform: translateX(-2px);
+}
+
+.headerBrand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.headerBrandTitle {
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: #fff;
+  letter-spacing: 0.5px;
+}
+
+.headerBrandSub {
+  font-size: 0.75rem;
+  color: #f59e0b;
+  font-weight: 600;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.headerLiveBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #dc2626;
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  animation: pulseGlow 2s infinite;
+}
+
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+}
+
+.headerSevaBtn {
+  background: linear-gradient(135deg, #ff6b00 0%, #d4a017 100%);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.88rem;
+  padding: 8px 18px;
+  border-radius: 999px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 15px rgba(255, 107, 0, 0.35);
+  transition: all 0.25s ease;
+}
+
+.headerSevaBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(255, 107, 0, 0.5);
+}
+
+/* =====================================================
+   STICKY FESTIVE QUICK NAVIGATION BAR
+===================================================== */
+.quickNavBar {
+  position: sticky;
+  top: 58px;
+  z-index: 95;
+  background: rgba(14, 6, 4, 0.94);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(255, 179, 0, 0.2);
+  padding: 8px 0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.quickNavInner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 960px) {
+  .quickNavInner {
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 0 16px 4px 16px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+.quickNavInner::-webkit-scrollbar {
+  display: none;
+}
+
+.quickNavPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 179, 0, 0.22);
+  color: #fed7aa;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.quickNavPill:hover {
+  background: linear-gradient(135deg, rgba(255, 107, 0, 0.3) 0%, rgba(217, 119, 6, 0.4) 100%);
+  border-color: #f59e0b;
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+}
+
+.quickNavPillHighlight {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+  color: #fef3c7;
+  border-color: #f59e0b;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
+}
+
+.quickNavPillLive {
+  background: rgba(220, 38, 38, 0.2);
+  border-color: rgba(220, 38, 38, 0.5);
+  color: #fca5a5;
+}
+
+.quickNavPillLive:hover {
+  background: rgba(220, 38, 38, 0.4);
+  color: #fff;
+  border-color: #ef4444;
+}
+
+/* =====================================================
+   HERO SECTION (COMPACT & BALANCED SCALE)
+===================================================== */
+.heroSection {
+  position: relative;
+  z-index: 1;
+  padding: 32px 20px 36px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.heroGrid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 32px;
+  align-items: center;
+}
+
+.shlokaBox {
+  display: inline-block;
+  background: rgba(255, 107, 0, 0.12);
+  border: 1px solid rgba(255, 154, 60, 0.3);
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  color: #fed7aa;
+  font-style: italic;
+  margin-bottom: 12px;
+}
+
+.eventBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(90deg, rgba(212, 160, 23, 0.2) 0%, rgba(255, 107, 0, 0.2) 100%);
+  border: 1px solid #d4a017;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #fbbf24;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 12px;
+}
+
+.heroTitle {
+  font-size: 2.4rem;
+  font-weight: 900;
+  line-height: 1.15;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #ffffff 0%, #fed7aa 50%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.heroSubtitle {
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: #cbd5e1;
+  margin-bottom: 20px;
+  max-width: 540px;
+}
+
+.heroHighlights {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.highlightCard {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 10px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.highlightCard:hover {
+  background: rgba(255, 107, 0, 0.1);
+  border-color: rgba(255, 107, 0, 0.3);
+  transform: translateY(-2px);
+}
+
+.highlightNumber {
+  display: block;
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: #f59e0b;
+}
+
+.highlightLabel {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+
+.heroButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.btnPrimary {
+  background: linear-gradient(135deg, #ff6b00 0%, #ea580c 100%);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 15px rgba(255, 107, 0, 0.35);
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.btnPrimary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(255, 107, 0, 0.5);
+}
+
+.btnSecondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.btnSecondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+/* Hero Image Card */
+.heroImageWrap {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 2px solid rgba(212, 160, 23, 0.4);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7), 0 0 25px rgba(255, 107, 0, 0.2);
+}
+
+.heroImage {
+  width: 100%;
+  height: 380px;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.6s ease;
+}
+
+.heroImageWrap:hover .heroImage {
+  transform: scale(1.03);
+}
+
+.heroImageOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(13, 6, 4, 0.95) 0%, rgba(13, 6, 4, 0.6) 50%, transparent 100%);
+  padding: 20px 18px 14px;
+}
+
+.darshanLocation {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: #fed7aa;
+  font-weight: 600;
+}
+
+.darshanTitle {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #fff;
+  margin-top: 2px;
+}
+
+/* =====================================================
+   DUAL COLUMN SIDE-BY-SIDE GRID SYSTEM (PAKKA PAKKANA)
+===================================================== */
+.dualSectionGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  max-width: 1280px;
+  margin: 0 auto 32px auto;
+  padding: 0 20px;
+  align-items: stretch;
+}
+
+.dualColCard {
+  background: rgba(22, 11, 7, 0.8);
+  border: 1px solid rgba(255, 154, 60, 0.22);
+  border-radius: 18px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(12px);
+  scroll-margin-top: 100px;
+}
+
+.colCardHeader {
+  margin-bottom: 16px;
+}
+
+.colCardBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255, 107, 0, 0.15);
+  border: 1px solid rgba(255, 107, 0, 0.3);
+  color: #ff9a3c;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.colCardHeading {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.25;
+  margin: 0 0 6px 0;
+}
+
+.colCardSub {
+  color: #94a3b8;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* Compact Timings Bar under Live Player */
+.liveFooterCompact {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 12px 14px;
+  background: rgba(0, 0, 0, 0.35);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.timingItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.timingDot {
+  font-size: 1rem;
+}
+
+.timingTitle {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #fed7aa;
+}
+
+.timingHour {
+  font-size: 0.68rem;
+  color: #cbd5e1;
+}
+
+/* Virtual Diya Quick Action Bar */
+.interactiveSevaWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.virtualDiyaBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+
+.diyaActionLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.diyaTouchBtn {
+  font-size: 1.6rem;
+  cursor: pointer;
+  background: rgba(255, 107, 0, 0.2);
+  border: 1px solid rgba(255, 107, 0, 0.4);
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+  user-select: none;
+}
+
+.diyaTouchBtn:hover {
+  transform: scale(1.1);
+}
+
+/* Compact Seva & Sponsorship Banners */
+.sevaBannerCompact {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+/* Commercial Card Compact */
+.commercialCardCompact {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 154, 60, 0.2);
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.commercialTopBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.commercialBodyCompact {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.commercialLogoCompact {
+  width: 60px;
+  height: 60px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1.5px solid #f59e0b;
+}
+
+.commercialActionsCompact {
+  display: flex;
+  gap: 8px;
+}
+
+.pandalLocationCompact {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: space-between;
+}
+
+/* Section Header (Standard block) */
+.sectionBlock {
+  position: relative;
+  z-index: 1;
+  padding: 40px 20px;
+  max-width: 1280px;
+  margin: 0 auto;
+  scroll-margin-top: 100px;
+}
+
+.sectionHeader {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.sectionPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255, 107, 0, 0.15);
+  border: 1px solid rgba(255, 107, 0, 0.3);
+  color: #ff9a3c;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.sectionHeading {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.2;
+}
+
+.sectionDesc {
+  color: #94a3b8;
+  font-size: 1.05rem;
+  margin-top: 10px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Live Stream Player Card */
+.livePlayerCard {
+  background: rgba(26, 13, 9, 0.75);
+  border: 1px solid rgba(255, 154, 60, 0.25);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+}
+
+.livePlayerHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  background: rgba(0, 0, 0, 0.4);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.liveStatusIndicator {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.liveDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #22c55e;
+}
+
+.liveDot.active {
+  background: #ef4444;
+  animation: liveBlink 1.4s infinite;
+}
+
+@keyframes liveBlink {
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(1.3); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.liveStatusText {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.streamControls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.shareWhatsAppBtn {
+  background: #25d366;
+  color: #fff;
+  border: none;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.shareWhatsAppBtn:hover {
+  opacity: 0.9;
+}
+
+.iframeWrapper {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+  height: 0;
+  overflow: hidden;
+  background: #000;
+}
+
+.iframeWrapper iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.streamPlaceholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1f0d07 0%, #0d0604 100%);
+  text-align: center;
+  padding: 30px;
+}
+
+.streamPlaceholderIcon {
+  font-size: 3.5rem;
+  margin-bottom: 16px;
+}
+
+.streamPlaceholderTitle {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.streamPlaceholderSub {
+  font-size: 0.95rem;
+  color: #cbd5e1;
+  max-width: 500px;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.liveFooterInfo {
+  padding: 20px 24px;
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 24px;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.liveTitleText {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.liveAnnouncementText {
+  font-size: 0.88rem;
+  color: #fed7aa;
+  margin-top: 4px;
+}
+
+.dailyTimingsBox {
+  background: rgba(255, 107, 0, 0.1);
+  border: 1px solid rgba(255, 107, 0, 0.2);
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-size: 0.85rem;
+}
+
+.dailyTimingsRow {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.dailyTimingsRow:last-child {
+  margin-bottom: 0;
+}
+
+.timingLabel {
+  color: #94a3b8;
+}
+
+.timingValue {
+  font-weight: 700;
+  color: #f59e0b;
+}
+
+/* =====================================================
+   DAILY PUJA SCHEDULE SECTION (COMPACT & SCALED)
+===================================================== */
+.scheduleNav {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 2px 2px 8px 2px;
+  margin-bottom: 14px;
+  scrollbar-width: thin;
+  scrollbar-color: #f59e0b rgba(255, 255, 255, 0.05);
+  -webkit-overflow-scrolling: touch;
+}
+
+.scheduleTab {
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s ease;
+  min-width: 82px;
+}
+
+.scheduleTab:hover {
+  background: rgba(255, 107, 0, 0.15);
+  border-color: rgba(255, 107, 0, 0.3);
+}
+
+.scheduleTab.active {
+  background: linear-gradient(135deg, rgba(255, 107, 0, 0.35) 0%, rgba(212, 160, 23, 0.3) 100%);
+  border-color: #f59e0b;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+}
+
+.tabDayNumber {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.tabDayDate {
+  font-size: 0.68rem;
+  color: #fed7aa;
+  margin-top: 1px;
+}
+
+.scheduleDetailsCard {
+  background: rgba(26, 13, 9, 0.85);
+  border: 1px solid rgba(212, 160, 23, 0.35);
+  border-radius: 16px;
+  padding: 16px 18px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.scheduleCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 12px;
+  margin-bottom: 14px;
+  gap: 10px;
+}
+
+.scheduleDayTitle {
+  font-size: 1.18rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.25;
+  margin: 0;
+}
+
+.scheduleAlankaramBadge {
+  background: linear-gradient(90deg, #d4a017 0%, #ff6b00 100%);
+  color: #fff;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 0.78rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 2px 8px rgba(212, 160, 23, 0.3);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.scheduleGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.scheduleItemBox {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 10px 12px;
+  transition: all 0.2s ease;
+}
+
+.scheduleItemBox:hover {
+  background: rgba(255, 107, 0, 0.08);
+  border-color: rgba(255, 107, 0, 0.25);
+}
+
+.itemHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.itemIcon {
+  font-size: 1.05rem;
+}
+
+.itemTitle {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #f59e0b;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.itemContent {
+  font-size: 0.8rem;
+  color: #cbd5e1;
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* =====================================================
+   PHOTO FEED & GALLERY SECTION
+===================================================== */
+.galleryFilterBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 30px;
+}
+
+.categoryChips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.categoryChip {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.categoryChip:hover {
+  background: rgba(255, 107, 0, 0.15);
+  color: #fff;
+}
+
+.categoryChip.active {
+  background: #ff6b00;
+  border-color: #ff6b00;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(255, 107, 0, 0.35);
+}
+
+.photoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.photoCard {
+  background: rgba(26, 13, 9, 0.7);
+  border: 1px solid rgba(255, 154, 60, 0.2);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+
+.photoCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 107, 0, 0.25);
+  border-color: rgba(255, 154, 60, 0.5);
+}
+
+.photoImgWrapper {
+  position: relative;
+  height: 240px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.photoImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.photoCard:hover .photoImg {
+  transform: scale(1.06);
+}
+
+.photoDayBadge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: rgba(13, 6, 4, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 154, 60, 0.4);
+  color: #fbbf24;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.photoCategoryBadge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: #ff6b00;
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.photoCardBody {
+  padding: 18px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.photoCardTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 6px;
+  line-height: 1.35;
+}
+
+.photoCardDesc {
+  font-size: 0.88rem;
+  color: #94a3b8;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.photoCardFooter {
+  font-size: 0.78rem;
+  color: #fed7aa;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 10px;
+}
+
+/* =====================================================
+   DEVOTEE PRAYERS & VIRTUAL SEVA CORNER
+===================================================== */
+.interactiveSevaGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+
+.virtualPujaCard {
+  background: linear-gradient(135deg, rgba(38, 17, 10, 0.85) 0%, rgba(20, 9, 6, 0.9) 100%);
+  border: 1px solid rgba(212, 160, 23, 0.35);
+  border-radius: 20px;
+  padding: 32px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.pujaTitle {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.pujaSubtitle {
+  font-size: 0.92rem;
+  color: #cbd5e1;
+  margin-bottom: 24px;
+}
+
+.pujaAnimationArea {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  margin: 0 auto 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.diyaCenter {
+  font-size: 4.5rem;
+  filter: drop-shadow(0 0 25px rgba(255, 107, 0, 0.7));
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.diyaCenter:hover {
+  transform: scale(1.1);
+}
+
+.floatingPetal {
+  position: absolute;
+  font-size: 1.5rem;
+  animation: floatAround 3s infinite ease-in-out;
+  pointer-events: none;
+}
+
+@keyframes floatAround {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  50% { transform: translateY(-25px) rotate(180deg); opacity: 0.8; }
+  100% { transform: translateY(0) rotate(360deg); opacity: 1; }
+}
+
+.virtualActionBtns {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.pujaFeedbackAlert {
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  color: #86efac;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-top: 14px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Devotee Prayer Wall Card */
+.prayerWallCard {
+  background: rgba(26, 13, 9, 0.8);
+  border: 1px solid rgba(255, 154, 60, 0.25);
+  border-radius: 20px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+}
+
+.prayerForm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.inputRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.darkInput {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: #fff;
+  font-size: 0.9rem;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.2s ease;
+}
+
+.darkInput:focus {
+  border-color: #ff6b00;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.darkInput::placeholder {
+  color: #64748b;
+}
+
+.prayersList {
+  max-height: 280px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-right: 6px;
+}
+
+.prayerItem {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 12px 16px;
+}
+
+.prayerHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.devoteeName {
+  font-weight: 700;
+  color: #fbbf24;
+  font-size: 0.92rem;
+}
+
+.devoteeGotram {
+  font-size: 0.78rem;
+  color: #94a3b8;
+}
+
+.prayerText {
+  font-size: 0.88rem;
+  color: #e2e8f0;
+  line-height: 1.45;
+}
+
+/* =====================================================
+   SEVA DONATION BANNER
+===================================================== */
+.sevaBanner {
+  background: linear-gradient(135deg, #2b1109 0%, #150805 100%);
+  border: 2px solid #d4a017;
+  border-radius: 24px;
+  padding: 44px;
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 36px;
+  align-items: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 30px rgba(212, 160, 23, 0.2);
+}
+
+.sevaTitle {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: #fff;
+  margin-bottom: 12px;
+}
+
+.sevaDesc {
+  color: #cbd5e1;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.sevaOptionsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.sevaOptionCard {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 12px;
+  text-align: center;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.sevaOptionCard:hover {
+  background: rgba(255, 107, 0, 0.15);
+  border-color: #ff6b00;
+}
+
+.sevaOptionName {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.sevaOptionPrice {
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: #f59e0b;
+  margin-top: 4px;
+}
+
+/* Lightbox Modal */
+.lightboxBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.92);
+  backdrop-filter: blur(10px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.lightboxCard {
+  position: relative;
+  max-width: 900px;
+  width: 100%;
+  background: #180c08;
+  border: 1px solid rgba(255, 154, 60, 0.4);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
+}
+
+.lightboxCloseBtn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  cursor: pointer;
+  z-index: 10;
+  transition: background 0.2s ease;
+}
+
+.lightboxCloseBtn:hover {
+  background: #ff6b00;
+}
+
+.lightboxImage {
+  width: 100%;
+  max-height: 520px;
+  object-fit: contain;
+  background: #000;
+  display: block;
+}
+
+.lightboxBody {
+  padding: 20px 24px;
+}
+
+/* Seva Sponsorship Modal */
+.sevaModalBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  padding: 16px;
+  animation: fadeIn 0.25s ease;
+}
+
+.sevaModalCard {
+  background: linear-gradient(145deg, #1e1510 0%, #150f0c 100%);
+  border: 1px solid rgba(255, 107, 0, 0.35);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(255, 107, 0, 0.2);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 580px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 28px;
+  position: relative;
+  color: #fff;
+}
+
+.sevaModalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 14px;
+}
+
+.sevaModalTitle {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sevaModalClose {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #cbd5e1;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sevaModalClose:hover {
+  background: #ef4444;
+  color: #fff;
+}
+
+.tierButtonGroup {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.tierButton {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 12px 14px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #fff;
+}
+
+.tierButton:hover {
+  border-color: rgba(255, 107, 0, 0.5);
+  background: rgba(255, 107, 0, 0.08);
+}
+
+.tierButtonActive {
+  background: linear-gradient(135deg, rgba(255, 107, 0, 0.25) 0%, rgba(212, 160, 23, 0.2) 100%);
+  border-color: #ff6b00;
+  box-shadow: 0 0 16px rgba(255, 107, 0, 0.25);
+}
+
+.tierBtnName {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #fed7aa;
+}
+
+.tierBtnPrice {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #fff;
+  margin-top: 4px;
+}
+
+.sevaOptionCardInteractive {
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sevaOptionCardInteractive:hover {
+  transform: translateY(-4px);
+  border-color: #ff6b00;
+  box-shadow: 0 8px 24px rgba(255, 107, 0, 0.3);
+}
+
+/* =====================================================
+   📢 TICKER MARQUEE & LIVE AD STREAM BANNER
+===================================================== */
+.tickerContainer {
+  background: linear-gradient(90deg, #1c0d02 0%, #301605 50%, #1c0d02 100%);
+  border-top: 1px solid rgba(255, 154, 60, 0.3);
+  border-bottom: 1px solid rgba(255, 154, 60, 0.3);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  position: relative;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+.tickerLabel {
+  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 800;
+  padding: 8px 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 2;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+  box-shadow: 4px 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.tickerTrack {
+  display: flex;
+  white-space: nowrap;
+  animation: marquee 28s linear infinite;
+}
+
+.tickerTrack:hover {
+  animation-play-state: paused;
+}
+
+.tickerText {
+  display: inline-block;
+  padding-left: 30px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #fed7aa;
+  letter-spacing: 0.3px;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+/* Lower Third Live Stream Sponsor Ad Banner */
+.streamAdBanner {
+  margin-top: 16px;
+  background: linear-gradient(135deg, rgba(30, 21, 16, 0.95) 0%, rgba(20, 12, 8, 0.95) 100%);
+  border: 1px solid rgba(212, 160, 23, 0.35);
+  border-radius: 14px;
+  padding: 14px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.streamAdLeft {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.streamAdTag {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.streamAdTitle {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+}
+
+.streamAdSub {
+  font-size: 0.8rem;
+  color: #fed7aa;
+  margin: 2px 0 0 0;
+}
+
+.streamAdBtn {
+  background: linear-gradient(135deg, #d4a017 0%, #b45309 100%);
+  color: #fff;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.streamAdBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(212, 160, 23, 0.4);
+}
+
+/* =====================================================
+   🏆 SPONSORS & PATRONS SHOWCASE SECTION
+===================================================== */
+.sponsorsSection {
+  padding: 60px 20px;
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+.sponsorsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.sponsorCard {
+  background: linear-gradient(145deg, rgba(30, 21, 16, 0.7) 0%, rgba(18, 12, 9, 0.9) 100%);
+  border: 1px solid rgba(255, 154, 60, 0.2);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sponsorCard:hover {
+  transform: translateY(-6px);
+  border-color: rgba(255, 107, 0, 0.5);
+  box-shadow: 0 16px 36px rgba(255, 107, 0, 0.2), 0 0 20px rgba(212, 160, 23, 0.15);
+}
+
+.sponsorCardGlow {
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle, rgba(255, 107, 0, 0.15) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.sponsorTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.sponsorLogo {
+  width: 54px;
+  height: 54px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: #000;
+}
+
+.sponsorTierBadge {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.tierTitle {
+  background: linear-gradient(135deg, rgba(212, 160, 23, 0.25) 0%, rgba(255, 107, 0, 0.25) 100%);
+  color: #fbbf24;
+  border: 1px solid #d4a017;
+}
+
+.tierAnnadanam {
+  background: rgba(34, 197, 94, 0.18);
+  color: #4ade80;
+  border: 1px solid #22c55e;
+}
+
+.tierAarti {
+  background: rgba(249, 115, 22, 0.18);
+  color: #fb923c;
+  border: 1px solid #f97316;
+}
+
+.tierMedia {
+  background: rgba(56, 189, 248, 0.18);
+  color: #38bdf8;
+  border: 1px solid #0284c7;
+}
+
+.sponsorName {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 6px 0;
+  line-height: 1.3;
+}
+
+.sponsorTagline {
+  font-size: 0.85rem;
+  color: #cbd5e1;
+  line-height: 1.5;
+  margin: 0 0 16px 0;
+}
+
+.sponsorFooter {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.82rem;
+}
+
+.sponsorContactLink {
+  color: #fed7aa;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.sponsorContactLink:hover {
+  color: #fff;
+}
+
+/* =====================================================
+   📍 PANDAL LOCATION & DAILY ANNADANAM STATS WIDGETS
+===================================================== */
+.pandalLocationBanner {
+  background: linear-gradient(135deg, rgba(30, 21, 16, 0.95) 0%, rgba(18, 10, 6, 0.95) 100%);
+  border: 1px solid rgba(255, 107, 0, 0.3);
+  border-radius: 18px;
+  padding: 30px;
+  margin-top: 40px;
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 24px;
+  align-items: center;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+}
+
+.liveCounterBox {
+  background: rgba(255, 107, 0, 0.08);
+  border: 1px solid rgba(255, 107, 0, 0.25);
+  border-radius: 14px;
+  padding: 18px;
+  text-align: center;
+}
+
+.liveCounterNum {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: #f59e0b;
+  display: block;
+}
+
+.liveCounterLabel {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #fed7aa;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .heroGrid {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+  .heroTitle {
+    font-size: 2.5rem;
+  }
+  .scheduleGrid {
+    grid-template-columns: 1fr;
+  }
+  .interactiveSevaGrid {
+    grid-template-columns: 1fr;
+  }
+  .sevaBanner {
+    grid-template-columns: 1fr;
+  }
+  .liveFooterInfo {
+    grid-template-columns: 1fr;
+  }
+  .pandalLocationBanner {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .heroTitle {
+    font-size: 2.1rem;
+  }
+  .heroHighlights {
+    grid-template-columns: 1fr;
+  }
+  .headerInner {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .scheduleDetailsCard {
+    padding: 20px;
+  }
+  .tierButtonGroup {
+    grid-template-columns: 1fr;
+  }
+  .streamAdBanner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* =====================================================
+   🔔 SACRED DEVOTIONAL AUDIO & TEMPLE BELL DOCK
+===================================================== */
+.devotionalAudioDock {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(20, 10, 5, 0.94);
+  border: 1px solid rgba(255, 179, 0, 0.4);
+  backdrop-filter: blur(12px);
+  padding: 8px 14px;
+  border-radius: 50px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 107, 0, 0.25);
+  animation: floatDock 3s ease-in-out infinite alternate;
+}
+
+@keyframes floatDock {
+  0% { transform: translateY(0px); }
+  100% { transform: translateY(-4px); }
+}
+
+.bellBtn {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #1e1002;
+  border: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  font-size: 1.25rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.bellBtn:active {
+  transform: scale(0.9) rotate(-15deg);
+}
+
+.bellRinging {
+  animation: bellSwing 0.6s ease-in-out infinite alternate;
+}
+
+@keyframes bellSwing {
+  0% { transform: rotate(-20deg); }
+  100% { transform: rotate(20deg); }
+}
+
+.audioTrackInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.audioTrackTitle {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #fde68a;
+  white-space: nowrap;
+}
+
+.audioTrackSub {
+  font-size: 0.68rem;
+  color: #fed7aa;
+  opacity: 0.85;
+}
+
+.audioControlBtn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 179, 0, 0.3);
+  color: #fef08a;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.audioControlBtn:hover {
+  background: rgba(255, 179, 0, 0.25);
+}
+
+/* Audio Visualizer Waves */
+.equalizerWaves {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 16px;
+  padding: 0 4px;
+}
+
+.waveBar {
+  width: 3px;
+  background: #f59e0b;
+  border-radius: 2px;
+  animation: waveAnim 1s ease-in-out infinite;
+}
+
+.waveBar:nth-child(1) { height: 40%; animation-delay: 0.1s; }
+.waveBar:nth-child(2) { height: 80%; animation-delay: 0.3s; }
+.waveBar:nth-child(3) { height: 100%; animation-delay: 0.2s; }
+.waveBar:nth-child(4) { height: 50%; animation-delay: 0.4s; }
+
+@keyframes waveAnim {
+  0%, 100% { height: 20%; }
+  50% { height: 100%; }
+}
+
+/* =====================================================
+   🏪 ROTATING SHOP & BUSINESS COMMERCIAL ADS SECTION
+===================================================== */
+.commercialSliderSection {
+  margin-top: 50px;
+  background: linear-gradient(135deg, rgba(28, 16, 10, 0.95) 0%, rgba(14, 8, 4, 0.98) 100%);
+  border: 1px solid rgba(255, 179, 0, 0.25);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+  position: relative;
+  overflow: hidden;
+}
+
+.commercialHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 179, 0, 0.2);
+  padding-bottom: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.commercialTitleBox {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.commercialBadge {
+  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+  animation: pulseBadge 2s infinite;
+}
+
+@keyframes pulseBadge {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.05); }
+}
+
+.commercialMainTitle {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #fef08a;
+  margin: 0;
+}
+
+.commercialSliderControls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sliderNavBtn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 179, 0, 0.3);
+  color: #fed7aa;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.sliderNavBtn:hover {
+  background: #ff6b00;
+  color: #fff;
+  border-color: #ff6b00;
+}
+
+.commercialCard {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 24px;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 179, 0, 0.15);
+  border-radius: 16px;
+  padding: 20px;
+}
+
+@media (max-width: 768px) {
+  .commercialCard {
+    grid-template-columns: 1fr;
+  }
+}
+
+.commercialImageWrap {
+  width: 100%;
+  height: 170px;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid rgba(255, 179, 0, 0.3);
+  background: #000;
+}
+
+.commercialImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.commercialCard:hover .commercialImage {
+  transform: scale(1.05);
+}
+
+.commercialDetails {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.commercialOfferTag {
+  align-self: flex-start;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #1e1002;
+  font-weight: 800;
+  font-size: 0.78rem;
+  padding: 4px 12px;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+}
+
+.commercialShopName {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.commercialTagline {
+  font-size: 0.9rem;
+  color: #fed7aa;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.commercialAddress {
+  font-size: 0.82rem;
+  color: #cbd5e1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.commercialActions {
+  display: flex;
+  gap: 12px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.commercialCallBtn {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #fff;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: transform 0.2s ease;
+}
+
+.commercialCallBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.commercialWhatsAppBtn {
+  background: #25d366;
+  color: #fff;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: transform 0.2s ease;
+}
+
+.commercialWhatsAppBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
+}
+
+/* ========================================================
+   📜 DIVINE BLESSING & POOJA CERTIFICATE (ఆశీర్వచన పత్రం)
+======================================================== */
+.certificateModalBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(12px);
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.certificateModalWrapper {
+  max-width: 880px;
+  width: 100%;
+  margin: auto;
+}
+
+.certificateActionsBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+  background: rgba(20, 10, 6, 0.9);
+  padding: 12px 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 179, 0, 0.3);
+}
+
+.certActionBtn {
+  border: none;
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.certPrintBtn {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #000;
+}
+
+.certPrintBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);
+}
+
+.certWhatsAppBtn {
+  background: #25d366;
+  color: #fff;
+}
+
+.certWhatsAppBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(37, 211, 102, 0.4);
+}
+
+.certCloseBtn {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.certCloseBtn:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Golden Royal Certificate Frame */
+.certificateFrame {
+  background: radial-gradient(circle at center, #fffdf8 0%, #fff9ec 60%, #fff2d6 100%);
+  border: 10px solid #b45309;
+  outline: 4px solid #fef3c7;
+  outline-offset: -7px;
+  border-radius: 16px;
+  padding: 32px 36px;
+  color: #451a03;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 0 60px rgba(217, 119, 6, 0.08);
+  position: relative;
+  overflow: hidden;
+  font-family: var(--font-outfit, system-ui, sans-serif);
+}
+
+.certificateInnerBorder {
+  border: 2px dashed #d97706;
+  border-radius: 10px;
+  padding: 24px;
+  position: relative;
+}
+
+.certCornerDecor {
+  position: absolute;
+  font-size: 1.4rem;
+  color: #b45309;
+  line-height: 1;
+}
+
+.certCornerTL { top: -14px; left: -14px; }
+.certCornerTR { top: -14px; right: -14px; }
+.certCornerBL { bottom: -14px; left: -14px; }
+.certCornerBR { bottom: -14px; right: -14px; }
+
+.certHeader {
+  text-align: center;
+  border-bottom: 2px solid rgba(180, 83, 9, 0.2);
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+}
+
+.certSacredMantra {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #9a3412;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.certAssocTitle {
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: #78350f;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin: 2px 0;
+}
+
+.certAssocSub {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #b45309;
+  margin-bottom: 8px;
+}
+
+.certFestivalBadge {
+  display: inline-block;
+  background: linear-gradient(135deg, #78350f 0%, #9a3412 100%);
+  color: #fef3c7;
+  font-weight: 800;
+  font-size: 0.85rem;
+  padding: 4px 16px;
+  border-radius: 999px;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 6px rgba(120, 53, 15, 0.3);
+}
+
+.certCenterGanesha {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin: 16px 0 20px 0;
+}
+
+.certGaneshaImg {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border: 4px solid #f59e0b;
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
+  object-fit: cover;
+}
+
+.certMainTitle {
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+.certMainTitle h2 {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #9a3412;
+  margin: 0 0 4px 0;
+}
+
+.certMainTitle p {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #78350f;
+  margin: 0;
+  font-style: italic;
+}
+
+/* Devotee Info Grid */
+.certDevoteeGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  background: rgba(254, 243, 199, 0.6);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+
+.certDevoteeField {
+  display: flex;
+  flex-direction: column;
+}
+
+.certFieldLabel {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #9a3412;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.certFieldValue {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #451a03;
+}
+
+.certBlessingVerse {
+  text-align: center;
+  background: #fff;
+  border: 1px solid rgba(217, 119, 6, 0.25);
+  border-radius: 10px;
+  padding: 14px 20px;
+  margin-bottom: 24px;
+}
+
+.certBlessingVerseTelugu {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #78350f;
+  line-height: 1.5;
+  margin-bottom: 4px;
+}
+
+.certBlessingVerseEnglish {
+  font-size: 0.8rem;
+  color: #92400e;
+  margin: 0;
+}
+
+/* Signatures & Seal Section */
+.certFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-top: 1px solid rgba(180, 83, 9, 0.25);
+  padding-top: 14px;
+}
+
+.certSignBlock {
+  text-align: center;
+  min-width: 140px;
+}
+
+.certSignLine {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #78350f;
+  border-top: 1px dashed #b45309;
+  padding-top: 4px;
+  margin-top: 30px;
+}
+
+.certSignRole {
+  font-size: 0.7rem;
+  color: #9a3412;
+  font-weight: 600;
+}
+
+.certOfficialSealBlock {
+  text-align: center;
+}
+
+.certOfficialSealBadge {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 3px double #b45309;
+  background: #fef3c7;
+  color: #78350f;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.62rem;
+  font-weight: 900;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(180, 83, 9, 0.2);
+  margin: 0 auto;
+}
+
+@media (max-width: 980px) {
+  .heroGrid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .heroTitle {
+    font-size: 2rem;
+  }
+  .heroImage {
+    height: 300px;
+  }
+  .dualSectionGrid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .liveFooterCompact {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+}
+
+@media (max-width: 640px) {
+  .heroTitle {
+    font-size: 1.7rem;
+  }
+  .heroHighlights {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .dualColCard {
+    padding: 14px;
+    border-radius: 14px;
+  }
+  .virtualDiyaBar {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .certificateFrame, .certificateFrame * {
+    visibility: visible;
+  }
+  .certificateFrame {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    page-break-inside: avoid;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .certificateModalBackdrop {
+    background: #fff !important;
+    padding: 0 !important;
+  }
+  .certificateActionsBar {
+    display: none !important;
+  }
+}
+
+/* =====================================================
+   🪔 VIRTUAL AARTI SANCTUM & RAZORPAY E-HUNDI STYLES
+===================================================== */
+.aartiSanctuarySection {
+  max-width: 1280px;
+  margin: 36px auto;
+  padding: 0 20px;
+}
+
+.aartiSanctuaryCard {
+  background: radial-gradient(circle at 50% 30%, #2a1205 0%, #150803 60%, #080301 100%);
+  border: 2px solid #ffd700;
+  border-radius: 24px;
+  padding: clamp(20px, 4vw, 36px);
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 50px rgba(255, 179, 0, 0.25);
+}
+
+.aartiSanctuaryCard::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #ff9933, #ffd700, #ff5722, #ffd700, #ff9933);
+}
+
+.aartiSanctuaryGrid {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 28px;
+  align-items: stretch;
+}
+
+@media (max-width: 960px) {
+  .aartiSanctuaryGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Left: Temple Garbhagudi Sanctum */
+.templeSanctumWrap {
+  background: linear-gradient(180deg, rgba(35, 15, 5, 0.9) 0%, rgba(15, 6, 2, 0.98) 100%);
+  border: 2px solid rgba(255, 215, 0, 0.45);
+  border-radius: 20px;
+  padding: 24px 20px;
+  text-align: center;
+  position: relative;
+  box-shadow: inset 0 0 40px rgba(255, 140, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.templeBellsRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+  padding: 0 10px;
+}
+
+.bellWithChain {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.bellChain {
+  width: 2.5px;
+  height: 16px;
+  background: linear-gradient(180deg, #ffd700, #b45309);
+  border-radius: 2px;
+}
+
+.brassBell {
+  font-size: 1.8rem;
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  user-select: none;
+  filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.5));
+}
+
+.brassBell:hover, .brassBellRinging {
+  animation: bellSwing 0.6s ease-in-out infinite alternate;
+}
+
+@keyframes bellSwing {
+  0% { transform: rotate(-18deg); }
+  100% { transform: rotate(18deg); }
+}
+
+.sanctumTitleBadge {
+  font-size: clamp(0.78rem, 1.5vw, 0.88rem);
+  font-weight: 900;
+  color: #ffd700;
+  letter-spacing: 0.8px;
+  background: rgba(0, 0, 0, 0.65);
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  box-shadow: 0 0 15px rgba(255, 179, 0, 0.2);
+}
+
+.murtiCenterStage {
+  position: relative;
+  width: 270px;
+  height: 270px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 10px 0;
+}
+
+/* Rotating Sacred Sunbeam Rays */
+.sacredRaysHalo {
+  position: absolute;
+  inset: -35px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    rgba(255, 215, 0, 0.25) 0deg 20deg,
+    transparent 20deg 40deg,
+    rgba(255, 153, 0, 0.25) 40deg 60deg,
+    transparent 60deg 80deg,
+    rgba(255, 215, 0, 0.25) 80deg 100deg,
+    transparent 100deg 120deg,
+    rgba(255, 153, 0, 0.25) 120deg 140deg,
+    transparent 140deg 160deg,
+    rgba(255, 215, 0, 0.25) 160deg 180deg,
+    transparent 180deg 200deg,
+    rgba(255, 153, 0, 0.25) 200deg 220deg,
+    transparent 220deg 240deg,
+    rgba(255, 215, 0, 0.25) 240deg 260deg,
+    transparent 260deg 280deg,
+    rgba(255, 153, 0, 0.25) 280deg 300deg,
+    transparent 300deg 320deg,
+    rgba(255, 215, 0, 0.25) 320deg 340deg,
+    transparent 340deg 360deg
+  );
+  animation: rotateHalo 30s linear infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes rotateHalo {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.murtiAuraGlow {
+  position: absolute;
+  inset: -14px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 193, 7, 0.45) 0%, rgba(255, 87, 34, 0.2) 50%, transparent 70%);
+  animation: auraPulse 3s ease-in-out infinite;
+  z-index: 1;
+}
+
+@keyframes auraPulse {
+  0%, 100% { transform: scale(1); opacity: 0.75; }
+  50% { transform: scale(1.1); opacity: 1; }
+}
+
+.murtiImage {
+  width: 215px;
+  height: 215px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #ffd700;
+  box-shadow: 0 0 36px rgba(255, 179, 0, 0.7);
+  position: relative;
+  z-index: 2;
+}
+
+/* ================= REALISTIC 3D ANIMATED AARTI THALI ================= */
+.thaliContainer {
+  position: absolute;
+  bottom: -15px;
+  left: 50%;
+  margin-left: -65px;
+  width: 130px;
+  height: 90px;
+  z-index: 10;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.3s ease;
+  animation: aartiFloatingIdle 3.2s ease-in-out infinite;
+}
+
+@keyframes aartiFloatingIdle {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(1deg); }
+}
+
+.thaliOrbitActive {
+  animation: grandAartiOrbit 4.5s ease-in-out infinite !important;
+}
+
+@keyframes grandAartiOrbit {
+  0% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+  25% {
+    transform: translate(-100px, -90px) scale(0.9) rotate(-12deg);
+  }
+  50% {
+    transform: translate(0, -180px) scale(0.82) rotate(0deg);
+  }
+  75% {
+    transform: translate(100px, -90px) scale(0.9) rotate(12deg);
+  }
+  100% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+}
+
+/* Brass Plate Disk */
+.brassThaliPlate {
+  width: 130px;
+  height: 52px;
+  background: radial-gradient(ellipse at 50% 40%, #ffe082 0%, #ffb300 45%, #b45309 85%, #78350f 100%);
+  border-radius: 50%;
+  border: 3px solid #ffd700;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7), inset 0 2px 6px rgba(255, 255, 255, 0.6), 0 0 20px rgba(255, 179, 0, 0.5);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 25px;
+}
+
+/* Golden Inner Rim */
+.brassPlateRim {
+  width: 104px;
+  height: 38px;
+  border: 1.5px dashed rgba(120, 53, 15, 0.6);
+  border-radius: 50%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 5 Flickering Flames along the plate rim */
+.flamePanchaGroup {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.flameItem {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.flameLeftEdge {
+  left: 6px;
+  top: 10px;
+}
+
+.flameLeftCenter {
+  left: 30px;
+  top: 2px;
+}
+
+.flameCenterMain {
+  left: 56px;
+  top: -6px;
+}
+
+.flameRightCenter {
+  right: 30px;
+  top: 2px;
+}
+
+.flameRightEdge {
+  right: 6px;
+  top: 10px;
+}
+
+/* Flame Wick Body */
+.flameBody {
+  width: 12px;
+  height: 22px;
+  background: radial-gradient(ellipse at 50% 80%, #ffffff 0%, #fff59d 30%, #ff9800 65%, #d84315 90%, transparent 100%);
+  border-radius: 50% 50% 35% 35% / 60% 60% 40% 40%;
+  box-shadow: 0 0 14px #ff9800, 0 -4px 10px #ffeb3b, 0 0 24px rgba(255, 87, 34, 0.8);
+  transform-origin: 50% 90%;
+  animation: flameFlicker 0.35s infinite alternate ease-in-out;
+}
+
+.flameItem:nth-child(2) .flameBody {
+  animation-duration: 0.28s;
+  animation-delay: 0.1s;
+}
+.flameItem:nth-child(3) .flameBody {
+  width: 16px;
+  height: 28px;
+  animation-duration: 0.4s;
+  box-shadow: 0 0 20px #ff9800, 0 -6px 14px #fff176, 0 0 30px rgba(255, 87, 34, 0.9);
+}
+.flameItem:nth-child(4) .flameBody {
+  animation-duration: 0.32s;
+  animation-delay: 0.15s;
+}
+.flameItem:nth-child(5) .flameBody {
+  animation-duration: 0.36s;
+  animation-delay: 0.05s;
+}
+
+@keyframes flameFlicker {
+  0% {
+    transform: scale(1) rotate(-3deg) skewX(-2deg);
+    opacity: 0.92;
+  }
+  50% {
+    transform: scale(1.08, 0.94) rotate(2deg) skewX(3deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.96, 1.05) rotate(-2deg) skewX(-1deg);
+    opacity: 0.96;
+  }
+}
+
+/* Rising Sacred Incense Smoke */
+.incenseSmokePuff {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.5) 0%, rgba(240, 240, 240, 0.15) 60%, transparent 100%);
+  border-radius: 50%;
+  animation: incenseFloat 2.2s infinite ease-out;
+  pointer-events: none;
+}
+
+@keyframes incenseFloat {
+  0% {
+    transform: translate(-50%, 0) scale(0.6);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translate(calc(-50% + 12px), -35px) scale(1.6);
+    opacity: 0.4;
+  }
+  100% {
+    transform: translate(calc(-50% - 10px), -75px) scale(2.6);
+    opacity: 0;
+  }
+}
+
+/* Coconut Break Animation Card */
+.coconutBreakCard {
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, rgba(6, 78, 59, 0.4) 100%);
+  border: 2px solid #10b981;
+  border-radius: 14px;
+  padding: 10px 18px;
+  color: #a7f3d0;
+  font-size: 0.88rem;
+  font-weight: 800;
+  animation: coconutPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+@keyframes coconutPop {
+  0% { transform: scale(0.7); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Offerings Action Bar */
+.offeringsButtonGroup {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+@media (max-width: 500px) {
+  .offeringsButtonGroup {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.offeringBtn {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
+  border: 1.5px solid rgba(255, 193, 7, 0.35);
+  border-radius: 12px;
+  padding: 10px 6px;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.offeringBtn:hover {
+  background: linear-gradient(135deg, rgba(255, 193, 7, 0.3) 0%, rgba(255, 119, 0, 0.25) 100%);
+  border-color: #ffd700;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(255, 153, 0, 0.3);
+}
+
+/* Right: Dedicated Razorpay E-Hundi */
+.eHundiPanel {
+  background: linear-gradient(145deg, rgba(30, 12, 4, 0.95) 0%, rgba(12, 4, 1, 0.98) 100%);
+  border: 1.5px solid #ffd700;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.eHundiHeader {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-bottom: 1.5px dashed rgba(255, 193, 7, 0.3);
+  padding-bottom: 14px;
+  margin-bottom: 16px;
+}
+
+.eHundiIconBadge {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #ffd700 0%, #ff7700 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  box-shadow: 0 4px 14px rgba(255, 153, 0, 0.4);
+  flex-shrink: 0;
+}
+
+.eHundiTitle {
+  font-size: clamp(1.1rem, 2vw, 1.35rem);
+  font-weight: 900;
+  color: #ffd700;
+  margin: 0 0 3px;
+  line-height: 1.3;
+}
+
+.eHundiSub {
+  font-size: 0.8rem;
+  color: #fed7aa;
+  margin: 0;
+}
+
+.hundiAmountChips {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 14px 0;
+}
+
+.hundiChipBtn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1.5px solid rgba(255, 193, 7, 0.3);
+  color: #ffd700;
+  padding: 10px 8px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 900;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.hundiChipBtn:hover, .hundiChipBtnActive {
+  background: linear-gradient(135deg, #ffd700 0%, #ff7700 100%);
+  color: #1a0f05;
+  border-color: #ffd700;
+  box-shadow: 0 4px 12px rgba(255, 153, 0, 0.4);
+  transform: translateY(-2px);
+}
+
+.razorpaySubmitBtn {
+  width: 100%;
+  background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+  border: none;
+  color: #ffffff;
+  padding: 14px;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 900;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+  margin-top: 14px;
+}
+
+.razorpaySubmitBtn:hover {
+  filter: brightness(1.15);
+  transform: translateY(-2px);
+}
+
+.hundiGuaranteeText {
+  font-size: 0.76rem;
+  color: #94a3b8;
+  text-align: center;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* Floating Flower Petal Particle */
+.flowerPetalParticle {
+  position: absolute;
+  pointer-events: none;
+  z-index: 99;
+  animation: fallPetal 2.5s linear forwards;
+}
+
+@keyframes fallPetal {
+  0% { transform: translate(0, -20px) rotate(0deg); opacity: 1; }
+  100% { transform: translate(var(--dx), 320px) rotate(360deg); opacity: 0; }
+}
+
+
+
+

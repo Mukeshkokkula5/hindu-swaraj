@@ -36,7 +36,7 @@ export default function AboutSection() {
               className={styles.aboutImage}
             />
             <div className={styles.floatingBadge}>
-              <span className={styles.badgeNumber}>5+</span>
+              <span className={styles.badgeNumber}>14+</span>
               <span className={styles.badgeText}>Years of Service<br/>to Society</span>
             </div>
           </div>

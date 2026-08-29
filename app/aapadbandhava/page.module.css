@@ -1,0 +1,1720 @@
+/* =====================================================
+   🚩 HINDU SWARAJ AAPADBANDHAVA (EMERGENCY AID PORTAL)
+   Perfect Proportions, Responsive Scaling & Fluid Layout
+===================================================== */
+
+.pageWrapper {
+  min-height: 100vh;
+  background: #080b11;
+  color: #f8fafc;
+  font-family: var(--font-outfit), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* ================= 1. TOP NAVBAR ================= */
+.topNav {
+  background: rgba(11, 15, 23, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 153, 51, 0.3);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  padding: 10px 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+}
+
+.topNavContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+}
+
+.brandLink {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+  min-width: 0;
+}
+
+.brandLogo {
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ff9933;
+  background: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 0 10px rgba(255, 153, 51, 0.4);
+}
+
+.brandTextGroup {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.brandTitle {
+  font-size: clamp(0.88rem, 1.8vw, 1.02rem);
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1.15;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+}
+
+.brandSubtitle {
+  font-size: clamp(0.62rem, 1.3vw, 0.72rem);
+  font-weight: 800;
+  color: #ff9933;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.navActionBtns {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.backHomeBtn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #f1f5f9;
+  padding: 7px 14px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.backHomeBtn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.navApplyBtn {
+  background: linear-gradient(135deg, #ff4757 0%, #ff7700 100%);
+  color: #ffffff;
+  border: none;
+  padding: 7px 16px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(255, 71, 87, 0.35);
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.navApplyBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(255, 71, 87, 0.5);
+}
+
+@media (max-width: 540px) {
+  .backHomeBtn {
+    padding: 6px 10px;
+    font-size: 0.76rem;
+  }
+  .navApplyBtn {
+    padding: 6px 12px;
+    font-size: 0.76rem;
+  }
+}
+
+/* ================= 2. HERO SECTION (SCALED 2-COLUMN) ================= */
+.hero {
+  position: relative;
+  background-image: linear-gradient(180deg, rgba(11, 15, 23, 0.74) 0%, rgba(8, 11, 17, 0.97) 100%),
+                    url('/images/aapadbandhava-bg.jpg');
+  background-size: cover;
+  background-position: center 30%;
+  padding: clamp(35px, 6vw, 60px) 20px clamp(45px, 7vw, 70px);
+  border-bottom: 1px solid rgba(255, 153, 51, 0.25);
+  overflow: hidden;
+}
+
+.heroBackgroundGlow {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(900px, 90vw);
+  height: 350px;
+  background: radial-gradient(ellipse at center, rgba(255, 119, 0, 0.2) 0%, transparent 70%);
+  filter: blur(50px);
+  pointer-events: none;
+}
+
+.heroContent {
+  position: relative;
+  max-width: 1160px;
+  margin: 0 auto;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 290px 1fr;
+  gap: clamp(24px, 4vw, 44px);
+  align-items: center;
+}
+
+@media (max-width: 880px) {
+  .heroContent {
+    grid-template-columns: 1fr;
+    text-align: center;
+    gap: 28px;
+  }
+}
+
+/* Left: Shivaji Maharaj Frame */
+.shivajiFrameWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.shivajiCard {
+  position: relative;
+  width: min(280px, 85vw);
+  background: linear-gradient(145deg, rgba(255, 153, 51, 0.14) 0%, rgba(22, 16, 12, 0.95) 100%);
+  border: 1.5px solid #ffd700;
+  border-radius: 20px;
+  padding: 12px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.7), 0 0 25px rgba(255, 153, 51, 0.25);
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.shivajiCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.8), 0 0 35px rgba(255, 153, 51, 0.4);
+}
+
+.shivajiImageWrap {
+  width: 100%;
+  height: clamp(220px, 35vw, 270px);
+  border-radius: 14px;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid rgba(255, 215, 0, 0.45);
+  background: #110d0a;
+}
+
+.shivajiImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.shivajiInsignia {
+  margin-top: 10px;
+  padding: 5px 12px;
+  background: rgba(255, 119, 0, 0.14);
+  border: 1px solid rgba(255, 153, 51, 0.35);
+  border-radius: 30px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #ffd700;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.shivajiShloka {
+  font-size: 0.74rem;
+  color: #cbd5e1;
+  font-weight: 600;
+  margin-top: 6px;
+  font-style: italic;
+  line-height: 1.3;
+}
+
+/* Right: Hero Content Text */
+.heroRightText {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+@media (max-width: 880px) {
+  .heroRightText {
+    align-items: center;
+  }
+}
+
+.quotePill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 16px;
+  background: rgba(255, 119, 0, 0.1);
+  border: 1px solid rgba(255, 119, 0, 0.3);
+  border-radius: 50px;
+  font-size: clamp(0.76rem, 1.4vw, 0.84rem);
+  font-weight: 700;
+  color: #ff9d3b;
+  margin-bottom: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.pulseDot {
+  width: 7px;
+  height: 7px;
+  background: #ef4444;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #ef4444;
+  animation: pulseAnimation 1.5s infinite ease-in-out;
+}
+
+@keyframes pulseAnimation {
+  0% { transform: scale(0.9); opacity: 0.7; }
+  50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 12px #ef4444; }
+  100% { transform: scale(0.9); opacity: 0.7; }
+}
+
+.mainTitle {
+  font-size: clamp(2rem, 4.2vw, 3.4rem);
+  font-weight: 900;
+  line-height: 1.28;
+  margin: 4px 0 12px;
+  color: #ffffff;
+  letter-spacing: 0.2px;
+  padding: 2px 0;
+}
+
+.mainTitleHighlight {
+  color: #ff9933;
+  text-shadow: 0 0 30px rgba(255, 153, 51, 0.45);
+}
+
+.subtitle {
+  font-size: clamp(0.94rem, 1.5vw, 1.12rem);
+  color: #e2e8f0;
+  line-height: 1.62;
+  margin: 0 0 20px;
+  max-width: 720px;
+}
+
+.trustBadgesRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 880px) {
+  .trustBadgesRow {
+    justify-content: center;
+  }
+}
+
+.trustBadgeItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(18, 24, 36, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 6px 14px;
+  border-radius: 30px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #e2e8f0;
+}
+
+.trustBadgeItemHighlight {
+  border-color: rgba(16, 185, 129, 0.45);
+  background: rgba(16, 185, 129, 0.12);
+  color: #34d399;
+}
+
+.heroActions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 880px) {
+  .heroActions {
+    justify-content: center;
+  }
+}
+
+.primaryBtn {
+  background: linear-gradient(135deg, #ff7700 0%, #e65100 100%);
+  color: #ffffff;
+  border: none;
+  padding: 12px 24px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(255, 119, 0, 0.35);
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  text-decoration: none;
+}
+
+.primaryBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(255, 119, 0, 0.5);
+  background: linear-gradient(135deg, #ff881a 0%, #f05a00 100%);
+}
+
+.secondaryBtn {
+  background: rgba(255, 255, 255, 0.06);
+  color: #f1f5f9;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 12px 22px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  text-decoration: none;
+}
+
+.secondaryBtn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+/* ================= 3. STATS BAR ================= */
+.statsSection {
+  max-width: 1160px;
+  margin: -24px auto 40px;
+  padding: 0 16px;
+  position: relative;
+  z-index: 5;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  background: rgba(18, 24, 36, 0.96);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 153, 51, 0.3);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+}
+
+@media (max-width: 900px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+}
+
+@media (max-width: 500px) {
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.statCard {
+  text-align: center;
+  padding: 8px;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.statCard:last-child {
+  border-right: none;
+}
+
+@media (max-width: 900px) {
+  .statCard {
+    border-right: none;
+  }
+}
+
+.statNum {
+  font-size: clamp(1.5rem, 2.2vw, 1.85rem);
+  font-weight: 900;
+  color: #ff9933;
+  margin-bottom: 2px;
+}
+
+.statLabel {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+/* ================= 4. HOW IT WORKS 4-STEP ================= */
+.howItWorksSection {
+  max-width: 1160px;
+  margin: 0 auto 50px;
+  padding: 0 16px;
+}
+
+.sectionHeader {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.sectionTag {
+  display: inline-block;
+  font-size: 0.76rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #ff9933;
+  letter-spacing: 1.2px;
+  margin-bottom: 6px;
+}
+
+.sectionTitle {
+  font-size: clamp(1.45rem, 2.6vw, 1.95rem);
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.stepsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.stepCard {
+  background: #121824;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 20px;
+  position: relative;
+  transition: all 0.25s ease;
+}
+
+.stepCard:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255, 119, 0, 0.35);
+  box-shadow: 0 10px 24px rgba(255, 119, 0, 0.12);
+}
+
+.stepNumber {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.08);
+}
+
+.stepIcon {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.stepTitle {
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: #f8fafc;
+  margin-bottom: 6px;
+}
+
+.stepDesc {
+  font-size: 0.82rem;
+  color: #94a3b8;
+  line-height: 1.5;
+}
+
+/* ================= 5. CONTROLS & FILTER ================= */
+.controlsSection {
+  max-width: 1160px;
+  margin: 0 auto 30px;
+  padding: 0 16px;
+}
+
+.controlsWrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  background: #121824;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 14px 18px;
+}
+
+.categoryPills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.catPill {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  padding: 7px 14px;
+  border-radius: 25px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.catPill:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #f8fafc;
+}
+
+.catPillActive {
+  background: #ff7700;
+  border-color: #ff7700;
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: 0 3px 12px rgba(255, 119, 0, 0.35);
+}
+
+.searchBox {
+  position: relative;
+  min-width: 240px;
+}
+
+@media (max-width: 600px) {
+  .searchBox {
+    width: 100%;
+  }
+}
+
+.searchInput {
+  width: 100%;
+  background: #080b11;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 9px 14px 9px 36px;
+  color: #f1f5f9;
+  font-size: 0.86rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.searchInput:focus {
+  border-color: #ff7700;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+/* ================= 6. CASES GRID ================= */
+.casesSection {
+  max-width: 1160px;
+  margin: 0 auto 60px;
+  padding: 0 16px;
+}
+
+.casesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  gap: 24px;
+}
+
+@media (max-width: 680px) {
+  .casesGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.caseCard {
+  background: #121824;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
+  position: relative;
+}
+
+.caseCard:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 153, 51, 0.45);
+  box-shadow: 0 16px 36px rgba(255, 119, 0, 0.16);
+}
+
+.cardHeader {
+  position: relative;
+  width: 100%;
+  height: 210px;
+  background: #080b11;
+  overflow: hidden;
+}
+
+.cardImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.caseCard:hover .cardImage {
+  transform: scale(1.04);
+}
+
+.cardBadges {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 2;
+}
+
+.urgencyBadge {
+  background: rgba(239, 68, 68, 0.95);
+  backdrop-filter: blur(8px);
+  color: #ffffff;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  box-shadow: 0 3px 10px rgba(239, 68, 68, 0.4);
+}
+
+.urgency7Days {
+  background: rgba(245, 158, 11, 0.95);
+  box-shadow: 0 3px 10px rgba(245, 158, 11, 0.4);
+}
+
+.categoryTag {
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(8px);
+  color: #cbd5e1;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.verifiedBadgeOverlay {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background: rgba(8, 11, 17, 0.92);
+  border: 1px solid #ffd700;
+  padding: 5px 12px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #ffd700;
+  font-size: 0.74rem;
+  font-weight: 800;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7);
+}
+
+.cardBody {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.caseTitle {
+  font-size: 1.08rem;
+  font-weight: 800;
+  color: #f8fafc;
+  line-height: 1.38;
+  margin-bottom: 8px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.patientMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin-bottom: 12px;
+}
+
+.hospitalInfo {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  color: #cbd5e1;
+  margin-bottom: 14px;
+}
+
+.hospitalInfo span {
+  display: block;
+  font-weight: 700;
+  color: #ff9933;
+  margin-bottom: 2px;
+}
+
+/* Progress Area */
+.progressArea {
+  margin-bottom: 16px;
+}
+
+.progressNumbers {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.86rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.amountRaised {
+  color: #10b981;
+}
+
+.targetAmount {
+  color: #94a3b8;
+}
+
+.progressBarTrack {
+  width: 100%;
+  height: 7px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progressBarFill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff7700 0%, #10b981 100%);
+  border-radius: 10px;
+  transition: width 0.5s ease;
+}
+
+/* Beneficiary Direct Box */
+.beneficiaryCardBox {
+  background: linear-gradient(135deg, rgba(255, 119, 0, 0.06) 0%, rgba(18, 24, 36, 0.95) 100%);
+  border: 1px dashed rgba(255, 153, 51, 0.35);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 16px;
+}
+
+.beneficiaryBoxHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: #ff9933;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.beneficiaryDetails {
+  font-size: 0.78rem;
+  color: #e2e8f0;
+  line-height: 1.4;
+}
+
+.cardFooter {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.donateDirectBtn {
+  background: #ff7700;
+  color: #ffffff;
+  border: none;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 0.86rem;
+  font-weight: 800;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.donateDirectBtn:hover {
+  background: #ff881a;
+  transform: scale(1.02);
+}
+
+.viewDetailsBtn {
+  background: rgba(255, 255, 255, 0.05);
+  color: #f1f5f9;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.viewDetailsBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* ================= 7. MODALS ================= */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.88);
+  backdrop-filter: blur(14px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: modalFadeIn 0.2s ease;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.modalContent {
+  background: #121824;
+  border: 1px solid rgba(255, 119, 0, 0.35);
+  border-radius: 20px;
+  max-width: 760px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: clamp(20px, 4vw, 30px);
+  position: relative;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
+}
+
+.closeModalBtn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: #cbd5e1;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  z-index: 10;
+}
+
+.closeModalBtn:hover {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+/* Direct Pay Modal Box */
+.qrCodeBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #080b11;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 20px;
+  margin: 16px 0;
+  text-align: center;
+}
+
+/* 1-Tap UPI Apps Grid */
+.upiAppsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+  width: 100%;
+  margin: 14px 0 6px;
+}
+
+.upiAppBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 12px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #ffffff;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.upiAppBtn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.15);
+}
+
+.upiAppGpay {
+  background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
+}
+
+.upiAppPhonepe {
+  background: linear-gradient(135deg, #5f259f 0%, #3e1270 100%);
+}
+
+.upiAppPaytm {
+  background: linear-gradient(135deg, #00b9f1 0%, #002e6e 100%);
+}
+
+.upiAppAny {
+  background: linear-gradient(135deg, #ff7700 0%, #d84315 100%);
+}
+
+.desktopQrContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.desktopQrGuide {
+  background: rgba(255, 153, 51, 0.08);
+  border: 1px solid rgba(255, 153, 51, 0.25);
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 0.84rem;
+  color: #ffd700;
+  font-weight: 700;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.qrImage {
+  width: clamp(190px, 35vw, 220px);
+  height: clamp(190px, 35vw, 220px);
+  background: #ffffff;
+  padding: 10px;
+  border-radius: 14px;
+  margin-bottom: 10px;
+  object-fit: contain;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.bankCopyList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+  width: 100%;
+}
+
+.bankCopyRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.86rem;
+}
+
+.copySmallBtn {
+  background: rgba(255, 119, 0, 0.15);
+  border: 1px solid rgba(255, 119, 0, 0.35);
+  color: #ff9933;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.copySmallBtn:hover {
+  background: #ff7700;
+  color: #ffffff;
+}
+
+/* Post-Payment Certificate Box */
+.confirmContributionBox {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.08) 0%, rgba(18, 24, 36, 0.95) 100%);
+  border: 1.5px solid #ffd700;
+  border-radius: 16px;
+  padding: 18px;
+  margin-top: 20px;
+  text-align: center;
+}
+
+.confirmTitle {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #ffd700;
+  margin-bottom: 6px;
+}
+
+.confirmSubtitle {
+  font-size: 0.82rem;
+  color: #cbd5e1;
+  margin-bottom: 14px;
+}
+
+/* ================= 9. GRAND DIGITAL SEVA CERTIFICATE MODAL ================= */
+.certificateModalContent {
+  background: #0b0f17;
+  border: 2px solid #ffd700;
+  border-radius: 20px;
+  max-width: 860px;
+  width: 95vw;
+  max-height: 94vh;
+  overflow-y: auto;
+  padding: clamp(16px, 3vw, 28px);
+  position: relative;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.95), 0 0 50px rgba(255, 215, 0, 0.3);
+}
+
+.certificateFrame {
+  background: radial-gradient(circle at 50% 50%, #fffdf7 0%, #fef8eb 100%);
+  color: #1a160d;
+  border: 8px double #c59b27;
+  border-radius: 14px;
+  padding: clamp(24px, 4.5vw, 44px);
+  position: relative;
+  text-align: center;
+  box-shadow: inset 0 0 40px rgba(197, 155, 39, 0.25), 0 10px 30px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+/* Ornate Corner Accents */
+.certCornerTopLeft {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  font-size: 1.5rem;
+  color: #c59b27;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.certCornerTopRight {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 1.5rem;
+  color: #c59b27;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.certCornerBottomLeft {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  font-size: 1.5rem;
+  color: #c59b27;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.certCornerBottomRight {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  font-size: 1.5rem;
+  color: #c59b27;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.certWatermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0.055;
+  width: 340px;
+  height: 340px;
+  pointer-events: none;
+}
+
+.certTopShloka {
+  font-size: clamp(0.72rem, 1.4vw, 0.85rem);
+  font-weight: 800;
+  color: #9a3412;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+  border-bottom: 1px dashed rgba(197, 155, 39, 0.4);
+  padding-bottom: 8px;
+}
+
+.certHeaderTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid rgba(197, 155, 39, 0.4);
+  padding-bottom: 14px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.certOrgName {
+  font-size: clamp(1.05rem, 2.3vw, 1.45rem);
+  font-weight: 900;
+  color: #7c2d12;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+.certOrgSub {
+  font-size: 0.76rem;
+  font-weight: 800;
+  color: #c59b27;
+  letter-spacing: 1px;
+}
+
+.certCodeBadge {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #7c2d12;
+  background: rgba(197, 155, 39, 0.15);
+  border: 1.5px solid #c59b27;
+  padding: 5px 12px;
+  border-radius: 8px;
+  letter-spacing: 0.5px;
+}
+
+.certMainTitle {
+  font-size: clamp(1.45rem, 3.4vw, 2.3rem);
+  font-weight: 900;
+  color: #92400e;
+  margin: 12px 0 4px;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 2px rgba(146, 64, 14, 0.2);
+}
+
+.certSubTitle {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #b45309;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.certRecipientTag {
+  font-size: 0.92rem;
+  color: #4b5563;
+  margin-bottom: 2px;
+  font-weight: 600;
+}
+
+.certDonorName {
+  font-size: clamp(1.5rem, 3.6vw, 2.25rem);
+  font-weight: 900;
+  color: #b91c1c;
+  margin: 6px 0 12px;
+  border-bottom: 2px dashed #c59b27;
+  display: inline-block;
+  padding: 0 24px 6px;
+  letter-spacing: 0.5px;
+}
+
+.certDescriptionText {
+  font-size: clamp(0.88rem, 1.7vw, 1.02rem);
+  color: #374151;
+  line-height: 1.7;
+  max-width: 660px;
+  margin: 0 auto 20px;
+}
+
+.certAmountPill {
+  display: inline-block;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border: 1.5px solid #f59e0b;
+  color: #92400e;
+  padding: 8px 22px;
+  border-radius: 30px;
+  font-size: 1.08rem;
+  font-weight: 900;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.25);
+}
+
+.certFooterRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-top: 1.5px solid rgba(197, 155, 39, 0.4);
+  padding-top: 16px;
+  margin-top: 14px;
+}
+
+.certSignatureBox {
+  text-align: center;
+}
+
+.certSignTitle {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #78350f;
+}
+
+.certSignSub {
+  font-size: 0.7rem;
+  color: #6b7280;
+}
+
+.certSealBox {
+  text-align: center;
+}
+
+.certSealBadge {
+  width: 68px;
+  height: 68px;
+  border: 2.5px solid #b45309;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #fffbeb;
+  font-size: 0.62rem;
+  font-weight: 900;
+  color: #92400e;
+  box-shadow: 0 0 14px rgba(180, 83, 9, 0.35);
+}
+
+.certActionsRow {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #aapadbandhava-certificate, #aapadbandhava-certificate * {
+    visibility: visible;
+  }
+  #aapadbandhava-certificate {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 30px;
+    box-shadow: none;
+  }
+}
+
+/* Ground Verification Seal Card */
+.verificationSealCard {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.08) 0%, rgba(18, 24, 36, 0.95) 100%);
+  border: 1px solid #ffd700;
+  border-radius: 14px;
+  padding: 18px;
+  margin: 16px 0;
+}
+
+.sealHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ffd700;
+  font-weight: 800;
+  font-size: 0.98rem;
+  margin-bottom: 8px;
+}
+
+.sealText {
+  font-size: 0.88rem;
+  color: #e2e8f0;
+  line-height: 1.55;
+}
+
+/* Documents Gallery */
+.docsGallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.docThumbnail {
+  position: relative;
+  height: 120px;
+  background: #080b11;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.docThumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.docOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.docThumbnail:hover .docOverlay {
+  opacity: 1;
+}
+
+/* ================= 8. FULL-SIZE APPLICATION DESK MODAL ================= */
+.fullSizeModalContent {
+  background: #101622;
+  border: 2px solid rgba(255, 153, 51, 0.4);
+  border-radius: 24px;
+  max-width: 1020px;
+  width: 95vw;
+  max-height: 94vh;
+  overflow-y: auto;
+  padding: clamp(20px, 3.5vw, 36px);
+  position: relative;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.9), 0 0 40px rgba(255, 119, 0, 0.2);
+}
+
+.appDeskHeader {
+  text-align: center;
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.appDeskTitle {
+  font-size: clamp(1.4rem, 2.6vw, 1.95rem);
+  font-weight: 900;
+  color: #ffffff;
+  margin: 8px 0 6px;
+}
+
+.appDeskSubtitle {
+  font-size: 0.88rem;
+  color: #cbd5e1;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.antiFraudBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #34d399;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin-top: 12px;
+}
+
+/* Form Section Cards */
+.formSectionCard {
+  background: #141c2b;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 22px;
+  margin-bottom: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.formSectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 12px;
+  margin-bottom: 18px;
+}
+
+.formSectionTitle {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #ff9933;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.formSectionStepBadge {
+  background: rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+/* Field Grid */
+.formGrid3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.formGrid2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+@media (max-width: 768px) {
+  .formGrid3, .formGrid2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  position: relative;
+}
+
+.formGroup label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #cbd5e1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.fieldValidationTag {
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.fieldValid {
+  color: #34d399;
+}
+
+.fieldInvalid {
+  color: #f87171;
+}
+
+.formInput, .formSelect, .formTextarea {
+  width: 100%;
+  box-sizing: border-box;
+  background: #090d14;
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 11px 14px;
+  color: #f1f5f9;
+  font-size: 0.9rem;
+  outline: none;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.formInput:focus, .formSelect:focus, .formTextarea:focus {
+  border-color: #ff7700;
+  box-shadow: 0 0 12px rgba(255, 119, 0, 0.25);
+  background: #0c121c;
+}
+
+.formInputValid {
+  border-color: rgba(16, 185, 129, 0.6);
+}
+
+.formInputInvalid {
+  border-color: rgba(239, 68, 68, 0.6);
+}
+
+.formFullWidth {
+  grid-column: 1 / -1;
+}
+
+.fieldHelperText {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+.currencyWordsPreview {
+  background: rgba(255, 119, 0, 0.08);
+  border: 1px solid rgba(255, 119, 0, 0.25);
+  color: #ffd700;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+/* Upload Dropzone Box */
+.uploadDropzone {
+  border: 2px dashed rgba(255, 153, 51, 0.4);
+  background: rgba(9, 13, 20, 0.6);
+  border-radius: 14px;
+  padding: 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.uploadDropzone:hover {
+  border-color: #ff9933;
+  background: rgba(255, 119, 0, 0.05);
+}
+
+.uploadedDocsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.docChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #090d14;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  color: #34d399;
+}
+
+.docDeleteBtn {
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 800;
+  padding: 0 4px;
+}
+
+/* Declaration Checkbox */
+.declarationCard {
+  background: rgba(255, 119, 0, 0.06);
+  border: 1.5px solid rgba(255, 153, 51, 0.3);
+  border-radius: 12px;
+  padding: 16px;
+  margin: 20px 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.declarationCheckbox {
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  cursor: pointer;
+  accent-color: #ff7700;
+}
+
+.declarationText {
+  font-size: 0.85rem;
+  color: #e2e8f0;
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+/* Form Action Buttons */
+.appDeskActions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 14px;
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ================= 9. TRUST BANNER ================= */
+.trustBanner {
+  max-width: 1160px;
+  margin: 40px auto 25px;
+  padding: 0 16px;
+}
+
+.trustBannerInner {
+  background: linear-gradient(135deg, rgba(255, 119, 0, 0.08) 0%, rgba(18, 24, 36, 0.95) 100%);
+  border: 1px solid rgba(255, 119, 0, 0.25);
+  border-radius: 20px;
+  padding: clamp(24px, 4vw, 40px);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+  text-align: center;
+}
+
+.trustFeatureIcon {
+  font-size: 2.2rem;
+  margin-bottom: 10px;
+}
+
+.trustFeatureTitle {
+  font-size: 1.08rem;
+  font-weight: 800;
+  color: #ff9933;
+  margin-bottom: 6px;
+}
+
+.trustFeatureDesc {
+  font-size: 0.84rem;
+  color: #cbd5e1;
+  line-height: 1.55;
+}

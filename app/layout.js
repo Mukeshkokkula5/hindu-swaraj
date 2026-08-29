@@ -1,5 +1,6 @@
 import { Outfit } from 'next/font/google';
 import './globals.css';
+import WhatsAppWidget from '@/components/WhatsAppWidget';
 
 const outfit = Outfit({
   subsets: ['latin'],
@@ -9,14 +10,45 @@ const outfit = Outfit({
 });
 
 export const metadata = {
-  title: 'Hindu Swaraj Youth Welfare Association | Empowering Youth, Building Bharat',
-  description: 'Hindu Swaraj Youth Welfare Association is a registered voluntary organization dedicated to youth empowerment and social service. Dedicated to Seva, Sanskar and Sangathan for a Stronger Nation.',
-  keywords: 'Hindu Swaraj, Youth Welfare, NGO, Volunteer, Blood Donation, Social Service, Youth Leadership, Bharat',
+  metadataBase: new URL('https://hinduswarajyouth.online'),
+  title: {
+    default: 'Hindu Swaraj Youth Welfare Association | జగిత్యాల (Regd. 784/2025)',
+    template: '%s | Hindu Swaraj Youth Association',
+  },
+  description: 'Hindu Swaraj Youth Welfare Association is a registered non-profit voluntary organization in Jagtial dedicated to youth empowerment, 24/7 blood donation seva, Vinayaka Navaratri celebrations, and community development.',
+  keywords: [
+    'Hindu Swaraj Youth Welfare Association',
+    'Hindu Swaraj Jagtial',
+    'Blood Donation Jagtial',
+    'Vinayaka Navaratri Jagtial',
+    'Youth Welfare Association Telangana',
+    'NGO Jagtial',
+    'Community Service Jagtial',
+  ],
+  authors: [{ name: 'Hindu Swaraj Youth Welfare Association' }],
+  creator: 'Hindu Swaraj Youth Welfare Association',
+  publisher: 'Hindu Swaraj Youth Welfare Association',
   openGraph: {
-    title: 'Hindu Swaraj Youth Welfare Association',
-    description: 'Dedicated to Seva, Sanskar and Sangathan for a Stronger Nation',
+    title: '🚩 Hindu Swaraj Youth Welfare Association • జగిత్యాల',
+    description: 'సేవే మన లక్ష్యం • 24/7 అత్యవసర రక్తదాన సేవ, వినాయక నవరాత్రి మహోత్సవాలు & యువజన సంక్షేమం | Regd. No. 784/2025',
+    url: 'https://hinduswarajyouth.online',
+    siteName: 'Hindu Swaraj Youth Welfare Association',
+    images: [
+      {
+        url: '/images/hero-shivaji.png',
+        width: 1200,
+        height: 630,
+        alt: 'Hindu Swaraj Youth Welfare Association Jagtial',
+      },
+    ],
+    locale: 'te_IN',
     type: 'website',
-    locale: 'en_IN',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: '🚩 Hindu Swaraj Youth Welfare Association • జగిత్యాల',
+    description: 'సేవే మన లక్ష్యం • 24/7 అత్యవసర రక్తదాన సేవ, వినాయక నవరాత్రి మహోత్సవాలు & యువజన సంక్షేమం',
+    images: ['/images/hero-shivaji.png'],
   },
 };
 
@@ -26,7 +58,11 @@ export default function RootLayout({ children }) {
       <head>
         <link rel="icon" href="/images/logo_v2.png" type="image/png" />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <WhatsAppWidget />
+      </body>
     </html>
   );
 }
+

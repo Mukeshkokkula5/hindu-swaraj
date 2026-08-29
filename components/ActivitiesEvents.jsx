@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import Link from "next/link";
 import styles from "./ActivitiesEvents.module.css";
 
 const activities = [
@@ -51,8 +52,10 @@ const events = [
     month: "SEP",
     day: "14",
     title: "Vinayaka Navaratri Seva",
-    location: "Jagtial",
+    location: "Jagtial (11 Days Mahotsavam)",
     color: "#D4A017",
+    link: "/navaratri",
+    badge: "Live Stream & Daily Updates 🪔",
   },
 ];
 
@@ -116,36 +119,57 @@ export default function ActivitiesEvents() {
             </a>
           </div>
           <div className={styles.eventsList}>
-            {events.map((evt, i) => (
-              <div key={i} className={styles.eventCard}>
+            {events.map((evt, i) => {
+              const cardContent = (
                 <div
-                  className={styles.eventDate}
-                  style={{ borderColor: evt.color }}
+                  key={i}
+                  className={styles.eventCard}
+                  style={evt.link ? { cursor: "pointer", border: "1px solid rgba(212, 160, 23, 0.4)", background: "rgba(255, 107, 0, 0.04)" } : {}}
                 >
-                  <span
-                    className={styles.eventMonth}
-                    style={{ backgroundColor: evt.color }}
+                  <div
+                    className={styles.eventDate}
+                    style={{ borderColor: evt.color }}
                   >
-                    {evt.month}
-                  </span>
-                  <span className={styles.eventDay}>{evt.day}</span>
-                </div>
-                <div className={styles.eventInfo}>
-                  <h4 className={styles.eventTitle}>{evt.title}</h4>
-                  <span className={styles.eventLocation}>
-                    <svg
-                      width="12"
-                      height="12"
-                      viewBox="0 0 24 24"
-                      fill="var(--saffron)"
+                    <span
+                      className={styles.eventMonth}
+                      style={{ backgroundColor: evt.color }}
                     >
-                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-                    </svg>
-                    {evt.location}
-                  </span>
+                      {evt.month}
+                    </span>
+                    <span className={styles.eventDay}>{evt.day}</span>
+                  </div>
+                  <div className={styles.eventInfo}>
+                    <h4 className={styles.eventTitle}>
+                      {evt.title}
+                      {evt.badge && (
+                        <span style={{ display: "inline-block", marginLeft: 6, fontSize: "0.72rem", background: "#ff6b00", color: "#fff", padding: "2px 8px", borderRadius: 999, fontWeight: 700 }}>
+                          {evt.badge}
+                        </span>
+                      )}
+                    </h4>
+                    <span className={styles.eventLocation}>
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="var(--saffron)"
+                      >
+                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+                      </svg>
+                      {evt.location}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+
+              return evt.link ? (
+                <Link key={i} href={evt.link} style={{ textDecoration: "none", color: "inherit" }}>
+                  {cardContent}
+                </Link>
+              ) : (
+                cardContent
+              );
+            })}
           </div>
           <a href="#" className={styles.viewAllBottom}>
             View All Events

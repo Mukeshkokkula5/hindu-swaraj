@@ -45,7 +45,7 @@ export default function HeroSection() {
             for the betterment of society and the nation.
           </p>
           <div className={styles.heroCtas}>
-            <a href="#volunteer" className="btn btn-saffron">
+            <a href="/volunteer" className="btn btn-saffron">
               <svg
                 width="18"
                 height="18"
