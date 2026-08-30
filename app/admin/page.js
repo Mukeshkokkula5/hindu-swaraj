@@ -2725,8 +2725,12 @@ export default function AdminPage() {
       const data = await res.json();
       if (data.success) {
         const finalUrl = data.photo_url || data.url || data.fileUrl || data.imageUrl || "";
-        setNewBloodDonation((prev) => ({ ...prev, photo_url: finalUrl }));
         setBloodPhotoPreview(finalUrl);
+        if (editingBloodDonation) {
+          setEditingBloodDonation((prev) => ({ ...prev, photo_url: finalUrl }));
+        } else {
+          setNewBloodDonation((prev) => ({ ...prev, photo_url: finalUrl }));
+        }
         setBloodMessage("✅ Photo uploaded successfully!");
       } else {
         setBloodMessage("❌ Photo upload failed: " + data.error);
@@ -2744,9 +2748,10 @@ export default function AdminPage() {
     setBloodMessage("");
     try {
       if (editingBloodDonation) {
+        const finalPhoto = bloodPhotoPreview || editingBloodDonation.photo_url || "/images/activity-blood.png";
         const payload = {
           ...editingBloodDonation,
-          photo_url: editingBloodDonation.photo_url || bloodPhotoPreview || "/images/activity-blood.png",
+          photo_url: finalPhoto,
         };
         await fetchAPI(`/blood-donations/admin/${editingBloodDonation.id}`, {
           method: "PUT",
@@ -2754,9 +2759,10 @@ export default function AdminPage() {
         });
         setBloodMessage("✅ Blood Donation record & photo updated successfully!");
       } else {
+        const finalPhoto = bloodPhotoPreview || newBloodDonation.photo_url || "/images/activity-blood.png";
         const payload = {
           ...newBloodDonation,
-          photo_url: newBloodDonation.photo_url || bloodPhotoPreview || "/images/activity-blood.png",
+          photo_url: finalPhoto,
         };
         await fetchAPI("/blood-donations/admin", {
           method: "POST",
