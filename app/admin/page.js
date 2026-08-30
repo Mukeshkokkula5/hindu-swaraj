@@ -1771,27 +1771,40 @@ export default function AdminPage() {
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers,
     };
-    const response = await fetch(`${API_BASE_URL}${path}`, {
-      ...options,
-      headers,
-    });
-    if (!response.ok) {
-      const errData = await response.json().catch(() => ({}));
-      if (
-        response.status === 401 ||
-        errData.error === "Invalid or expired token" ||
-        errData.error === "jwt expired"
-      ) {
-        if (typeof window !== "undefined") {
-          localStorage.removeItem("admin_token");
-          localStorage.removeItem("admin_auth");
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}${path}`, {
+        ...options,
+        signal: options.signal || controller.signal,
+        headers,
+      });
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        if (
+          response.status === 401 ||
+          errData.error === "Invalid or expired token" ||
+          errData.error === "jwt expired"
+        ) {
+          if (typeof window !== "undefined") {
+            localStorage.removeItem("admin_token");
+            localStorage.removeItem("admin_auth");
+          }
+          setIsAuthenticated(false);
         }
-        setIsAuthenticated(false);
+        throw new Error(errData.error || "API request failed");
       }
-      throw new Error(errData.error || "API request failed");
+      return response.json();
+    } catch (fetchErr) {
+      clearTimeout(timeoutId);
+      throw fetchErr;
     }
-    return response.json();
   };
+
   const fetchAuditLogs = async (page = 1) => {
     try {
       const res = await fetchAPI(`/admin/audit-logs?page=${page}&limit=10`);
@@ -2027,22 +2040,24 @@ export default function AdminPage() {
       console.warn("Could not load signatures from backend:", err.message);
     }
 
-    try { await loadNavaratriAdminData(); } catch (_) {}
-    try { await loadSubscriptionSettings(); } catch (_) {}
-    try { await loadMySubscriptionStatus(); } catch (_) {}
-    try { await loadSubscriptionDuesMatrix(); } catch (_) {}
-    try { await loadTreasurySummary(); } catch (_) {}
-    try { await loadVendors(); } catch (_) {}
-    try { await loadBloodDonationsData(); } catch (_) {}
-    try { await loadBloodSosData(); } catch (_) {}
-    try { await loadVolunteersData(); } catch (_) {}
-    try { await loadTeamAndPostsAdminData(); } catch (_) {}
-    try { await loadSuggestions(); } catch (_) {}
-    try { await loadComplaintsData(); } catch (_) {}
-    try { await loadMeetingsData(); } catch (_) {}
-    try { await loadMcpLoansData(); } catch (_) {}
-    try { await loadReportsData(); } catch (_) {}
-    try { await loadRolePermissions(); } catch (_) {}
+    Promise.allSettled([
+      loadNavaratriAdminData(),
+      loadSubscriptionSettings(),
+      loadMySubscriptionStatus(),
+      loadSubscriptionDuesMatrix(),
+      loadTreasurySummary(),
+      loadVendors(),
+      loadBloodDonationsData(),
+      loadBloodSosData(),
+      loadVolunteersData(),
+      loadTeamAndPostsAdminData(),
+      loadSuggestions(),
+      loadComplaintsData(),
+      loadMeetingsData(),
+      loadMcpLoansData(),
+      loadReportsData(),
+      loadRolePermissions(),
+    ]);
   };
 
   const loadNavaratriAdminData = async () => {
@@ -4784,9 +4799,10 @@ export default function AdminPage() {
       }
       setLoginError("");
       setPassword("");
+      setLoading(false);
 
-      // 2. Load all system and module data automatically without needing manual refresh
-      await loadAllData(data.role || "");
+      // 2. Load all system and module data automatically without blocking the screen
+      loadAllData(data.role || "");
     } catch (err) {
       console.warn(
         "Backend login failed, falling back to local simulation:",
@@ -4799,6 +4815,7 @@ export default function AdminPage() {
         localStorage.setItem("admin_auth", "true");
         localStorage.setItem("admin_role", "SUPER_ADMIN");
         setLoginError("");
+        setLoading(false);
         loadAllData("SUPER_ADMIN");
       } else {
         setLoginError(err.message || "Invalid credentials.");
@@ -4818,6 +4835,18 @@ export default function AdminPage() {
     }
     return () => clearInterval(timer);
   }, [forgotCountdown]);
+
+  // Safety auto-dismiss for global processing loading overlay
+  useEffect(() => {
+    let timer;
+    if (loading) {
+      timer = setTimeout(() => {
+        setLoading(false);
+      }, 2500);
+    }
+    return () => clearTimeout(timer);
+  }, [loading]);
+
 
   // Change Password OTP Countdown Effect
   useEffect(() => {
@@ -25326,11 +25355,17 @@ _This is an official computer-generated receipt._`;
       )}
 
       {loading && (
-        <div className="loadingOverlay">
+        <div
+          className="loadingOverlay"
+          onClick={() => setLoading(false)}
+          title="Click to dismiss"
+          style={{ cursor: "pointer" }}
+        >
           <div className="spinner" />
           <div className="loadingText">Processing...</div>
         </div>
       )}
+
     </div>
   );
 }
