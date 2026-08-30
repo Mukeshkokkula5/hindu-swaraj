@@ -1052,6 +1052,18 @@ export default function AdminPage() {
   const [savingSignatures, setSavingSignatures] = useState(false);
   const [showSignaturesModal, setShowSignaturesModal] = useState(false);
 
+  const resolveSignatureUrl = (url) => {
+    if (!url || typeof url !== "string") return "";
+    let trimmed = url.trim();
+    if (trimmed.includes("data:image/")) {
+      return trimmed.substring(trimmed.indexOf("data:image/"));
+    }
+    if (trimmed.startsWith("data:") || trimmed.startsWith("blob:")) return trimmed;
+    if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) return trimmed;
+    const clean = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+    return `${API_BASE_URL}${clean}`;
+  };
+
   // Expense Bill Upload, View & Edit States
   const [expenseBillUploading, setExpenseBillUploading] = useState(false);
   const [expenseBillPreview, setExpenseBillPreview] = useState("");
@@ -2029,18 +2041,10 @@ export default function AdminPage() {
           president_name: sigData.data.president_name || "Vinodh Kumar K",
           gs_name: sigData.data.gs_name || "Mani Deep",
           treasurer_name: sigData.data.treasurer_name || "Treasurer",
-          treasurer_signature_url: sigData.data.treasurer_signature_url
-            ? (sigData.data.treasurer_signature_url.startsWith("http") || sigData.data.treasurer_signature_url.startsWith("data:") ? sigData.data.treasurer_signature_url : `${API_BASE_URL}${sigData.data.treasurer_signature_url}`)
-            : "",
-          gs_signature_url: sigData.data.gs_signature_url
-            ? (sigData.data.gs_signature_url.startsWith("http") || sigData.data.gs_signature_url.startsWith("data:") ? sigData.data.gs_signature_url : `${API_BASE_URL}${sigData.data.gs_signature_url}`)
-            : "",
-          president_signature_url: sigData.data.president_signature_url
-            ? (sigData.data.president_signature_url.startsWith("http") || sigData.data.president_signature_url.startsWith("data:") ? sigData.data.president_signature_url : `${API_BASE_URL}${sigData.data.president_signature_url}`)
-            : "",
-          association_seal_url: sigData.data.association_seal_url
-            ? (sigData.data.association_seal_url.startsWith("http") || sigData.data.association_seal_url.startsWith("data:") ? sigData.data.association_seal_url : `${API_BASE_URL}${sigData.data.association_seal_url}`)
-            : "",
+          treasurer_signature_url: resolveSignatureUrl(sigData.data.treasurer_signature_url),
+          gs_signature_url: resolveSignatureUrl(sigData.data.gs_signature_url),
+          president_signature_url: resolveSignatureUrl(sigData.data.president_signature_url),
+          association_seal_url: resolveSignatureUrl(sigData.data.association_seal_url),
         });
       }
     } catch (err) {
@@ -5695,9 +5699,10 @@ export default function AdminPage() {
       if (!res.ok || !data.success) {
         throw new Error(data.error || "Upload failed");
       }
-      const uploadedUrl = data.fileUrl.startsWith("http") || data.fileUrl.startsWith("data:")
-        ? data.fileUrl
-        : `${API_BASE_URL}${data.fileUrl}`;
+      const rawUrl = data.fileUrl || data.imageUrl || data.photo_url || data.url || "";
+      const uploadedUrl = (rawUrl.startsWith("http") || rawUrl.startsWith("data:") || rawUrl.startsWith("blob:"))
+        ? rawUrl
+        : `${API_BASE_URL}${rawUrl.startsWith("/") ? rawUrl : `/${rawUrl}`}`;
 
       const updated = {
         ...signatures,
@@ -6057,8 +6062,8 @@ export default function AdminPage() {
               <div>
                 <span class="status-stamp">✓ APPROVED &amp; SETTLED</span>
               </div>
-              ${signatures.association_seal_url
-        ? `<img src="${signatures.association_seal_url}" alt="Seal" style="width: 75px; height: 75px; object-fit: contain; opacity: 0.85;" />`
+              ${resolveSignatureUrl(signatures.association_seal_url)
+        ? `<img src="${resolveSignatureUrl(signatures.association_seal_url)}" alt="Seal" style="width: 75px; height: 75px; object-fit: contain; opacity: 0.85;" />`
         : `<div style="font-size: 0.75rem; color: #64748b; text-align: right;">Official Seal Verified</div>`
       }
               <div style="font-size: 0.75rem; color: #64748b; text-align: right;">
@@ -6071,26 +6076,26 @@ export default function AdminPage() {
             <div class="signatures-area">
               <div class="sig-box">
                 <div class="sig-img-container">
-                  ${signatures.treasurer_signature_url
-        ? `<img src="${signatures.treasurer_signature_url}" class="sig-img" alt="Treasurer Signature" />`
+                  ${resolveSignatureUrl(signatures.treasurer_signature_url)
+        ? `<img src="${resolveSignatureUrl(signatures.treasurer_signature_url)}" class="sig-img" alt="Treasurer Signature" />`
         : `<div style="height: 48px;"></div>`
       }
                 </div>
                 <div class="sig-line">
-                  <strong>${expense.requested_by_name || "Treasurer"}</strong><br/>
+                  <strong>${expense.requested_by_name || signatures.treasurer_name || "Treasurer"}</strong><br/>
                   <span style="font-size: 0.7rem; color: #64748b;">Prepared by (Treasurer)</span>
                 </div>
               </div>
 
               <div class="sig-box">
                 <div class="sig-img-container">
-                  ${(expense.status === "PASSED_BY_GS" || expense.status === "APPROVED") && signatures.gs_signature_url
-        ? `<img src="${signatures.gs_signature_url}" class="sig-img" alt="GS Signature" />`
+                  ${(expense.status === "PASSED_BY_GS" || expense.status === "APPROVED") && resolveSignatureUrl(signatures.gs_signature_url)
+        ? `<img src="${resolveSignatureUrl(signatures.gs_signature_url)}" class="sig-img" alt="GS Signature" />`
         : `<div style="height: 48px;"></div>`
       }
                 </div>
                 <div class="sig-line">
-                  <strong>${expense.passed_by_name || (expense.status === "APPROVED" ? "General Secretary" : "GS Verification")}</strong><br/>
+                  <strong>${expense.passed_by_name || (expense.status === "APPROVED" ? signatures.gs_name || "General Secretary" : "GS Verification")}</strong><br/>
                   <span style="font-size: 0.7rem; color: ${expense.status === "PASSED_BY_GS" || expense.status === "APPROVED" ? "#16a34a" : "#64748b"};">
                     ${expense.status === "PASSED_BY_GS" || expense.status === "APPROVED" ? "✓ Verified &amp; Passed (GS)" : "Verified &amp; Passed (GS)"}
                   </span>
@@ -6099,13 +6104,13 @@ export default function AdminPage() {
 
               <div class="sig-box">
                 <div class="sig-img-container">
-                  ${expense.status === "APPROVED" && signatures.president_signature_url
-        ? `<img src="${signatures.president_signature_url}" class="sig-img" alt="President Signature" />`
+                  ${expense.status === "APPROVED" && resolveSignatureUrl(signatures.president_signature_url)
+        ? `<img src="${resolveSignatureUrl(signatures.president_signature_url)}" class="sig-img" alt="President Signature" />`
         : `<div style="height: 48px;"></div>`
       }
                 </div>
                 <div class="sig-line">
-                  <strong>${expense.approved_by_name || (expense.status === "APPROVED" ? "President" : "President Approval")}</strong><br/>
+                  <strong>${expense.approved_by_name || (expense.status === "APPROVED" ? signatures.president_name || "Vinodh Kumar K" : "President Approval")}</strong><br/>
                   <span style="font-size: 0.7rem; color: ${expense.status === "APPROVED" ? "#16a34a" : "#64748b"};">
                     ${expense.status === "APPROVED" ? "✓ Approved by (President)" : "Approved by (President)"}
                   </span>
@@ -24584,13 +24589,9 @@ _This is an official computer-generated receipt._`;
               >
                 {/* President Signature */}
                 <div style={{ textAlign: "center", width: "180px" }}>
-                  {momData.signatures?.president_signature_url ? (
+                  {resolveSignatureUrl(momData.signatures?.president_signature_url || signatures.president_signature_url) ? (
                     <img
-                      src={
-                        momData.signatures.president_signature_url.startsWith("http")
-                          ? momData.signatures.president_signature_url
-                          : `${API_BASE_URL}${momData.signatures.president_signature_url}`
-                      }
+                      src={resolveSignatureUrl(momData.signatures?.president_signature_url || signatures.president_signature_url)}
                       alt="President Signature"
                       style={{ height: "45px", objectFit: "contain", marginBottom: "4px" }}
                     />
@@ -24598,20 +24599,16 @@ _This is an official computer-generated receipt._`;
                     <div style={{ height: "45px", borderBottom: "1px dashed #cbd5e1" }} />
                   )}
                   <div style={{ borderTop: "1px solid #0f172a", paddingTop: "4px", fontSize: "0.82rem", fontWeight: "800", color: "#0f172a" }}>
-                    President
+                    {momData.signatures?.president_name || signatures.president_name || "Vinodh Kumar K"}
                   </div>
-                  <div style={{ fontSize: "0.72rem", color: "#64748b" }}>Hindu Swaraj Youth</div>
+                  <div style={{ fontSize: "0.72rem", color: "#64748b" }}>President &bull; Hindu Swaraj</div>
                 </div>
 
                 {/* Association Seal */}
                 <div style={{ textAlign: "center" }}>
-                  {momData.signatures?.association_seal_url ? (
+                  {resolveSignatureUrl(momData.signatures?.association_seal_url || signatures.association_seal_url) ? (
                     <img
-                      src={
-                        momData.signatures.association_seal_url.startsWith("http")
-                          ? momData.signatures.association_seal_url
-                          : `${API_BASE_URL}${momData.signatures.association_seal_url}`
-                      }
+                      src={resolveSignatureUrl(momData.signatures?.association_seal_url || signatures.association_seal_url)}
                       alt="Association Official Seal"
                       style={{ height: "65px", objectFit: "contain" }}
                     />
@@ -24620,18 +24617,14 @@ _This is an official computer-generated receipt._`;
                       SEAL
                     </div>
                   )}
-                  <div style={{ fontSize: "0.7rem", color: "#64748b", marginTop: "2px" }}>Official Seal</div>
+                  <div style={{ fontSize: "0.7rem", color: "#64748b", marginTop: "2px" }}>Official Seal &bull; Regd No: 784/2025</div>
                 </div>
 
                 {/* General Secretary Signature */}
                 <div style={{ textAlign: "center", width: "180px" }}>
-                  {momData.signatures?.gs_signature_url ? (
+                  {resolveSignatureUrl(momData.signatures?.gs_signature_url || signatures.gs_signature_url) ? (
                     <img
-                      src={
-                        momData.signatures.gs_signature_url.startsWith("http")
-                          ? momData.signatures.gs_signature_url
-                          : `${API_BASE_URL}${momData.signatures.gs_signature_url}`
-                      }
+                      src={resolveSignatureUrl(momData.signatures?.gs_signature_url || signatures.gs_signature_url)}
                       alt="General Secretary Signature"
                       style={{ height: "45px", objectFit: "contain", marginBottom: "4px" }}
                     />
@@ -24639,9 +24632,9 @@ _This is an official computer-generated receipt._`;
                     <div style={{ height: "45px", borderBottom: "1px dashed #cbd5e1" }} />
                   )}
                   <div style={{ borderTop: "1px solid #0f172a", paddingTop: "4px", fontSize: "0.82rem", fontWeight: "800", color: "#0f172a" }}>
-                    General Secretary
+                    {momData.signatures?.gs_name || signatures.gs_name || "Mani Deep"}
                   </div>
-                  <div style={{ fontSize: "0.72rem", color: "#64748b" }}>Hindu Swaraj Youth</div>
+                  <div style={{ fontSize: "0.72rem", color: "#64748b" }}>General Secretary &bull; Hindu Swaraj</div>
                 </div>
               </div>
             </div>
@@ -24911,14 +24904,10 @@ _This is an official computer-generated receipt._`;
               {/* Signatures & Seal Block */}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", borderTop: "1px dashed #cbd5e1", paddingTop: "20px" }}>
                 {/* President Signature */}
-                <div style={{ textAlign: "center", width: "160px" }}>
-                  {subReceiptData.signatures?.president_signature_url ? (
+                <div style={{ textAlign: "center", width: "170px" }}>
+                  {resolveSignatureUrl(subReceiptData.signatures?.president_signature_url || signatures.president_signature_url) ? (
                     <img
-                      src={
-                        subReceiptData.signatures.president_signature_url.startsWith("http")
-                          ? subReceiptData.signatures.president_signature_url
-                          : `${API_BASE_URL}${subReceiptData.signatures.president_signature_url}`
-                      }
+                      src={resolveSignatureUrl(subReceiptData.signatures?.president_signature_url || signatures.president_signature_url)}
                       alt="President Signature"
                       style={{ height: "45px", objectFit: "contain", marginBottom: "4px" }}
                     />
@@ -24926,20 +24915,16 @@ _This is an official computer-generated receipt._`;
                     <div style={{ height: "45px", borderBottom: "1px dashed #cbd5e1" }} />
                   )}
                   <div style={{ borderTop: "1px solid #0f172a", paddingTop: "4px", fontSize: "0.82rem", fontWeight: "800", color: "#0f172a" }}>
-                    President
+                    {subReceiptData.signatures?.president_name || signatures.president_name || "Vinodh Kumar K"}
                   </div>
-                  <div style={{ fontSize: "0.72rem", color: "#64748b" }}>Hindu Swaraj Youth</div>
+                  <div style={{ fontSize: "0.72rem", color: "#64748b" }}>President &bull; Hindu Swaraj</div>
                 </div>
 
                 {/* Association Seal */}
                 <div style={{ textAlign: "center" }}>
-                  {subReceiptData.signatures?.association_seal_url ? (
+                  {resolveSignatureUrl(subReceiptData.signatures?.association_seal_url || signatures.association_seal_url) ? (
                     <img
-                      src={
-                        subReceiptData.signatures.association_seal_url.startsWith("http")
-                          ? subReceiptData.signatures.association_seal_url
-                          : `${API_BASE_URL}${subReceiptData.signatures.association_seal_url}`
-                      }
+                      src={resolveSignatureUrl(subReceiptData.signatures?.association_seal_url || signatures.association_seal_url)}
                       alt="Association Seal"
                       style={{ height: "65px", objectFit: "contain" }}
                     />
@@ -24948,18 +24933,14 @@ _This is an official computer-generated receipt._`;
                       SEAL
                     </div>
                   )}
-                  <div style={{ fontSize: "0.7rem", color: "#64748b", marginTop: "2px" }}>Official Seal</div>
+                  <div style={{ fontSize: "0.7rem", color: "#64748b", marginTop: "2px" }}>Official Seal &bull; Regd No: 784/2025</div>
                 </div>
 
                 {/* Treasurer Signature */}
-                <div style={{ textAlign: "center", width: "160px" }}>
-                  {subReceiptData.signatures?.treasurer_signature_url ? (
+                <div style={{ textAlign: "center", width: "170px" }}>
+                  {resolveSignatureUrl(subReceiptData.signatures?.treasurer_signature_url || signatures.treasurer_signature_url) ? (
                     <img
-                      src={
-                        subReceiptData.signatures.treasurer_signature_url.startsWith("http")
-                          ? subReceiptData.signatures.treasurer_signature_url
-                          : `${API_BASE_URL}${subReceiptData.signatures.treasurer_signature_url}`
-                      }
+                      src={resolveSignatureUrl(subReceiptData.signatures?.treasurer_signature_url || signatures.treasurer_signature_url)}
                       alt="Treasurer Signature"
                       style={{ height: "45px", objectFit: "contain", marginBottom: "4px" }}
                     />
@@ -24967,9 +24948,9 @@ _This is an official computer-generated receipt._`;
                     <div style={{ height: "45px", borderBottom: "1px dashed #cbd5e1" }} />
                   )}
                   <div style={{ borderTop: "1px solid #0f172a", paddingTop: "4px", fontSize: "0.82rem", fontWeight: "800", color: "#0f172a" }}>
-                    Treasurer
+                    {subReceiptData.signatures?.treasurer_name || signatures.treasurer_name || "Treasurer"}
                   </div>
-                  <div style={{ fontSize: "0.72rem", color: "#64748b" }}>Hindu Swaraj Youth</div>
+                  <div style={{ fontSize: "0.72rem", color: "#64748b" }}>Treasurer &bull; Hindu Swaraj</div>
                 </div>
               </div>
             </div>
@@ -25220,13 +25201,9 @@ _This is an official computer-generated receipt._`;
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", borderTop: "1px dashed #cbd5e1", paddingTop: "18px", marginTop: "10px" }}>
                 {/* President */}
                 <div style={{ textAlign: "center", width: "170px" }}>
-                  {balanceSheetData?.association?.signatures?.president_signature_url ? (
+                  {resolveSignatureUrl(balanceSheetData?.association?.signatures?.president_signature_url || signatures.president_signature_url) ? (
                     <img
-                      src={
-                        balanceSheetData.association.signatures.president_signature_url.startsWith("http")
-                          ? balanceSheetData.association.signatures.president_signature_url
-                          : `${API_BASE_URL}${balanceSheetData.association.signatures.president_signature_url}`
-                      }
+                      src={resolveSignatureUrl(balanceSheetData?.association?.signatures?.president_signature_url || signatures.president_signature_url)}
                       alt="President Signature"
                       style={{ height: "42px", objectFit: "contain", marginBottom: "4px" }}
                     />
@@ -25234,20 +25211,16 @@ _This is an official computer-generated receipt._`;
                     <div style={{ height: "42px", borderBottom: "1px dashed #cbd5e1" }} />
                   )}
                   <div style={{ borderTop: "1px solid #0f172a", paddingTop: "4px", fontSize: "0.78rem", fontWeight: "800" }}>
-                    {balanceSheetData?.association?.signatures?.president_name || "President"}
+                    {balanceSheetData?.association?.signatures?.president_name || signatures.president_name || "Vinodh Kumar K"}
                   </div>
                   <div style={{ fontSize: "0.68rem", color: "#64748b" }}>President &bull; Hindu Swaraj</div>
                 </div>
 
                 {/* Association Seal */}
                 <div style={{ textAlign: "center" }}>
-                  {balanceSheetData?.association?.signatures?.association_seal_url ? (
+                  {resolveSignatureUrl(balanceSheetData?.association?.signatures?.association_seal_url || signatures.association_seal_url) ? (
                     <img
-                      src={
-                        balanceSheetData.association.signatures.association_seal_url.startsWith("http")
-                          ? balanceSheetData.association.signatures.association_seal_url
-                          : `${API_BASE_URL}${balanceSheetData.association.signatures.association_seal_url}`
-                      }
+                      src={resolveSignatureUrl(balanceSheetData?.association?.signatures?.association_seal_url || signatures.association_seal_url)}
                       alt="Association Seal"
                       style={{ height: "60px", objectFit: "contain" }}
                     />
@@ -25261,13 +25234,9 @@ _This is an official computer-generated receipt._`;
 
                 {/* Treasurer */}
                 <div style={{ textAlign: "center", width: "170px" }}>
-                  {balanceSheetData?.association?.signatures?.treasurer_signature_url ? (
+                  {resolveSignatureUrl(balanceSheetData?.association?.signatures?.treasurer_signature_url || signatures.treasurer_signature_url) ? (
                     <img
-                      src={
-                        balanceSheetData.association.signatures.treasurer_signature_url.startsWith("http")
-                          ? balanceSheetData.association.signatures.treasurer_signature_url
-                          : `${API_BASE_URL}${balanceSheetData.association.signatures.treasurer_signature_url}`
-                      }
+                      src={resolveSignatureUrl(balanceSheetData?.association?.signatures?.treasurer_signature_url || signatures.treasurer_signature_url)}
                       alt="Treasurer Signature"
                       style={{ height: "42px", objectFit: "contain", marginBottom: "4px" }}
                     />
@@ -25275,7 +25244,7 @@ _This is an official computer-generated receipt._`;
                     <div style={{ height: "42px", borderBottom: "1px dashed #cbd5e1" }} />
                   )}
                   <div style={{ borderTop: "1px solid #0f172a", paddingTop: "4px", fontSize: "0.78rem", fontWeight: "800" }}>
-                    {balanceSheetData?.association?.signatures?.treasurer_name || "Treasurer"}
+                    {balanceSheetData?.association?.signatures?.treasurer_name || signatures.treasurer_name || "Treasurer"}
                   </div>
                   <div style={{ fontSize: "0.68rem", color: "#64748b" }}>Treasurer &bull; Hindu Swaraj</div>
                 </div>
