@@ -2724,8 +2724,9 @@ export default function AdminPage() {
       });
       const data = await res.json();
       if (data.success) {
-        setNewBloodDonation((prev) => ({ ...prev, photo_url: data.url }));
-        setBloodPhotoPreview(data.url);
+        const finalUrl = data.photo_url || data.url || data.fileUrl || data.imageUrl || "";
+        setNewBloodDonation((prev) => ({ ...prev, photo_url: finalUrl }));
+        setBloodPhotoPreview(finalUrl);
         setBloodMessage("✅ Photo uploaded successfully!");
       } else {
         setBloodMessage("❌ Photo upload failed: " + data.error);

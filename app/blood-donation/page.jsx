@@ -22,10 +22,16 @@ const JAGTIAL_HOSPITALS = [
 ];
 
 const resolveBloodPhotoUrl = (url) => {
-  if (!url) return '/images/activity-blood.png';
-  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) return url;
-  if (url.startsWith('/images/')) return url;
-  const clean = url.startsWith('/') ? url : `/${url}`;
+  if (!url || typeof url !== 'string') return '/images/activity-blood.png';
+  const trimmed = url.trim();
+  if (!trimmed) return '/images/activity-blood.png';
+  if (trimmed.startsWith('data:')) return trimmed;
+  if (trimmed.startsWith('http://localhost') || trimmed.startsWith('http://127.0.0.1')) {
+    return trimmed.replace(/https?:\/\/[^\/]+/, API_BASE_URL);
+  }
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed;
+  if (trimmed.startsWith('/images/')) return trimmed;
+  const clean = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
   return `${API_BASE_URL}${clean}`;
 };
 
@@ -883,10 +889,30 @@ export default function BloodDonationPage() {
               <div style={{ textAlign: 'center', width: '130px' }}>
                 {assocInfo.gs_signature_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={assocInfo.gs_signature_url} alt="GS Sign" style={{ height: '38px', objectFit: 'contain' }} />
-                ) : (
-                  <div style={{ height: '38px', fontWeight: '700', fontStyle: 'italic', color: '#334155' }}>Mani Deep</div>
-                )}
+                  <img
+                    src={resolveBloodPhotoUrl(assocInfo.gs_signature_url)}
+                    alt="GS Sign"
+                    style={{ height: '38px', objectFit: 'contain' }}
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      const fallback = e.currentTarget.parentElement.querySelector('.fallback-sig');
+                      if (fallback) fallback.style.display = 'block';
+                    }}
+                  />
+                ) : null}
+                <div
+                  className="fallback-sig"
+                  style={{
+                    height: '38px',
+                    fontWeight: '700',
+                    fontStyle: 'italic',
+                    color: '#334155',
+                    display: assocInfo.gs_signature_url ? 'none' : 'block',
+                    lineHeight: '38px',
+                  }}
+                >
+                  Mani Deep
+                </div>
                 <div style={{ borderTop: '1px solid #94a3b8', paddingTop: '2px', fontSize: '0.72rem', fontWeight: '800' }}>
                   General Secretary
                 </div>
@@ -895,21 +921,64 @@ export default function BloodDonationPage() {
               <div style={{ textAlign: 'center' }}>
                 {assocInfo.association_seal_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={assocInfo.association_seal_url} alt="Seal" style={{ width: '55px', height: '55px', objectFit: 'contain' }} />
-                ) : (
-                  <div style={{ width: '50px', height: '50px', borderRadius: '50%', border: '2px dashed #b91c1c', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem', fontWeight: '900', color: '#b91c1c' }}>
-                    SEAL
-                  </div>
-                )}
+                  <img
+                    src={resolveBloodPhotoUrl(assocInfo.association_seal_url)}
+                    alt="Seal"
+                    style={{ width: '55px', height: '55px', objectFit: 'contain' }}
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      const fallback = e.currentTarget.parentElement.querySelector('.fallback-seal');
+                      if (fallback) fallback.style.display = 'flex';
+                    }}
+                  />
+                ) : null}
+                <div
+                  className="fallback-seal"
+                  style={{
+                    width: '50px',
+                    height: '50px',
+                    borderRadius: '50%',
+                    border: '2px dashed #b91c1c',
+                    display: assocInfo.association_seal_url ? 'none' : 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '0.6rem',
+                    fontWeight: '900',
+                    color: '#b91c1c',
+                    margin: '0 auto',
+                  }}
+                >
+                  SEAL
+                </div>
               </div>
 
               <div style={{ textAlign: 'center', width: '130px' }}>
                 {assocInfo.president_signature_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={assocInfo.president_signature_url} alt="President Sign" style={{ height: '38px', objectFit: 'contain' }} />
-                ) : (
-                  <div style={{ height: '38px', fontWeight: '700', fontStyle: 'italic', color: '#334155' }}>Rajesh Kumar</div>
-                )}
+                  <img
+                    src={resolveBloodPhotoUrl(assocInfo.president_signature_url)}
+                    alt="President Sign"
+                    style={{ height: '38px', objectFit: 'contain' }}
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      const fallback = e.currentTarget.parentElement.querySelector('.fallback-sig');
+                      if (fallback) fallback.style.display = 'block';
+                    }}
+                  />
+                ) : null}
+                <div
+                  className="fallback-sig"
+                  style={{
+                    height: '38px',
+                    fontWeight: '700',
+                    fontStyle: 'italic',
+                    color: '#334155',
+                    display: assocInfo.president_signature_url ? 'none' : 'block',
+                    lineHeight: '38px',
+                  }}
+                >
+                  Rajesh Kumar
+                </div>
                 <div style={{ borderTop: '1px solid #94a3b8', paddingTop: '2px', fontSize: '0.72rem', fontWeight: '800' }}>
                   President
                 </div>
