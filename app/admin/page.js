@@ -1040,12 +1040,16 @@ export default function AdminPage() {
 
   // Digital Signatures & Seal States
   const [signatures, setSignatures] = useState({
+    president_name: "Vinodh Kumar K",
+    gs_name: "Mani Deep",
+    treasurer_name: "Treasurer",
     treasurer_signature_url: "",
     gs_signature_url: "",
     president_signature_url: "",
     association_seal_url: "",
   });
   const [uploadingSignRole, setUploadingSignRole] = useState("");
+  const [savingSignatures, setSavingSignatures] = useState(false);
   const [showSignaturesModal, setShowSignaturesModal] = useState(false);
 
   // Expense Bill Upload, View & Edit States
@@ -2022,17 +2026,20 @@ export default function AdminPage() {
       const sigData = await sigRes.json();
       if (sigData.success && sigData.data) {
         setSignatures({
+          president_name: sigData.data.president_name || "Vinodh Kumar K",
+          gs_name: sigData.data.gs_name || "Mani Deep",
+          treasurer_name: sigData.data.treasurer_name || "Treasurer",
           treasurer_signature_url: sigData.data.treasurer_signature_url
-            ? (sigData.data.treasurer_signature_url.startsWith("http") ? sigData.data.treasurer_signature_url : `${API_BASE_URL}${sigData.data.treasurer_signature_url}`)
+            ? (sigData.data.treasurer_signature_url.startsWith("http") || sigData.data.treasurer_signature_url.startsWith("data:") ? sigData.data.treasurer_signature_url : `${API_BASE_URL}${sigData.data.treasurer_signature_url}`)
             : "",
           gs_signature_url: sigData.data.gs_signature_url
-            ? (sigData.data.gs_signature_url.startsWith("http") ? sigData.data.gs_signature_url : `${API_BASE_URL}${sigData.data.gs_signature_url}`)
+            ? (sigData.data.gs_signature_url.startsWith("http") || sigData.data.gs_signature_url.startsWith("data:") ? sigData.data.gs_signature_url : `${API_BASE_URL}${sigData.data.gs_signature_url}`)
             : "",
           president_signature_url: sigData.data.president_signature_url
-            ? (sigData.data.president_signature_url.startsWith("http") ? sigData.data.president_signature_url : `${API_BASE_URL}${sigData.data.president_signature_url}`)
+            ? (sigData.data.president_signature_url.startsWith("http") || sigData.data.president_signature_url.startsWith("data:") ? sigData.data.president_signature_url : `${API_BASE_URL}${sigData.data.president_signature_url}`)
             : "",
           association_seal_url: sigData.data.association_seal_url
-            ? (sigData.data.association_seal_url.startsWith("http") ? sigData.data.association_seal_url : `${API_BASE_URL}${sigData.data.association_seal_url}`)
+            ? (sigData.data.association_seal_url.startsWith("http") || sigData.data.association_seal_url.startsWith("data:") ? sigData.data.association_seal_url : `${API_BASE_URL}${sigData.data.association_seal_url}`)
             : "",
         });
       }
@@ -5643,6 +5650,23 @@ export default function AdminPage() {
     }
   };
 
+  const handleSaveSignatures = async (e) => {
+    if (e) e.preventDefault();
+    setSavingSignatures(true);
+    try {
+      await fetchAPI("/association-settings/signatures", {
+        method: "PUT",
+        body: JSON.stringify(signatures),
+      });
+      alert("✅ Digital signatures and authority names saved successfully!");
+      setShowSignaturesModal(false);
+    } catch (err) {
+      alert("Failed to save signatures: " + err.message);
+    } finally {
+      setSavingSignatures(false);
+    }
+  };
+
   const handleUploadSignature = async (roleKey, file) => {
     if (!file) return;
     try {
@@ -5660,7 +5684,7 @@ export default function AdminPage() {
       if (!res.ok || !data.success) {
         throw new Error(data.error || "Upload failed");
       }
-      const uploadedUrl = data.fileUrl.startsWith("http")
+      const uploadedUrl = data.fileUrl.startsWith("http") || data.fileUrl.startsWith("data:")
         ? data.fileUrl
         : `${API_BASE_URL}${data.fileUrl}`;
 
@@ -7053,6 +7077,38 @@ _This is an official computer-generated receipt._`;
                   </span>
                 </button>
               )}
+
+              {isFullAdmin && (
+                <button
+                  type="button"
+                  className="navItem"
+                  onClick={() => setShowSignaturesModal(true)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    background: "rgba(234, 88, 12, 0.08)",
+                    border: "1px dashed rgba(234, 88, 12, 0.3)",
+                    color: "#ea580c",
+                    fontWeight: "800",
+                    marginTop: "6px",
+                  }}
+                >
+                  <span>✍️ Signatures &amp; Seals</span>
+                  <span
+                    style={{
+                      background: "#ea580c",
+                      color: "#fff",
+                      fontSize: "0.65rem",
+                      fontWeight: "900",
+                      padding: "1px 6px",
+                      borderRadius: "6px",
+                    }}
+                  >
+                    OFFICIAL
+                  </span>
+                </button>
+              )}
             </>
           )}
 
@@ -7825,6 +7881,26 @@ _This is an official computer-generated receipt._`;
                         }}
                       >
                         🗓️ Convene Meeting
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowSignaturesModal(true)}
+                        style={{
+                          background: "linear-gradient(135deg, #ea580c 0%, #c2410c 100%)",
+                          color: "#fff",
+                          border: "none",
+                          padding: "9px 16px",
+                          borderRadius: "8px",
+                          fontWeight: "700",
+                          fontSize: "0.82rem",
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px",
+                          boxShadow: "0 2px 6px rgba(234,88,12,0.3)",
+                        }}
+                      >
+                        ✍️ Signatures &amp; Seals
                       </button>
                     </>
                   )}
@@ -22276,14 +22352,14 @@ _This is an official computer-generated receipt._`;
       {/* --- ✍️ DIGITAL SIGNATURES & OFFICIAL SEALS MODAL --- */}
       {showSignaturesModal && (
         <div className="modalBackdrop" style={{ zIndex: 1000 }}>
-          <div className="modalContent" style={{ maxWidth: "680px", maxHeight: "90vh", overflowY: "auto" }}>
+          <div className="modalContent" style={{ maxWidth: "780px", maxHeight: "90vh", overflowY: "auto" }}>
             <div className="modalHeader" style={{ borderBottom: "1px solid #e2e8f0", paddingBottom: "14px" }}>
               <div>
-                <h3 className="modalTitle" style={{ fontSize: "1.2rem", fontWeight: "800", color: "#1e293b", display: "flex", alignItems: "center", gap: "8px" }}>
-                  ✍️ Digital Signatures &amp; Official Seal Management
+                <h3 className="modalTitle" style={{ fontSize: "1.25rem", fontWeight: "800", color: "#1e293b", display: "flex", alignItems: "center", gap: "8px" }}>
+                  ✍️ Official Signatures, Officer Names &amp; Association Seal
                 </h3>
                 <span style={{ fontSize: "0.8rem", color: "#64748b" }}>
-                  Upload official digital signatures for automated stamping on vouchers &amp; receipts
+                  Update official officer names and digital signatures for certificates, resolutions, vouchers &amp; receipts.
                 </span>
               </div>
               <button
@@ -22295,126 +22371,242 @@ _This is an official computer-generated receipt._`;
               </button>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "16px", marginTop: "16px" }}>
-              {/* 1. Treasurer Signature */}
-              <div style={{ background: "#f8fafc", padding: "16px", borderRadius: "10px", border: "1px solid #e2e8f0" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-                  <span style={{ fontWeight: "700", fontSize: "0.88rem", color: "#0f172a" }}>
-                    💰 Treasurer Signature
-                  </span>
-                  <span style={{ fontSize: "0.72rem", color: "#15803d", fontWeight: "700", background: "#dcfce7", padding: "2px 8px", borderRadius: "4px" }}>
-                    Prepared by
-                  </span>
+            <form onSubmit={handleSaveSignatures}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "16px", marginTop: "16px" }}>
+                {/* 1. President */}
+                <div style={{ background: "#f8fafc", padding: "16px", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                    <span style={{ fontWeight: "800", fontSize: "0.9rem", color: "#0f172a" }}>
+                      👑 President (అధ్యక్షులు)
+                    </span>
+                    <span style={{ fontSize: "0.72rem", color: "#b45309", fontWeight: "700", background: "#fef3c7", padding: "2px 8px", borderRadius: "4px" }}>
+                      Approved by
+                    </span>
+                  </div>
+
+                  <div style={{ marginBottom: "10px" }}>
+                    <label style={{ display: "block", fontSize: "0.76rem", fontWeight: "700", color: "#475569", marginBottom: "4px" }}>
+                      President Official Name:
+                    </label>
+                    <input
+                      type="text"
+                      className="inputField"
+                      placeholder="e.g. Vinodh Kumar K"
+                      value={signatures.president_name || ""}
+                      onChange={(e) => setSignatures({ ...signatures, president_name: e.target.value })}
+                      style={{ fontSize: "0.85rem", padding: "7px 10px", margin: 0 }}
+                    />
+                  </div>
+
+                  <label style={{ display: "block", fontSize: "0.76rem", fontWeight: "700", color: "#475569", marginBottom: "4px" }}>
+                    Digital Signature:
+                  </label>
+                  <div style={{ height: "70px", background: "#ffffff", border: "1px dashed #cbd5e1", borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "8px", padding: "6px", position: "relative" }}>
+                    {signatures.president_signature_url ? (
+                      <>
+                        <img src={signatures.president_signature_url} alt="President Signature" style={{ maxHeight: "100%", maxWidth: "100%", objectFit: "contain" }} />
+                        <button
+                          type="button"
+                          onClick={() => setSignatures({ ...signatures, president_signature_url: "" })}
+                          style={{ position: "absolute", top: "4px", right: "4px", background: "rgba(239,68,68,0.1)", border: "none", color: "#ef4444", borderRadius: "4px", fontSize: "0.7rem", padding: "2px 6px", cursor: "pointer", fontWeight: "700" }}
+                          title="Remove signature"
+                        >
+                          ✕ Clear
+                        </button>
+                      </>
+                    ) : (
+                      <span style={{ fontSize: "0.78rem", color: "#94a3b8" }}>No signature uploaded yet</span>
+                    )}
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleUploadSignature("president_signature_url", e.target.files[0])}
+                    style={{ fontSize: "0.78rem", width: "100%" }}
+                  />
+                  {uploadingSignRole === "president_signature_url" && <span style={{ fontSize: "0.75rem", color: "#0284c7" }}>⏳ Uploading signature...</span>}
                 </div>
-                <div style={{ height: "70px", background: "#ffffff", border: "1px dashed #cbd5e1", borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "10px", padding: "6px" }}>
-                  {signatures.treasurer_signature_url ? (
-                    <img src={signatures.treasurer_signature_url} alt="Treasurer Signature" style={{ maxHeight: "100%", maxWidth: "100%", objectFit: "contain" }} />
-                  ) : (
-                    <span style={{ fontSize: "0.78rem", color: "#94a3b8" }}>No signature uploaded yet</span>
-                  )}
+
+                {/* 2. General Secretary */}
+                <div style={{ background: "#f8fafc", padding: "16px", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                    <span style={{ fontWeight: "800", fontSize: "0.9rem", color: "#0f172a" }}>
+                      📋 General Secretary (ప్రధాన కార్యదర్శి)
+                    </span>
+                    <span style={{ fontSize: "0.72rem", color: "#4338ca", fontWeight: "700", background: "#e0e7ff", padding: "2px 8px", borderRadius: "4px" }}>
+                      Verified &amp; Passed
+                    </span>
+                  </div>
+
+                  <div style={{ marginBottom: "10px" }}>
+                    <label style={{ display: "block", fontSize: "0.76rem", fontWeight: "700", color: "#475569", marginBottom: "4px" }}>
+                      General Secretary Official Name:
+                    </label>
+                    <input
+                      type="text"
+                      className="inputField"
+                      placeholder="e.g. Mani Deep"
+                      value={signatures.gs_name || ""}
+                      onChange={(e) => setSignatures({ ...signatures, gs_name: e.target.value })}
+                      style={{ fontSize: "0.85rem", padding: "7px 10px", margin: 0 }}
+                    />
+                  </div>
+
+                  <label style={{ display: "block", fontSize: "0.76rem", fontWeight: "700", color: "#475569", marginBottom: "4px" }}>
+                    Digital Signature:
+                  </label>
+                  <div style={{ height: "70px", background: "#ffffff", border: "1px dashed #cbd5e1", borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "8px", padding: "6px", position: "relative" }}>
+                    {signatures.gs_signature_url ? (
+                      <>
+                        <img src={signatures.gs_signature_url} alt="GS Signature" style={{ maxHeight: "100%", maxWidth: "100%", objectFit: "contain" }} />
+                        <button
+                          type="button"
+                          onClick={() => setSignatures({ ...signatures, gs_signature_url: "" })}
+                          style={{ position: "absolute", top: "4px", right: "4px", background: "rgba(239,68,68,0.1)", border: "none", color: "#ef4444", borderRadius: "4px", fontSize: "0.7rem", padding: "2px 6px", cursor: "pointer", fontWeight: "700" }}
+                          title="Remove signature"
+                        >
+                          ✕ Clear
+                        </button>
+                      </>
+                    ) : (
+                      <span style={{ fontSize: "0.78rem", color: "#94a3b8" }}>No signature uploaded yet</span>
+                    )}
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleUploadSignature("gs_signature_url", e.target.files[0])}
+                    style={{ fontSize: "0.78rem", width: "100%" }}
+                  />
+                  {uploadingSignRole === "gs_signature_url" && <span style={{ fontSize: "0.75rem", color: "#0284c7" }}>⏳ Uploading signature...</span>}
                 </div>
-                <input
-                  type="file"
-                  accept="image/png,image/jpeg,image/webp,image/svg+xml"
-                  onChange={(e) => handleUploadSignature("treasurer_signature_url", e.target.files[0])}
-                  style={{ fontSize: "0.78rem", width: "100%" }}
-                />
-                {uploadingSignRole === "treasurer_signature_url" && <span style={{ fontSize: "0.75rem", color: "#0284c7" }}>Uploading...</span>}
+
+                {/* 3. Treasurer */}
+                <div style={{ background: "#f8fafc", padding: "16px", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                    <span style={{ fontWeight: "800", fontSize: "0.9rem", color: "#0f172a" }}>
+                      💰 Treasurer (కోశాధికారి)
+                    </span>
+                    <span style={{ fontSize: "0.72rem", color: "#15803d", fontWeight: "700", background: "#dcfce7", padding: "2px 8px", borderRadius: "4px" }}>
+                      Prepared by
+                    </span>
+                  </div>
+
+                  <div style={{ marginBottom: "10px" }}>
+                    <label style={{ display: "block", fontSize: "0.76rem", fontWeight: "700", color: "#475569", marginBottom: "4px" }}>
+                      Treasurer Official Name:
+                    </label>
+                    <input
+                      type="text"
+                      className="inputField"
+                      placeholder="e.g. Treasurer Name"
+                      value={signatures.treasurer_name || ""}
+                      onChange={(e) => setSignatures({ ...signatures, treasurer_name: e.target.value })}
+                      style={{ fontSize: "0.85rem", padding: "7px 10px", margin: 0 }}
+                    />
+                  </div>
+
+                  <label style={{ display: "block", fontSize: "0.76rem", fontWeight: "700", color: "#475569", marginBottom: "4px" }}>
+                    Digital Signature:
+                  </label>
+                  <div style={{ height: "70px", background: "#ffffff", border: "1px dashed #cbd5e1", borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "8px", padding: "6px", position: "relative" }}>
+                    {signatures.treasurer_signature_url ? (
+                      <>
+                        <img src={signatures.treasurer_signature_url} alt="Treasurer Signature" style={{ maxHeight: "100%", maxWidth: "100%", objectFit: "contain" }} />
+                        <button
+                          type="button"
+                          onClick={() => setSignatures({ ...signatures, treasurer_signature_url: "" })}
+                          style={{ position: "absolute", top: "4px", right: "4px", background: "rgba(239,68,68,0.1)", border: "none", color: "#ef4444", borderRadius: "4px", fontSize: "0.7rem", padding: "2px 6px", cursor: "pointer", fontWeight: "700" }}
+                          title="Remove signature"
+                        >
+                          ✕ Clear
+                        </button>
+                      </>
+                    ) : (
+                      <span style={{ fontSize: "0.78rem", color: "#94a3b8" }}>No signature uploaded yet</span>
+                    )}
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleUploadSignature("treasurer_signature_url", e.target.files[0])}
+                    style={{ fontSize: "0.78rem", width: "100%" }}
+                  />
+                  {uploadingSignRole === "treasurer_signature_url" && <span style={{ fontSize: "0.75rem", color: "#0284c7" }}>⏳ Uploading signature...</span>}
+                </div>
+
+                {/* 4. Association Seal Stamp */}
+                <div style={{ background: "#f8fafc", padding: "16px", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                    <span style={{ fontWeight: "800", fontSize: "0.9rem", color: "#0f172a" }}>
+                      🏛️ Association Seal / Stamp (ముద్ర)
+                    </span>
+                    <span style={{ fontSize: "0.72rem", color: "#0284c7", fontWeight: "700", background: "#e0f2fe", padding: "2px 8px", borderRadius: "4px" }}>
+                      Official Stamp
+                    </span>
+                  </div>
+
+                  <div style={{ marginBottom: "10px" }}>
+                    <label style={{ display: "block", fontSize: "0.76rem", fontWeight: "700", color: "#475569", marginBottom: "4px" }}>
+                      Seal Organization:
+                    </label>
+                    <div style={{ fontSize: "0.82rem", fontWeight: "700", color: "#334155", padding: "7px 10px", background: "#ffffff", border: "1px solid #cbd5e1", borderRadius: "6px" }}>
+                      Hindu Swaraj Youth Welfare Association (Regd. 784/2025)
+                    </div>
+                  </div>
+
+                  <label style={{ display: "block", fontSize: "0.76rem", fontWeight: "700", color: "#475569", marginBottom: "4px" }}>
+                    Official Stamp Image:
+                  </label>
+                  <div style={{ height: "70px", background: "#ffffff", border: "1px dashed #cbd5e1", borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "8px", padding: "6px", position: "relative" }}>
+                    {signatures.association_seal_url ? (
+                      <>
+                        <img src={signatures.association_seal_url} alt="Official Seal" style={{ maxHeight: "100%", maxWidth: "100%", objectFit: "contain" }} />
+                        <button
+                          type="button"
+                          onClick={() => setSignatures({ ...signatures, association_seal_url: "" })}
+                          style={{ position: "absolute", top: "4px", right: "4px", background: "rgba(239,68,68,0.1)", border: "none", color: "#ef4444", borderRadius: "4px", fontSize: "0.7rem", padding: "2px 6px", cursor: "pointer", fontWeight: "700" }}
+                          title="Remove seal"
+                        >
+                          ✕ Clear
+                        </button>
+                      </>
+                    ) : (
+                      <span style={{ fontSize: "0.78rem", color: "#94a3b8" }}>No seal stamp uploaded yet</span>
+                    )}
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleUploadSignature("association_seal_url", e.target.files[0])}
+                    style={{ fontSize: "0.78rem", width: "100%" }}
+                  />
+                  {uploadingSignRole === "association_seal_url" && <span style={{ fontSize: "0.75rem", color: "#0284c7" }}>⏳ Uploading seal...</span>}
+                </div>
               </div>
 
-              {/* 2. General Secretary Signature */}
-              <div style={{ background: "#f8fafc", padding: "16px", borderRadius: "10px", border: "1px solid #e2e8f0" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-                  <span style={{ fontWeight: "700", fontSize: "0.88rem", color: "#0f172a" }}>
-                    📋 General Secretary Signature
-                  </span>
-                  <span style={{ fontSize: "0.72rem", color: "#4338ca", fontWeight: "700", background: "#e0e7ff", padding: "2px 8px", borderRadius: "4px" }}>
-                    Verified &amp; Passed
-                  </span>
-                </div>
-                <div style={{ height: "70px", background: "#ffffff", border: "1px dashed #cbd5e1", borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "10px", padding: "6px" }}>
-                  {signatures.gs_signature_url ? (
-                    <img src={signatures.gs_signature_url} alt="GS Signature" style={{ maxHeight: "100%", maxWidth: "100%", objectFit: "contain" }} />
-                  ) : (
-                    <span style={{ fontSize: "0.78rem", color: "#94a3b8" }}>No signature uploaded yet</span>
-                  )}
-                </div>
-                <input
-                  type="file"
-                  accept="image/png,image/jpeg,image/webp,image/svg+xml"
-                  onChange={(e) => handleUploadSignature("gs_signature_url", e.target.files[0])}
-                  style={{ fontSize: "0.78rem", width: "100%" }}
-                />
-                {uploadingSignRole === "gs_signature_url" && <span style={{ fontSize: "0.75rem", color: "#0284c7" }}>Uploading...</span>}
+              <div style={{ marginTop: "16px", padding: "12px", background: "#f0fdf4", borderRadius: "8px", border: "1px solid #bbf7d0", fontSize: "0.82rem", color: "#166534" }}>
+                💡 <strong>Tip for Best Visual Quality:</strong> Upload clean transparent background PNG signatures so they automatically stamp seamlessly on certificates, payment vouchers, and official resolutions.
               </div>
 
-              {/* 3. President Signature */}
-              <div style={{ background: "#f8fafc", padding: "16px", borderRadius: "10px", border: "1px solid #e2e8f0" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-                  <span style={{ fontWeight: "700", fontSize: "0.88rem", color: "#0f172a" }}>
-                    👑 President Signature
-                  </span>
-                  <span style={{ fontSize: "0.72rem", color: "#b45309", fontWeight: "700", background: "#fef3c7", padding: "2px 8px", borderRadius: "4px" }}>
-                    Approved by
-                  </span>
-                </div>
-                <div style={{ height: "70px", background: "#ffffff", border: "1px dashed #cbd5e1", borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "10px", padding: "6px" }}>
-                  {signatures.president_signature_url ? (
-                    <img src={signatures.president_signature_url} alt="President Signature" style={{ maxHeight: "100%", maxWidth: "100%", objectFit: "contain" }} />
-                  ) : (
-                    <span style={{ fontSize: "0.78rem", color: "#94a3b8" }}>No signature uploaded yet</span>
-                  )}
-                </div>
-                <input
-                  type="file"
-                  accept="image/png,image/jpeg,image/webp,image/svg+xml"
-                  onChange={(e) => handleUploadSignature("president_signature_url", e.target.files[0])}
-                  style={{ fontSize: "0.78rem", width: "100%" }}
-                />
-                {uploadingSignRole === "president_signature_url" && <span style={{ fontSize: "0.75rem", color: "#0284c7" }}>Uploading...</span>}
+              <div className="modalFooter" style={{ borderTop: "1px solid #e2e8f0", paddingTop: "14px", marginTop: "16px", display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+                <button
+                  type="button"
+                  className="btnCancel"
+                  onClick={() => setShowSignaturesModal(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingSignatures}
+                  className="btnSubmit"
+                  style={{ background: "linear-gradient(135deg, #ea580c 0%, #c2410c 100%)", borderColor: "#ea580c", color: "#fff", fontWeight: "800", padding: "10px 20px" }}
+                >
+                  {savingSignatures ? "Saving..." : "💾 Save Officer Names & Signatures"}
+                </button>
               </div>
-
-              {/* 4. Association Seal Stamp */}
-              <div style={{ background: "#f8fafc", padding: "16px", borderRadius: "10px", border: "1px solid #e2e8f0" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-                  <span style={{ fontWeight: "700", fontSize: "0.88rem", color: "#0f172a" }}>
-                    🏛️ Association Seal / Stamp
-                  </span>
-                  <span style={{ fontSize: "0.72rem", color: "#0284c7", fontWeight: "700", background: "#e0f2fe", padding: "2px 8px", borderRadius: "4px" }}>
-                    Official Stamp
-                  </span>
-                </div>
-                <div style={{ height: "70px", background: "#ffffff", border: "1px dashed #cbd5e1", borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "10px", padding: "6px" }}>
-                  {signatures.association_seal_url ? (
-                    <img src={signatures.association_seal_url} alt="Official Seal" style={{ maxHeight: "100%", maxWidth: "100%", objectFit: "contain" }} />
-                  ) : (
-                    <span style={{ fontSize: "0.78rem", color: "#94a3b8" }}>No seal stamp uploaded yet</span>
-                  )}
-                </div>
-                <input
-                  type="file"
-                  accept="image/png,image/jpeg,image/webp,image/svg+xml"
-                  onChange={(e) => handleUploadSignature("association_seal_url", e.target.files[0])}
-                  style={{ fontSize: "0.78rem", width: "100%" }}
-                />
-                {uploadingSignRole === "association_seal_url" && <span style={{ fontSize: "0.75rem", color: "#0284c7" }}>Uploading...</span>}
-              </div>
-            </div>
-
-            <div style={{ marginTop: "16px", padding: "12px", background: "#f0fdf4", borderRadius: "8px", border: "1px solid #bbf7d0", fontSize: "0.8rem", color: "#166534" }}>
-              💡 <strong>Tip for Best Results:</strong> Use signature images with a transparent background (PNG format) so they blend naturally into the official PDF vouchers and payment debit receipts.
-            </div>
-
-            <div className="modalFooter" style={{ borderTop: "1px solid #e2e8f0", paddingTop: "14px", marginTop: "16px" }}>
-              <button
-                type="button"
-                className="btnSubmit"
-                onClick={() => setShowSignaturesModal(false)}
-                style={{ background: "#0f172a", borderColor: "#0f172a" }}
-              >
-                Done
-              </button>
-            </div>
+            </form>
           </div>
         </div>
       )}

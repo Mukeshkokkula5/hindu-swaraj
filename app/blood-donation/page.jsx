@@ -886,7 +886,7 @@ export default function BloodDonationPage() {
 
             {/* Signatures & Seal */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '24px', paddingTop: '14px', borderTop: '1.5px dashed #cbd5e1', flexWrap: 'wrap', gap: '14px' }}>
-              <div style={{ textAlign: 'center', width: '130px' }}>
+              <div style={{ textAlign: 'center', width: '140px' }}>
                 {assocInfo.gs_signature_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -911,10 +911,10 @@ export default function BloodDonationPage() {
                     lineHeight: '38px',
                   }}
                 >
-                  Mani Deep
+                  {assocInfo.gs_name || 'Mani Deep'}
                 </div>
                 <div style={{ borderTop: '1px solid #94a3b8', paddingTop: '2px', fontSize: '0.72rem', fontWeight: '800' }}>
-                  General Secretary
+                  {assocInfo.gs_name ? `${assocInfo.gs_name} (GS)` : 'General Secretary'}
                 </div>
               </div>
 
@@ -952,7 +952,7 @@ export default function BloodDonationPage() {
                 </div>
               </div>
 
-              <div style={{ textAlign: 'center', width: '130px' }}>
+              <div style={{ textAlign: 'center', width: '140px' }}>
                 {assocInfo.president_signature_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -977,10 +977,10 @@ export default function BloodDonationPage() {
                     lineHeight: '38px',
                   }}
                 >
-                  Rajesh Kumar
+                  {assocInfo.president_name || 'Vinodh Kumar K'}
                 </div>
                 <div style={{ borderTop: '1px solid #94a3b8', paddingTop: '2px', fontSize: '0.72rem', fontWeight: '800' }}>
-                  President
+                  {assocInfo.president_name ? `${assocInfo.president_name} (President)` : 'President'}
                 </div>
               </div>
             </div>
