@@ -2182,7 +2182,10 @@ export default function AdminPage() {
         throw new Error(data.error || "Upload failed");
       }
 
-      const uploadedUrl = data.imageUrl.startsWith("http") ? data.imageUrl : `${API_BASE_URL}${data.imageUrl}`;
+      const rawUrl = data.imageUrl || data.fileUrl || data.photo_url || data.url || "";
+      const uploadedUrl = (rawUrl.startsWith("http") || rawUrl.startsWith("data:") || rawUrl.startsWith("blob:"))
+        ? rawUrl
+        : `${API_BASE_URL}${rawUrl.startsWith("/") ? rawUrl : `/${rawUrl}`}`;
       if (target === "post") {
         setNewNavaratriPost((prev) => ({ ...prev, image_url: uploadedUrl }));
         setPostImagePreview(uploadedUrl);
@@ -2520,7 +2523,10 @@ export default function AdminPage() {
       if (!res.ok || !data.success) {
         throw new Error(data.error || "Upload failed");
       }
-      const uploadedUrl = data.fileUrl.startsWith("http") ? data.fileUrl : `${API_BASE_URL}${data.fileUrl}`;
+      const rawUrl = data.fileUrl || data.imageUrl || data.photo_url || data.url || "";
+      const uploadedUrl = (rawUrl.startsWith("http") || rawUrl.startsWith("data:") || rawUrl.startsWith("blob:"))
+        ? rawUrl
+        : `${API_BASE_URL}${rawUrl.startsWith("/") ? rawUrl : `/${rawUrl}`}`;
       if (target === "new_member") {
         setNewAssocMember((prev) => ({ ...prev, photo_url: uploadedUrl }));
         setAssocMemberPhotoPreview(uploadedUrl);
@@ -4134,7 +4140,10 @@ export default function AdminPage() {
       if (!res.ok || !data.success) {
         throw new Error(data.error || "Failed to upload photo");
       }
-      const uploadedUrl = data.fileUrl.startsWith("http") ? data.fileUrl : `${API_BASE_URL}${data.fileUrl}`;
+      const rawUrl = data.fileUrl || data.imageUrl || data.photo_url || data.url || "";
+      const uploadedUrl = (rawUrl.startsWith("http") || rawUrl.startsWith("data:") || rawUrl.startsWith("blob:"))
+        ? rawUrl
+        : `${API_BASE_URL}${rawUrl.startsWith("/") ? rawUrl : `/${rawUrl}`}`;
       setProfileForm((prev) => ({ ...prev, photo_url: uploadedUrl }));
     } catch (err) {
       alert("❌ Photo upload error: " + err.message);
@@ -5415,9 +5424,10 @@ export default function AdminPage() {
       if (!res.ok || !data.success) {
         throw new Error(data.error || "Bill upload failed");
       }
-      const uploadedUrl = data.fileUrl.startsWith("http")
-        ? data.fileUrl
-        : `${API_BASE_URL}${data.fileUrl}`;
+      const rawUrl = data.fileUrl || data.imageUrl || data.photo_url || data.url || "";
+      const uploadedUrl = (rawUrl.startsWith("http") || rawUrl.startsWith("data:") || rawUrl.startsWith("blob:"))
+        ? rawUrl
+        : `${API_BASE_URL}${rawUrl.startsWith("/") ? rawUrl : `/${rawUrl}`}`;
       setNewExpense((prev) => ({ ...prev, bill_url: uploadedUrl }));
       setExpenseBillPreview(uploadedUrl);
     } catch (err) {
@@ -5560,9 +5570,10 @@ export default function AdminPage() {
       if (!res.ok || !data.success) {
         throw new Error(data.error || "Bill upload failed");
       }
-      const uploadedUrl = data.fileUrl.startsWith("http")
-        ? data.fileUrl
-        : `${API_BASE_URL}${data.fileUrl}`;
+      const rawUrl = data.fileUrl || data.imageUrl || data.photo_url || data.url || "";
+      const uploadedUrl = (rawUrl.startsWith("http") || rawUrl.startsWith("data:") || rawUrl.startsWith("blob:"))
+        ? rawUrl
+        : `${API_BASE_URL}${rawUrl.startsWith("/") ? rawUrl : `/${rawUrl}`}`;
       setEditingExpense((prev) => ({ ...prev, bill_url: uploadedUrl }));
       setEditExpenseBillPreview(uploadedUrl);
     } catch (err) {
@@ -15733,10 +15744,18 @@ _This is an official computer-generated receipt._`;
                           type="text"
                           className="inputField"
                           placeholder="/images/navaratri-ganesha.jpg or https://..."
-                          value={navaratriSettings.banner_image}
+                          value={
+                            navaratriSettings.banner_image && navaratriSettings.banner_image.includes("data:image/")
+                              ? navaratriSettings.banner_image.substring(navaratriSettings.banner_image.indexOf("data:image/"))
+                              : navaratriSettings.banner_image
+                          }
                           onChange={(e) => {
-                            setNavaratriSettings({ ...navaratriSettings, banner_image: e.target.value });
-                            setBannerImagePreview(e.target.value);
+                            let val = e.target.value;
+                            if (val && val.includes("data:image/")) {
+                              val = val.substring(val.indexOf("data:image/"));
+                            }
+                            setNavaratriSettings({ ...navaratriSettings, banner_image: val });
+                            setBannerImagePreview(val);
                           }}
                         />
                       </div>
@@ -15744,7 +15763,15 @@ _This is an official computer-generated receipt._`;
                       <div style={{ textAlign: "center" }}>
                         <div style={{ width: "100%", height: "110px", borderRadius: "10px", overflow: "hidden", border: "1px solid #cbd5e1", background: "#000", position: "relative" }}>
                           <img
-                            src={bannerImagePreview || navaratriSettings.banner_image || "/images/navaratri-ganesha.jpg"}
+                            src={
+                              (() => {
+                                let img = bannerImagePreview || navaratriSettings.banner_image || "/images/navaratri-ganesha.jpg";
+                                if (img && img.includes("data:image/")) {
+                                  img = img.substring(img.indexOf("data:image/"));
+                                }
+                                return img;
+                              })()
+                            }
                             alt="Banner Preview"
                             style={{ width: "100%", height: "100%", objectFit: "cover" }}
                           />

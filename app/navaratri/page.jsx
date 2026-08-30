@@ -14,6 +14,7 @@ const API_BASE = (
 const getMediaUrl = (url, fallback = "/images/navaratri-ganesha.jpg") => {
   if (!url || !String(url).trim()) return fallback;
   const trimmed = String(url).trim();
+  if (trimmed.startsWith("data:") || trimmed.startsWith("blob:")) return trimmed;
   if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) return trimmed;
   if (trimmed.startsWith("/uploads/")) {
     return `${API_BASE}${trimmed}`;
