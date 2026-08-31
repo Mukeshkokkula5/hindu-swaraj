@@ -3560,18 +3560,18 @@ export default function AdminPage() {
       return;
     }
     const targetMonth = subscriptionMonthFilter;
+    const fee = member.due_amount || (member.is_concession ? 116 : 216);
     const msg = encodeURIComponent(
-      `Namaste ${member.name},\n\nThis is a friendly reminder from Hindu Swaraj Youth Association regarding your monthly subscription for ${targetMonth} (₹${member.due_amount || 216}.00).\n\nYour contribution directly supports:\n• 🚀 Youth Development (50%)\n• 🚑 Member Emergency Health Relief (30%)\n• 🤝 Public Social Seva (20%)\n\nPlease log in to clear your monthly subscription:\nhttps://hinduswarajyouth.online/admin\n\nDhanyavaadalu,\nHindu Swaraj Youth Welfare Association`
+      `🚩 *HINDU SWARAJ YOUTH WELFARE ASSOCIATION* 🚩\n॥ సంఘటిత శక్తియే సమాజ ప్రగతి • జగిత్యాల ॥\n━━━━━━━━━━━━━━━━━━━━\nనమస్తే *${member.name}* గారు (${member.role || "MEMBER"}),\n\nమీ *${targetMonth}* నెలవారీ సభ్యత్వ చందా (Monthly Subscription):\n💰 *నెల చందా*: *₹${fee}.00*\n📅 *చెల్లించాల్సిన తేదీ*: ఈ నెల 10వ తేదీ లోపు\n\n🌟 *మీ చందా క్రింది ప్రజా సేవా విభాగాలకు వెళ్తుంది:*\n• 🚀 Youth Skill & Leadership (50%)\n• 🚑 Member Emergency Health Relief (30%)\n• 🤝 Public Social Seva & Charity (20%)\n\n🔗 *చందా చెల్లించడానికి / రసీదు డౌన్‌లోడ్ చేసుకోవడానికి క్లిక్ చేయండి:*\n👉 https://hinduswarajyouth.online/admin\n\nఏదైనా సహాయం కొరకు హెల్ప్‌లైన్: +91 8499878425\nధన్యవాదాలు,\n*కార్యనిర్వాహక వర్గం, హిందూ స్వరాజ్ అసోసియేషన్*`
     );
     const phone10 = cleanPhone.slice(-10);
     const isMobile = typeof navigator !== "undefined" && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-    // Direct WhatsApp Web URL (bypasses the wa.me "Share on WhatsApp" redirect page)
+    // Direct WhatsApp Web URL
     const url = isMobile
       ? `https://api.whatsapp.com/send?phone=91${phone10}&text=${msg}`
       : `https://web.whatsapp.com/send?phone=91${phone10}&text=${msg}`;
 
-    // Reuses the exact same window/tab on the fly without opening 2 tabs
     window.open(url, "hs_whatsapp_tab");
   };
 
