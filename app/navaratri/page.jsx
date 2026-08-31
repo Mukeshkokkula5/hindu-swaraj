@@ -750,20 +750,23 @@ export default function NavaratriPage() {
           mobile: blessingCertData.mobile || blessingCertData.phone || (prayerForm.mobile ? prayerForm.mobile.trim() : ""),
         }),
       });
-      const data = await res.json();
+      let data = {};
+      try {
+        data = await res.json();
+      } catch (_) {
+        data = { success: false, error: "Automated WhatsApp gateway is currently offline." };
+      }
       if (!res.ok || !data.success) {
-        throw new Error(data.error || "Failed to dispatch WhatsApp copy.");
+        throw new Error(data.error || "Automated WhatsApp gateway is offline.");
       }
       alert("✅ పూజా ప్రసాద పత్రం మీ వాట్సాప్‌కు నేరుగా పంపబడింది!");
     } catch (err) {
-      if (confirm(`⚠️ Server direct delivery note: ${err.message}\n\nDo you want to open WhatsApp to send or forward manually?`)) {
-        const mob = (blessingCertData.mobile || prayerForm.mobile || "").replace(/\D/g, "").slice(-10);
-        const msg = encodeURIComponent(
-          `🪔 *శ్రీ సిద్ధి వినాయక స్వామి వారి దివ్య పూజా ఆశీర్వచన పత్రం - 2026*\n\nభక్తుని పేరు: ${blessingCertData.devotee_name}\nగోత్రం: ${blessingCertData.gotram}\nసేవ: ${blessingCertData.seva_tier || "నిత్య పూజ & సంకల్పం"}\nతేదీ: ${blessingCertData.seva_date || "వినాయక నవరాత్రులు 2026"}\nసర్టిఫికేట్ సంఖ్య: ${blessingCertData.token_no}\n\nహిందూ స్వరాజ్ యూత్ వెల్ఫేర్ అసోసియేషన్, జగిత్యాల (Regd. No: 784/2025)\nదర్శనం & సర్టిఫికేట్ డౌన్‌లోడ్: https://hinduswarajyouth.online/vinayaka-navaratri?token=${blessingCertData.token_no}`
-        );
-        const url = mob && mob.length === 10 ? `https://api.whatsapp.com/send?phone=91${mob}&text=${msg}` : `https://api.whatsapp.com/send?text=${msg}`;
-        window.open(url, "_blank");
-      }
+      const mob = (blessingCertData.mobile || prayerForm.mobile || "").replace(/\D/g, "").slice(-10);
+      const msg = encodeURIComponent(
+        `🪔 *శ్రీ సిద్ధి వినాయక స్వామి వారి దివ్య పూజా ఆశీర్వచన పత్రం - 2026*\n\nభక్తుని పేరు: ${blessingCertData.devotee_name}\nగోత్రం: ${blessingCertData.gotram}\nసేవ: ${blessingCertData.seva_tier || "నిత్య పూజ & సంకల్పం"}\nతేదీ: ${blessingCertData.seva_date || "వినాయక నవరాత్రులు 2026"}\nసర్టిఫికేట్ సంఖ్య: ${blessingCertData.token_no}\n\nహిందూ స్వరాజ్ యూత్ వెల్ఫేర్ అసోసియేషన్, జగిత్యాల (Regd. No: 784/2025)\nదర్శనం & సర్టిఫికేట్ డౌన్‌లోడ్: https://hinduswarajyouth.online/vinayaka-navaratri?token=${blessingCertData.token_no}`
+      );
+      const url = mob && mob.length === 10 ? `https://api.whatsapp.com/send?phone=91${mob}&text=${msg}` : `https://api.whatsapp.com/send?text=${msg}`;
+      window.open(url, "_blank");
     } finally {
       setSendingWaCopy(false);
     }
