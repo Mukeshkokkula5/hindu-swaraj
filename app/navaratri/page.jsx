@@ -2632,8 +2632,12 @@ export default function NavaratriPage() {
                   🖨️ Print / Save PDF
                 </button>
                 <a
-                  href={`https://wa.me/?text=${encodeURIComponent(
-                    `🪔 *శ్రీ సిద్ధి వినాయక స్వామి వారి దివ్య పూజా ఆశీర్వచన పత్రం - 2026*\n\nభక్తుని పేరు: ${blessingCertData.devotee_name}\nగోత్రం: ${blessingCertData.gotram}\nసేవ: ${blessingCertData.seva_tier}\nతేదీ: ${blessingCertData.seva_date}\nసర్టిఫికేట్ సంఖ్య: ${blessingCertData.token_no}\n\nహిందూ స్వరాజ్ యూత్ వెల్ఫేర్ అసోసియేషన్, జగిత్యాల (Regd. No: 784/2025)\nదర్శనం & సర్టిఫికేట్ డౌన్‌లోడ్: https://hinduswaraj.org/vinayaka-navaratri`
+                  href={`https://api.whatsapp.com/send?${
+                    blessingCertData.mobile && blessingCertData.mobile.replace(/\D/g, "").length >= 10
+                      ? `phone=91${blessingCertData.mobile.replace(/\D/g, "").slice(-10)}&`
+                      : ""
+                  }text=${encodeURIComponent(
+                    `🪔 *శ్రీ సిద్ధి వినాయక స్వామి వారి దివ్య పూజా ఆశీర్వచన పత్రం - 2026*\n\nభక్తుని పేరు: ${blessingCertData.devotee_name}\nగోత్రం: ${blessingCertData.gotram}\nసేవ: ${blessingCertData.seva_tier || "నిత్య పూజ & సంకల్పం"}\nతేదీ: ${blessingCertData.seva_date || "వినాయక నవరాత్రులు 2026"}\nసర్టిఫికేట్ సంఖ్య: ${blessingCertData.token_no}\n\nహిందూ స్వరాజ్ యూత్ వెల్ఫేర్ అసోసియేషన్, జగిత్యాల (Regd. No: 784/2025)\nదర్శనం & సర్టిఫికేట్ డౌన్‌లోడ్: https://hinduswarajyouth.online/vinayaka-navaratri?token=${blessingCertData.token_no}`
                   )}`}
                   target="_blank"
                   rel="noreferrer"
