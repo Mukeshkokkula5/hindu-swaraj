@@ -3553,7 +3553,14 @@ export default function AdminPage() {
     }
   };
 
-  const handleOpenWhatsAppReminder = (member) => {
+  const handleOpenWhatsAppReminder = async (member) => {
+    // 1. If WhatsApp Gateway is Online, send directly in background (0 tabs open)
+    if (waStatus.isConnected) {
+      await handleSendSubReminder(member.user_id, false);
+      return;
+    }
+
+    // 2. Fallback to WhatsApp Web if gateway is offline
     const cleanPhone = (member.phone || "").replace(/\D/g, "");
     if (!cleanPhone) {
       alert("❌ No mobile number registered for " + member.name);
