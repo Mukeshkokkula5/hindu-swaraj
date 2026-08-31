@@ -254,16 +254,6 @@ const DEFAULT_POSTS = [
     category: "Maha Aarti",
     created_at: "2026-09-14T19:30:00.000Z",
   },
-  {
-    id: 3,
-    day_number: 2,
-    title: "2nd Day - Divya Sahasranamarchana & Maha Aarti",
-    description:
-      "Special Laksha Modaka puja and grand evening Aarti with Jagtial devotees.",
-    image_url: "/images/navaratri-aarti.jpg",
-    category: "Maha Aarti",
-    created_at: "2026-09-15T19:30:00.000Z",
-  },
 ];
 
 // Fallback default sponsors
@@ -306,38 +296,80 @@ const DEFAULT_SPONSORS = [
   },
 ];
 
+const DEFAULT_SETTINGS = {
+  is_live: false,
+  youtube_url: "",
+  youtube_embed_id: "",
+  stream_title: "Vinayaka Navaratri Seva 2026 - Jagtial Live Darshan & Maha Aarti",
+  live_announcement: "Daily Morning Abhishekam at 7:00 AM, Sahasranamarchana at 10:00 AM, Maha Annadanam at 1:00 PM, and Divya Maha Aarti at 7:30 PM live from Jagtial Pandal.",
+  banner_image: "/images/navaratri-ganesha.jpg",
+  location: "Jagtial, Telangana",
+  start_date: "2026-09-14",
+  end_date: "2026-09-24",
+  ticker_text: "🔴 LIVE: Vinayaka Navaratri Seva Mahotsavam 2026 in Jagtial • Daily Sahasranamarchana, Maha Annadanam & Divya Mangala Aarti • Book your Gotra Namavali Seva online",
+  ticker_active: true,
+  ad_banner_url: "/images/navaratri-aarti.jpg",
+  ad_banner_link: "#seva-booking",
+  ad_banner_title: "Sri Venkateshwara Swarna Kireetam & Jewellers",
+  ad_banner_tagline: "Official Grand Aarti & Swarna Kavacha Sponsor • Jagtial",
+  ad_banner_active: true,
+  annadanam_count_today: 2850,
+  laddu_auction_info: "Grand Maha Laddu Auction on Day 9 (22 Sep) at 6:00 PM",
+  pandal_map_url: "https://maps.google.com/?q=Jagtial+Telangana",
+  bg_audio_url: "https://assets.mixkit.co/music/preview/mixkit-meditation-flute-and-bells-ambient-sound-581.mp3",
+  bg_audio_title: "Om Gam Ganapataye Namaha • 108 Divine Dhun",
+  bg_audio_artist: "Sacred Jagtial Pandal Vedic Chants",
+  bg_audio_active: true,
+  bg_audio_autoplay: true,
+};
+
 export default function NavaratriPage() {
-  const [settings, setSettings] = useState({
-    is_live: false,
-    youtube_url: "",
-    youtube_embed_id: "",
-    stream_title: "Vinayaka Navaratri Seva 2026 - Jagtial Live Darshan & Maha Aarti",
-    live_announcement: "Daily Morning Abhishekam at 7:00 AM, Sahasranamarchana at 10:00 AM, Maha Annadanam at 1:00 PM, and Divya Maha Aarti at 7:30 PM live from Jagtial Pandal.",
-    banner_image: "/images/navaratri-ganesha.jpg",
-    location: "Jagtial, Telangana",
-    start_date: "2026-09-14",
-    end_date: "2026-09-24",
-    ticker_text: "🔴 LIVE: Vinayaka Navaratri Seva Mahotsavam 2026 in Jagtial • Daily Sahasranamarchana, Maha Annadanam & Divya Mangala Aarti • Book your Gotra Namavali Seva online",
-    ticker_active: true,
-    ad_banner_url: "/images/navaratri-aarti.jpg",
-    ad_banner_link: "#seva-booking",
-    ad_banner_title: "Sri Venkateshwara Swarna Kireetam & Jewellers",
-    ad_banner_tagline: "Official Grand Aarti & Swarna Kavacha Sponsor • Jagtial",
-    ad_banner_active: true,
-    annadanam_count_today: 2850,
-    laddu_auction_info: "Grand Maha Laddu Auction on Day 9 (22 Sep) at 6:00 PM",
-    pandal_map_url: "https://maps.google.com/?q=Jagtial+Telangana",
-    bg_audio_url: "https://assets.mixkit.co/music/preview/mixkit-meditation-flute-and-bells-ambient-sound-581.mp3",
-    bg_audio_title: "Om Gam Ganapataye Namaha • 108 Divine Dhun",
-    bg_audio_artist: "Sacred Jagtial Pandal Vedic Chants",
-    bg_audio_active: true,
-    bg_audio_autoplay: true,
+  // ⚡ Instant Cache Hydration (Eliminates Content & Image Flicker on Refresh)
+  const [settings, setSettings] = useState(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = localStorage.getItem("hsy_navaratri_settings");
+        if (cached) return JSON.parse(cached);
+      } catch (_) {}
+    }
+    return DEFAULT_SETTINGS;
   });
 
-  const [schedule, setSchedule] = useState(DEFAULT_SCHEDULE);
+  const [schedule, setSchedule] = useState(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = localStorage.getItem("hsy_navaratri_schedule");
+        if (cached) return JSON.parse(cached);
+      } catch (_) {}
+    }
+    return DEFAULT_SCHEDULE;
+  });
+
   const [selectedDay, setSelectedDay] = useState(1);
-  const [posts, setPosts] = useState(DEFAULT_POSTS);
-  const [sponsors, setSponsors] = useState(DEFAULT_SPONSORS);
+
+  const [posts, setPosts] = useState(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = localStorage.getItem("hsy_navaratri_posts");
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch (_) {}
+    }
+    return DEFAULT_POSTS;
+  });
+
+  const [sponsors, setSponsors] = useState(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = localStorage.getItem("hsy_navaratri_sponsors");
+        if (cached) return JSON.parse(cached);
+      } catch (_) {}
+    }
+    return DEFAULT_SPONSORS;
+  });
+
   const [activeCategory, setActiveCategory] = useState("ALL");
   const [wishes, setWishes] = useState([]);
   
@@ -712,6 +744,9 @@ export default function NavaratriPage() {
           const infoJson = await resInfo.json();
           if (infoJson.success && infoJson.data) {
             setSettings(infoJson.data);
+            try {
+              localStorage.setItem("hsy_navaratri_settings", JSON.stringify(infoJson.data));
+            } catch (_) {}
           }
         }
       } catch (e) {
@@ -724,6 +759,9 @@ export default function NavaratriPage() {
           const scheduleJson = await resSchedule.json();
           if (scheduleJson.success && scheduleJson.data && scheduleJson.data.length > 0) {
             setSchedule(scheduleJson.data);
+            try {
+              localStorage.setItem("hsy_navaratri_schedule", JSON.stringify(scheduleJson.data));
+            } catch (_) {}
           }
         }
       } catch (e) {
@@ -736,6 +774,9 @@ export default function NavaratriPage() {
           const postsJson = await resPosts.json();
           if (postsJson.success && postsJson.data && postsJson.data.length > 0) {
             setPosts(postsJson.data);
+            try {
+              localStorage.setItem("hsy_navaratri_posts", JSON.stringify(postsJson.data));
+            } catch (_) {}
           }
         }
       } catch (e) {
@@ -748,6 +789,9 @@ export default function NavaratriPage() {
           const sponsorsJson = await resSponsors.json();
           if (sponsorsJson.success && sponsorsJson.data && sponsorsJson.data.length > 0) {
             setSponsors(sponsorsJson.data);
+            try {
+              localStorage.setItem("hsy_navaratri_sponsors", JSON.stringify(sponsorsJson.data));
+            } catch (_) {}
           }
         }
       } catch (e) {
