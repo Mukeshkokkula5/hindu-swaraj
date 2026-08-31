@@ -715,12 +715,14 @@ export default function NavaratriPage() {
   // 📜 Divine Blessing Certificate States
   const [showBlessingCert, setShowBlessingCert] = useState(false);
   const [blessingCertData, setBlessingCertData] = useState(null);
+  const [sendingWaCopy, setSendingWaCopy] = useState(false);
 
   const handleOpenCertificate = (data = {}) => {
     const token = data.token_no || `HSY-NAV-2026-${Math.floor(1000 + Math.random() * 9000)}`;
     const devName = data.devotee_name || data.name || (prayerForm.devotee_name ? prayerForm.devotee_name.trim() : "") || "భక్తుని కుటుంబ సభ్యులు (Devotee & Family)";
     const gotramName = data.gotram || (prayerForm.gotram ? prayerForm.gotram.trim() : "") || "శివ / కాశ్యప గోత్రం (Shiva Gotram)";
     const cityName = data.city || (prayerForm.city ? prayerForm.city.trim() : "") || "Jagtial, Telangana";
+    const mobNum = data.mobile || data.phone || (prayerForm.mobile ? prayerForm.mobile.trim() : "") || (eHundiMobile ? eHundiMobile.trim() : "") || "";
 
     setBlessingCertData({
       devotee_name: devName,
@@ -731,8 +733,40 @@ export default function NavaratriPage() {
       amount: data.amount || 501,
       token_no: token,
       city: cityName,
+      mobile: mobNum,
     });
     setShowBlessingCert(true);
+  };
+
+  const handleSendWhatsAppCopy = async () => {
+    if (!blessingCertData) return;
+    setSendingWaCopy(true);
+    try {
+      const res = await fetch(`${API_BASE}/navaratri/send-whatsapp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token_no: blessingCertData.token_no,
+          mobile: blessingCertData.mobile || blessingCertData.phone || (prayerForm.mobile ? prayerForm.mobile.trim() : ""),
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to dispatch WhatsApp copy.");
+      }
+      alert("✅ పూజా ప్రసాద పత్రం మీ వాట్సాప్‌కు నేరుగా పంపబడింది!");
+    } catch (err) {
+      if (confirm(`⚠️ Server direct delivery note: ${err.message}\n\nDo you want to open WhatsApp to send or forward manually?`)) {
+        const mob = (blessingCertData.mobile || prayerForm.mobile || "").replace(/\D/g, "").slice(-10);
+        const msg = encodeURIComponent(
+          `🪔 *శ్రీ సిద్ధి వినాయక స్వామి వారి దివ్య పూజా ఆశీర్వచన పత్రం - 2026*\n\nభక్తుని పేరు: ${blessingCertData.devotee_name}\nగోత్రం: ${blessingCertData.gotram}\nసేవ: ${blessingCertData.seva_tier || "నిత్య పూజ & సంకల్పం"}\nతేదీ: ${blessingCertData.seva_date || "వినాయక నవరాత్రులు 2026"}\nసర్టిఫికేట్ సంఖ్య: ${blessingCertData.token_no}\n\nహిందూ స్వరాజ్ యూత్ వెల్ఫేర్ అసోసియేషన్, జగిత్యాల (Regd. No: 784/2025)\nదర్శనం & సర్టిఫికేట్ డౌన్‌లోడ్: https://hinduswarajyouth.online/vinayaka-navaratri?token=${blessingCertData.token_no}`
+        );
+        const url = mob && mob.length === 10 ? `https://api.whatsapp.com/send?phone=91${mob}&text=${msg}` : `https://api.whatsapp.com/send?text=${msg}`;
+        window.open(url, "_blank");
+      }
+    } finally {
+      setSendingWaCopy(false);
+    }
   };
 
   // Load Data from Backend
@@ -2631,20 +2665,22 @@ export default function NavaratriPage() {
                 >
                   🖨️ Print / Save PDF
                 </button>
-                <a
-                  href={`https://api.whatsapp.com/send?${
-                    blessingCertData.mobile && blessingCertData.mobile.replace(/\D/g, "").length >= 10
-                      ? `phone=91${blessingCertData.mobile.replace(/\D/g, "").slice(-10)}&`
-                      : ""
-                  }text=${encodeURIComponent(
-                    `🪔 *శ్రీ సిద్ధి వినాయక స్వామి వారి దివ్య పూజా ఆశీర్వచన పత్రం - 2026*\n\nభక్తుని పేరు: ${blessingCertData.devotee_name}\nగోత్రం: ${blessingCertData.gotram}\nసేవ: ${blessingCertData.seva_tier || "నిత్య పూజ & సంకల్పం"}\nతేదీ: ${blessingCertData.seva_date || "వినాయక నవరాత్రులు 2026"}\nసర్టిఫికేట్ సంఖ్య: ${blessingCertData.token_no}\n\nహిందూ స్వరాజ్ యూత్ వెల్ఫేర్ అసోసియేషన్, జగిత్యాల (Regd. No: 784/2025)\nదర్శనం & సర్టిఫికేట్ డౌన్‌లోడ్: https://hinduswarajyouth.online/vinayaka-navaratri?token=${blessingCertData.token_no}`
-                  )}`}
-                  target="_blank"
-                  rel="noreferrer"
+                <button
+                  type="button"
+                  onClick={handleSendWhatsAppCopy}
+                  disabled={sendingWaCopy}
                   className={`${styles.certActionBtn} ${styles.certWhatsAppBtn}`}
+                  style={{
+                    cursor: sendingWaCopy ? "not-allowed" : "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                  }}
+                  title="Send instant official WhatsApp copy directly to your mobile without opening any tab"
                 >
-                  💬 Share on WhatsApp
-                </a>
+                  <span>💬</span>
+                  <span>{sendingWaCopy ? "Sending WhatsApp..." : "Send to My WhatsApp"}</span>
+                </button>
                 <button
                   type="button"
                   onClick={() => setShowBlessingCert(false)}
