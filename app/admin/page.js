@@ -1144,7 +1144,7 @@ export default function AdminPage() {
   const [recordingOfflineSub, setRecordingOfflineSub] = useState(null);
   const [offlineSubAmount, setOfflineSubAmount] = useState(216);
   const [subReceiptData, setSubReceiptData] = useState(null);
-  const [sendingSubReminder, setSendingSubReminder] = useState(false);
+  const [sendingSubReminder, setSendingSubReminder] = useState(null); // stores active user_id or 'BULK'
   const [concessionRequests, setConcessionRequests] = useState([]);
   const [concessionLoading, setConcessionLoading] = useState(false);
   const [showConcessionModal, setShowConcessionModal] = useState(false);
@@ -3583,7 +3583,7 @@ export default function AdminPage() {
   };
 
   const handleSendSubReminder = async (userId = null, isBulk = false) => {
-    setSendingSubReminder(true);
+    setSendingSubReminder(userId || "BULK");
     try {
       const res = await fetchAPI("/subscriptions/send-reminder", {
         method: "POST",
@@ -3594,12 +3594,12 @@ export default function AdminPage() {
         }),
       });
 
-      alert(res.message || "🔔 Reminder dispatched successfully!");
+      alert(res.message || "✅ WhatsApp reminder sent successfully in background!");
       await loadSubscriptionDuesMatrix(subscriptionMonthFilter);
     } catch (err) {
       alert("❌ Failed to send reminder: " + err.message);
     } finally {
-      setSendingSubReminder(false);
+      setSendingSubReminder(null);
     }
   };
 
@@ -12567,7 +12567,7 @@ _This is an official computer-generated receipt._`;
                                       <button
                                         type="button"
                                         onClick={() => handleSendSubReminder(m.user_id, false)}
-                                        disabled={sendingSubReminder}
+                                        disabled={Boolean(sendingSubReminder)}
                                         style={{
                                           background: "linear-gradient(135deg, #16a34a 0%, #15803d 100%)",
                                           color: "#fff",
@@ -12576,16 +12576,17 @@ _This is an official computer-generated receipt._`;
                                           borderRadius: "6px",
                                           fontSize: "0.75rem",
                                           fontWeight: "800",
-                                          cursor: sendingSubReminder ? "not-allowed" : "pointer",
+                                          cursor: Boolean(sendingSubReminder) ? "not-allowed" : "pointer",
                                           boxShadow: "0 2px 6px rgba(22, 163, 74, 0.25)",
                                           display: "inline-flex",
                                           alignItems: "center",
                                           gap: "5px",
+                                          opacity: sendingSubReminder && sendingSubReminder !== m.user_id ? 0.6 : 1,
                                         }}
                                         title="Send instant automatic WhatsApp reminder directly in background without opening any tab"
                                       >
                                         <span>💬</span>
-                                        <span>{sendingSubReminder ? "Sending..." : "Send WhatsApp"}</span>
+                                        <span>{sendingSubReminder === m.user_id ? "Sending..." : "Send WhatsApp"}</span>
                                       </button>
                                     </>
                                   )}
