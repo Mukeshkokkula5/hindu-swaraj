@@ -933,6 +933,17 @@ const downloadReceiptPDF = (
   }
 };
 
+function generateRandomMemberPassword() {
+  const prefix = "HSY@";
+  const num = Math.floor(1000 + Math.random() * 9000);
+  const letters = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz";
+  let suffix = "";
+  for (let i = 0; i < 2; i++) {
+    suffix += letters.charAt(Math.floor(Math.random() * letters.length));
+  }
+  return `${prefix}${num}${suffix}`;
+}
+
 export default function AdminPage() {
   const [mounted, setMounted] = useState(false);
 
@@ -1277,7 +1288,22 @@ export default function AdminPage() {
     role: "MEMBER",
     phone: "",
     status: "ACTIVE",
+    password: generateRandomMemberPassword(),
   });
+  const [showMemberPassword, setShowMemberPassword] = useState(false);
+  const [showNewMemberCredentialsModal, setShowNewMemberCredentialsModal] = useState(false);
+  const [createdMemberCredentials, setCreatedMemberCredentials] = useState(null);
+
+  // 🔑 Mandatory First-Login Password Change Modal States
+  const [showFirstLoginModal, setShowFirstLoginModal] = useState(false);
+  const [firstLoginPassword, setFirstLoginPassword] = useState("");
+  const [firstLoginNewPassword, setFirstLoginNewPassword] = useState("");
+  const [firstLoginConfirmPassword, setFirstLoginConfirmPassword] = useState("");
+  const [firstLoginShowOldPwd, setFirstLoginShowOldPwd] = useState(false);
+  const [firstLoginShowNewPwd, setFirstLoginShowNewPwd] = useState(false);
+  const [firstLoginLoading, setFirstLoginLoading] = useState(false);
+  const [firstLoginMessage, setFirstLoginMessage] = useState(null);
+
   const [editingMember, setEditingMember] = useState(null);
   const [newExpense, setNewExpense] = useState({
     title: "",
@@ -4686,6 +4712,9 @@ export default function AdminPage() {
           setUserRole(userData.role || "");
           setCurrentUser(userData);
           setIdCardProfile(userData);
+          if (userData.is_first_login) {
+            setShowFirstLoginModal(true);
+          }
           try {
             localStorage.setItem("admin_user", JSON.stringify(userData));
             localStorage.setItem("admin_role", userData.role || "");
@@ -4808,6 +4837,11 @@ export default function AdminPage() {
       if (userProfile) {
         setCurrentUser(userProfile);
         setIdCardProfile(userProfile);
+      }
+
+      if (data.isFirstLogin || userProfile?.is_first_login) {
+        setFirstLoginPassword(password);
+        setShowFirstLoginModal(true);
       }
 
       const roleUpper = (data.role || "").toUpperCase().trim().replace(/[\s-]+/g, "_");
@@ -5034,14 +5068,19 @@ export default function AdminPage() {
       const paddedIndex = String(nextNum).padStart(4, "0");
       const formattedId = `HSY/JGTL/2026/${paddedIndex}`;
 
+      const rawTempPassword = (newMember.password && typeof newMember.password === "string" && newMember.password.trim() && newMember.password !== "password123")
+        ? newMember.password.trim()
+        : generateRandomMemberPassword();
+
       const memberObj = {
         id: formattedId,
         ...newMember,
+        password: rawTempPassword,
       };
 
       try {
         const usernameGenerated = `${newMember.name.toLowerCase().replace(/\s+/g, "")}@hsy.org`;
-        await fetchAPI("/members", {
+        const res = await fetchAPI("/members", {
           method: "POST",
           body: JSON.stringify({
             member_id: formattedId,
@@ -5051,10 +5090,22 @@ export default function AdminPage() {
             phone: newMember.phone,
             address: "Jagtial, Telangana",
             role: newMember.role,
-            password: "password123",
+            password: rawTempPassword,
           }),
         });
         loadAllData();
+
+        // Open Credentials Modal for copying / WhatsApp
+        setCreatedMemberCredentials({
+          name: newMember.name,
+          member_id: res?.member_id || formattedId,
+          username: res?.username || usernameGenerated,
+          password: res?.tempPassword || rawTempPassword,
+          phone: newMember.phone,
+          personal_email: newMember.email,
+          role: newMember.role,
+        });
+        setShowNewMemberCredentialsModal(true);
       } catch (err) {
         console.warn(
           "Failed to store member in database, saving locally:",
@@ -5063,6 +5114,17 @@ export default function AdminPage() {
         const updated = [memberObj, ...members];
         setMembers(updated);
         localStorage.setItem("admin_members", JSON.stringify(updated));
+
+        setCreatedMemberCredentials({
+          name: newMember.name,
+          member_id: formattedId,
+          username: `${newMember.name.toLowerCase().replace(/\s+/g, "")}@hsy.org`,
+          password: rawTempPassword,
+          phone: newMember.phone,
+          personal_email: newMember.email,
+          role: newMember.role,
+        });
+        setShowNewMemberCredentialsModal(true);
       }
     }
 
@@ -5073,8 +5135,66 @@ export default function AdminPage() {
       role: "MEMBER",
       phone: "",
       status: "ACTIVE",
+      password: generateRandomMemberPassword(),
     });
     setShowMemberModal(false);
+  };
+
+  // 🔑 Mandatory First-Login Change Password Handler
+  const handleFirstLoginChangePassword = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    if (!firstLoginPassword || !firstLoginNewPassword || !firstLoginConfirmPassword) {
+      setFirstLoginMessage({ type: "error", text: "All password fields are mandatory." });
+      return;
+    }
+    if (firstLoginNewPassword.length < 6) {
+      setFirstLoginMessage({ type: "error", text: "New personal password must be at least 6 characters long." });
+      return;
+    }
+    if (firstLoginNewPassword !== firstLoginConfirmPassword) {
+      setFirstLoginMessage({ type: "error", text: "New password and confirmation password do not match." });
+      return;
+    }
+    if (firstLoginPassword === firstLoginNewPassword) {
+      setFirstLoginMessage({ type: "error", text: "New password must be different from your temporary password." });
+      return;
+    }
+
+    setFirstLoginLoading(true);
+    setFirstLoginMessage(null);
+    try {
+      const res = await fetchAPI("/auth/first-login-change-password", {
+        method: "POST",
+        body: JSON.stringify({
+          oldPassword: firstLoginPassword,
+          newPassword: firstLoginNewPassword,
+        }),
+      });
+
+      setCurrentUser((prev) => (prev ? { ...prev, is_first_login: false } : prev));
+      try {
+        const cached = localStorage.getItem("admin_user");
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          parsed.is_first_login = false;
+          localStorage.setItem("admin_user", JSON.stringify(parsed));
+        }
+      } catch (_) {}
+
+      setShowFirstLoginModal(false);
+      setFirstLoginPassword("");
+      setFirstLoginNewPassword("");
+      setFirstLoginConfirmPassword("");
+      alert(res?.message || "🎉 Welcome! Your secure personal password has been saved. Please use it for all future logins.");
+    } catch (err) {
+      console.error("First login password change error:", err);
+      setFirstLoginMessage({
+        type: "error",
+        text: err.message || "Failed to update password. Please check your current temporary password.",
+      });
+    } finally {
+      setFirstLoginLoading(false);
+    }
   };
 
   const handleAddFund = async (e) => {
@@ -21583,6 +21703,59 @@ _This is an official computer-generated receipt._`;
               />
             </div>
 
+            {!editingMember && (
+              <div className="formGroup">
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
+                  <label className="formLabel" style={{ margin: 0, fontWeight: "700" }}>🔐 Initial Temporary Password</label>
+                  <button
+                    type="button"
+                    onClick={() => setNewMember((prev) => ({ ...prev, password: generateRandomMemberPassword() }))}
+                    style={{ background: "#e0f2fe", border: "1px solid #7dd3fc", color: "#0369a1", fontSize: "0.74rem", fontWeight: "700", padding: "2px 8px", borderRadius: "4px", cursor: "pointer" }}
+                    title="Generate another random secure password"
+                  >
+                    🎲 Generate New
+                  </button>
+                </div>
+                <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+                  <input
+                    type={showMemberPassword ? "text" : "password"}
+                    className="inputField"
+                    value={newMember.password || ""}
+                    onChange={(e) => setNewMember({ ...newMember, password: e.target.value })}
+                    placeholder="Auto-generated secure password"
+                    style={{ paddingRight: "70px", fontFamily: showMemberPassword ? "monospace" : "inherit", letterSpacing: showMemberPassword ? "1px" : "normal", fontWeight: "700", marginBottom: 0 }}
+                    required
+                  />
+                  <div style={{ position: "absolute", right: "6px", display: "flex", gap: "4px" }}>
+                    <button
+                      type="button"
+                      onClick={() => setShowMemberPassword(!showMemberPassword)}
+                      style={{ background: "none", border: "none", fontSize: "0.9rem", cursor: "pointer", padding: "4px" }}
+                      title={showMemberPassword ? "Hide password" : "Show password"}
+                    >
+                      {showMemberPassword ? "🙈" : "👁️"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (newMember.password) {
+                          navigator.clipboard.writeText(newMember.password);
+                          alert("Password copied to clipboard! 📋");
+                        }
+                      }}
+                      style={{ background: "none", border: "none", fontSize: "0.9rem", cursor: "pointer", padding: "4px" }}
+                      title="Copy password"
+                    >
+                      📋
+                    </button>
+                  </div>
+                </div>
+                <small style={{ color: "#64748b", fontSize: "0.74rem", marginTop: "4px", display: "block" }}>
+                  💡 Unique random password generated. Emailed to member upon registration. Mandatory password change is required on their first login.
+                </small>
+              </div>
+            )}
+
             {editingMember && (
               <div className="formGroup">
                 <label className="formLabel">Account Status</label>
@@ -21613,6 +21786,371 @@ _This is an official computer-generated receipt._`;
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {/* --- NEW MEMBER CREATED CREDENTIALS MODAL --- */}
+      {showNewMemberCredentialsModal && createdMemberCredentials && (
+        <div className="modalBackdrop" style={{ zIndex: 100000 }}>
+          <div className="modalContent" style={{ maxWidth: "520px", textAlign: "left" }}>
+            <div className="modalHeader" style={{ borderBottom: "1px solid #e2e8f0", paddingBottom: "12px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <span style={{ fontSize: "1.5rem" }}>🎉</span>
+                <div>
+                  <h3 className="modalTitle" style={{ margin: 0, color: "#0f172a" }}>
+                    Member Registered Successfully!
+                  </h3>
+                  <small style={{ color: "#16a34a", fontWeight: "700" }}>
+                    ✓ Account &amp; Login Credentials Generated
+                  </small>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="closeBtn"
+                onClick={() => setShowNewMemberCredentialsModal(false)}
+              >
+                ×
+              </button>
+            </div>
+
+            <div style={{ marginTop: "16px" }}>
+              <div
+                style={{
+                  background: "#f8fafc",
+                  border: "1.5px solid #e2e8f0",
+                  borderRadius: "12px",
+                  padding: "18px",
+                  marginBottom: "16px",
+                }}
+              >
+                <div style={{ display: "grid", gridTemplateColumns: "120px 1fr", gap: "10px", fontSize: "0.88rem" }}>
+                  <span style={{ color: "#64748b", fontWeight: "700" }}>Member Name:</span>
+                  <span style={{ fontWeight: "800", color: "#1e293b" }}>{createdMemberCredentials.name}</span>
+
+                  <span style={{ color: "#64748b", fontWeight: "700" }}>Member ID:</span>
+                  <span style={{ fontFamily: "monospace", fontWeight: "800", color: "#0284c7" }}>
+                    {createdMemberCredentials.member_id}
+                  </span>
+
+                  <span style={{ color: "#64748b", fontWeight: "700" }}>Role:</span>
+                  <span style={{ fontWeight: "700", color: "#475569" }}>{createdMemberCredentials.role || "MEMBER"}</span>
+
+                  <span style={{ color: "#64748b", fontWeight: "700" }}>Username / ID:</span>
+                  <span style={{ fontFamily: "monospace", fontWeight: "800", color: "#0f172a" }}>
+                    {createdMemberCredentials.username}
+                  </span>
+
+                  <span style={{ color: "#64748b", fontWeight: "700" }}>Temp Password:</span>
+                  <span
+                    style={{
+                      fontFamily: "monospace",
+                      fontWeight: "900",
+                      color: "#dc2626",
+                      background: "#fee2e2",
+                      padding: "2px 8px",
+                      borderRadius: "6px",
+                      display: "inline-block",
+                      letterSpacing: "1px",
+                    }}
+                  >
+                    {createdMemberCredentials.password}
+                  </span>
+
+                  {createdMemberCredentials.phone && (
+                    <>
+                      <span style={{ color: "#64748b", fontWeight: "700" }}>Mobile No:</span>
+                      <span style={{ fontWeight: "700", color: "#1e293b" }}>{createdMemberCredentials.phone}</span>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              <div
+                style={{
+                  background: "#eff6ff",
+                  border: "1px solid #bfdbfe",
+                  borderRadius: "8px",
+                  padding: "12px 14px",
+                  fontSize: "0.82rem",
+                  color: "#1e40af",
+                  marginBottom: "20px",
+                  lineHeight: "1.4",
+                }}
+              >
+                ℹ️ <b>Security Mandatory Flow:</b> An email with login details has been sent. When the member logs in for the first time with this temporary password, the system will immediately prompt them to set their own permanent password.
+              </div>
+
+              <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const text = `🚩 *Hindu Swaraj Youth (HSY) Association*\n\nNamaste ${createdMemberCredentials.name},\nYour member account has been registered successfully!\n\n🆔 *Member ID:* ${createdMemberCredentials.member_id}\n👤 *Login Username:* ${createdMemberCredentials.username}\n🔐 *Temporary Password:* ${createdMemberCredentials.password}\n🌐 *Portal Login:* https://hinduswarajyouth.online/admin\n\n_Note: Please change your password upon your first login._`;
+                    navigator.clipboard.writeText(text);
+                    alert("Credentials text copied to clipboard! 📋");
+                  }}
+                  style={{
+                    flex: 1,
+                    minWidth: "160px",
+                    background: "#0f172a",
+                    color: "#ffffff",
+                    border: "none",
+                    padding: "11px 16px",
+                    borderRadius: "8px",
+                    fontWeight: "700",
+                    fontSize: "0.88rem",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "6px",
+                  }}
+                >
+                  📋 Copy All Details
+                </button>
+
+                {createdMemberCredentials.phone && (
+                  <a
+                    href={`https://wa.me/91${createdMemberCredentials.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(`🚩 *Hindu Swaraj Youth (HSY) Association*\n\nNamaste ${createdMemberCredentials.name},\nYour member account has been registered successfully!\n\n🆔 *Member ID:* ${createdMemberCredentials.member_id}\n👤 *Login Username:* ${createdMemberCredentials.username}\n🔐 *Temporary Password:* ${createdMemberCredentials.password}\n🌐 *Portal Login:* https://hinduswarajyouth.online/admin\n\n_Note: Please change your password upon your first login._`)}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{
+                      flex: 1,
+                      minWidth: "160px",
+                      background: "#22c55e",
+                      color: "#ffffff",
+                      border: "none",
+                      padding: "11px 16px",
+                      borderRadius: "8px",
+                      fontWeight: "700",
+                      fontSize: "0.88rem",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "6px",
+                      textDecoration: "none",
+                    }}
+                  >
+                    💬 Share on WhatsApp
+                  </a>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => setShowNewMemberCredentialsModal(false)}
+                  style={{
+                    background: "#f1f5f9",
+                    border: "1px solid #cbd5e1",
+                    color: "#475569",
+                    padding: "11px 18px",
+                    borderRadius: "8px",
+                    fontWeight: "700",
+                    fontSize: "0.88rem",
+                    cursor: "pointer",
+                  }}
+                >
+                  Done
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- MANDATORY FIRST LOGIN PASSWORD CHANGE MODAL --- */}
+      {showFirstLoginModal && (
+        <div
+          className="modalBackdrop"
+          style={{
+            zIndex: 200000,
+            background: "rgba(15, 23, 42, 0.85)",
+            backdropFilter: "blur(8px)",
+          }}
+        >
+          <div
+            className="modalContent"
+            style={{
+              maxWidth: "480px",
+              padding: "32px",
+              borderRadius: "16px",
+              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.4)",
+              background: "#ffffff",
+              border: "2px solid #fdba74",
+            }}
+          >
+            <div style={{ textAlign: "center", marginBottom: "22px" }}>
+              <div
+                style={{
+                  width: "64px",
+                  height: "64px",
+                  borderRadius: "50%",
+                  background: "linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%)",
+                  border: "2px solid #fdba74",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "1.8rem",
+                  margin: "0 auto 12px auto",
+                  boxShadow: "0 4px 12px rgba(234, 88, 12, 0.15)",
+                }}
+              >
+                🔐
+              </div>
+              <h2 style={{ fontSize: "1.35rem", fontWeight: "900", color: "#0f172a", margin: "0 0 6px 0" }}>
+                Welcome to Hindu Swaraj Youth!
+              </h2>
+              <span
+                style={{
+                  background: "#fee2e2",
+                  color: "#991b1b",
+                  border: "1px solid #fca5a5",
+                  padding: "3px 10px",
+                  borderRadius: "12px",
+                  fontSize: "0.74rem",
+                  fontWeight: "800",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.5px",
+                }}
+              >
+                ⚠️ Action Required: Set Your Personal Password
+              </span>
+              <p style={{ color: "#64748b", fontSize: "0.84rem", margin: "10px 0 0 0", lineHeight: "1.5" }}>
+                You have logged in with a temporary system password. For security, you must set a permanent private password before accessing your dashboard.
+              </p>
+            </div>
+
+            {firstLoginMessage && (
+              <div
+                style={{
+                  padding: "12px 16px",
+                  borderRadius: "8px",
+                  marginBottom: "18px",
+                  fontSize: "0.85rem",
+                  fontWeight: "700",
+                  background: firstLoginMessage.type === "success" ? "#f0fdf4" : "#fef2f2",
+                  color: firstLoginMessage.type === "success" ? "#166534" : "#991b1b",
+                  border: firstLoginMessage.type === "success" ? "1px solid #86efac" : "1px solid #fca5a5",
+                }}
+              >
+                {firstLoginMessage.type === "success" ? "✅ " : "⚠️ "}
+                {firstLoginMessage.text}
+              </div>
+            )}
+
+            <form onSubmit={handleFirstLoginChangePassword}>
+              {/* Current Temporary Password */}
+              <div className="formGroup" style={{ marginBottom: "16px" }}>
+                <label className="formLabel" style={{ fontWeight: "700" }}>
+                  Current Temporary Password <span style={{ color: "#dc2626" }}>*</span>
+                </label>
+                <div style={{ position: "relative" }}>
+                  <input
+                    type={firstLoginShowOldPwd ? "text" : "password"}
+                    className="inputField"
+                    value={firstLoginPassword}
+                    onChange={(e) => setFirstLoginPassword(e.target.value)}
+                    placeholder="Enter temporary password received"
+                    required
+                    style={{ paddingRight: "40px", marginBottom: 0 }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setFirstLoginShowOldPwd(!firstLoginShowOldPwd)}
+                    style={{
+                      position: "absolute",
+                      right: "10px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      fontSize: "1rem",
+                      color: "#64748b",
+                    }}
+                  >
+                    {firstLoginShowOldPwd ? "🙈" : "👁️"}
+                  </button>
+                </div>
+              </div>
+
+              {/* New Password */}
+              <div className="formGroup" style={{ marginBottom: "16px" }}>
+                <label className="formLabel" style={{ fontWeight: "700" }}>
+                  New Personal Password <span style={{ color: "#dc2626" }}>*</span>
+                </label>
+                <div style={{ position: "relative" }}>
+                  <input
+                    type={firstLoginShowNewPwd ? "text" : "password"}
+                    className="inputField"
+                    value={firstLoginNewPassword}
+                    onChange={(e) => setFirstLoginNewPassword(e.target.value)}
+                    placeholder="Create a strong password (min 6 chars)"
+                    minLength={6}
+                    required
+                    style={{ paddingRight: "40px", marginBottom: 0 }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setFirstLoginShowNewPwd(!firstLoginShowNewPwd)}
+                    style={{
+                      position: "absolute",
+                      right: "10px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      fontSize: "1rem",
+                      color: "#64748b",
+                    }}
+                  >
+                    {firstLoginShowNewPwd ? "🙈" : "👁️"}
+                  </button>
+                </div>
+              </div>
+
+              {/* Confirm New Password */}
+              <div className="formGroup" style={{ marginBottom: "22px" }}>
+                <label className="formLabel" style={{ fontWeight: "700" }}>
+                  Confirm New Password <span style={{ color: "#dc2626" }}>*</span>
+                </label>
+                <input
+                  type={firstLoginShowNewPwd ? "text" : "password"}
+                  className="inputField"
+                  value={firstLoginConfirmPassword}
+                  onChange={(e) => setFirstLoginConfirmPassword(e.target.value)}
+                  placeholder="Re-enter your new personal password"
+                  minLength={6}
+                  required
+                  style={{ marginBottom: 0 }}
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={firstLoginLoading}
+                style={{
+                  width: "100%",
+                  background: "linear-gradient(135deg, #ea580c 0%, #c2410c 100%)",
+                  color: "#ffffff",
+                  border: "none",
+                  padding: "13px 20px",
+                  borderRadius: "10px",
+                  fontWeight: "800",
+                  fontSize: "0.98rem",
+                  cursor: firstLoginLoading ? "not-allowed" : "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                  boxShadow: "0 4px 14px rgba(234, 88, 12, 0.35)",
+                }}
+              >
+                {firstLoginLoading ? "⏳ Saving Password..." : "🔒 Set Password & Continue to Dashboard"}
+              </button>
+            </form>
+          </div>
         </div>
       )}
 
