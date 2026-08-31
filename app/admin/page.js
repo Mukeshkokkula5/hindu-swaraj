@@ -7975,6 +7975,7 @@ _This is an official computer-generated receipt._`;
                             role: "MEMBER",
                             phone: "",
                             status: "ACTIVE",
+                            password: generateRandomMemberPassword(),
                           });
                           setShowMemberModal(true);
                         }}
