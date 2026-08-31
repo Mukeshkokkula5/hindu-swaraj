@@ -392,6 +392,59 @@ export default function ElectionCommandDesk({ token, currentUser, isSuperAdmin, 
     }
   };
 
+  // 10. Reset Cast Votes & Re-Open Polling for Testing
+  const handleResetVotes = async () => {
+    if (!electionData?.cycle?.id) return;
+    if (!window.confirm('⚠️ ARE YOU SURE? This will delete all cast secret ballot votes, reset voter participation records, and re-open polling for fresh voting test.')) {
+      return;
+    }
+    setProcessing(true);
+    try {
+      const res = await fetch(`${API_BASE}/elections/reset-votes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+        body: JSON.stringify({ election_id: electionData.cycle.id }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setActionMsg({ type: 'success', text: data.message });
+        loadElectionData();
+        setActiveStage('polling');
+      } else {
+        setActionMsg({ type: 'error', text: data.error });
+      }
+    } catch (err) {
+      setActionMsg({ type: 'error', text: err.message });
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  // 11. Completely Reset / Wipe All Election Data
+  const handleResetAll = async () => {
+    if (!window.confirm('⚠️ WARNING: This will completely delete ALL election cycles, audit reports, nominations, votes, and results from database, starting a brand new clean slate. Proceed?')) {
+      return;
+    }
+    setProcessing(true);
+    try {
+      const res = await fetch(`${API_BASE}/elections/reset-all`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+      });
+      const data = await res.json();
+      if (data.success) {
+        setActionMsg({ type: 'success', text: data.message });
+        setElectionData(null);
+      } else {
+        setActionMsg({ type: 'error', text: data.error });
+      }
+    } catch (err) {
+      setActionMsg({ type: 'error', text: err.message });
+    } finally {
+      setProcessing(false);
+    }
+  };
+
   // Print Official Certificate
   const handlePrintCertificate = (result) => {
     const printWin = window.open('', '_blank');
@@ -586,14 +639,65 @@ export default function ElectionCommandDesk({ token, currentUser, isSuperAdmin, 
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
           <button
             type="button"
             onClick={loadElectionData}
             className={styles.refreshBtn}
+            disabled={processing}
           >
-            🔄 Refresh Status
+            🔄 Refresh
           </button>
+
+          {canManageElection && (
+            <>
+              <button
+                type="button"
+                onClick={handleResetVotes}
+                disabled={processing}
+                style={{
+                  background: '#fff7ed',
+                  border: '1px solid #fdba74',
+                  color: '#c2410c',
+                  padding: '8px 14px',
+                  borderRadius: '8px',
+                  fontSize: '0.82rem',
+                  fontWeight: '800',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                }}
+                title="Clear all cast secret votes & reset voter status to test voting again"
+              >
+                🔄 Re-Test Polling (Clear Votes)
+              </button>
+
+              <button
+                type="button"
+                onClick={handleResetAll}
+                disabled={processing}
+                style={{
+                  background: '#fef2f2',
+                  border: '1px solid #fca5a5',
+                  color: '#dc2626',
+                  padding: '8px 14px',
+                  borderRadius: '8px',
+                  fontSize: '0.82rem',
+                  fontWeight: '800',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                }}
+                title="Completely wipe all election cycles, audit reports, and results to start 100% fresh"
+              >
+                💥 Reset All (Fresh Start)
+              </button>
+            </>
+          )}
         </div>
       </div>
 
