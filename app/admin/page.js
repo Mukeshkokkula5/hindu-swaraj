@@ -1469,6 +1469,10 @@ export default function AdminPage() {
   const [sponsorLogoPreview, setSponsorLogoPreview] = useState("");
   const [showAddDayModal, setShowAddDayModal] = useState(false);
   const [showAddSponsorModal, setShowAddSponsorModal] = useState(false);
+  const [showEditNavaratriPostModal, setShowEditNavaratriPostModal] = useState(false);
+  const [editingNavaratriPost, setEditingNavaratriPost] = useState(null);
+  const [editPostImagePreview, setEditPostImagePreview] = useState("");
+  const [editPostUploading, setEditPostUploading] = useState(false);
   const [newNavaratriPost, setNewNavaratriPost] = useState({
     day_number: 1,
     title: "",
@@ -2376,6 +2380,71 @@ export default function AdminPage() {
         }
       },
     });
+  };
+
+  const handleOpenEditNavaratriPost = (post) => {
+    setEditingNavaratriPost({
+      id: post.id,
+      day_number: post.day_number || 1,
+      title: post.title || "",
+      description: post.description || "",
+      image_url: post.image_url || "/images/navaratri-ganesha.jpg",
+      category: post.category || "Puja & Darshan",
+    });
+    setEditPostImagePreview(post.image_url || "/images/navaratri-ganesha.jpg");
+    setShowEditNavaratriPostModal(true);
+  };
+
+  const handleUploadEditPostImage = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setEditPostUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("photo", file);
+      const token = localStorage.getItem("admin_token");
+      const res = await fetch(`${API_BASE_URL}/navaratri/upload`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Upload failed");
+      }
+      const rawUrl = data.photo_url || data.imageUrl || data.url || "";
+      const uploadedUrl = (rawUrl.startsWith("http") || rawUrl.startsWith("data:") || rawUrl.startsWith("blob:"))
+        ? rawUrl
+        : `${API_BASE_URL}${rawUrl.startsWith("/") ? rawUrl : `/${rawUrl}`}`;
+      setEditingNavaratriPost((prev) => ({ ...prev, image_url: uploadedUrl }));
+      setEditPostImagePreview(uploadedUrl);
+    } catch (err) {
+      alert("Failed to upload image: " + err.message);
+    } finally {
+      setEditPostUploading(false);
+    }
+  };
+
+  const handleUpdateNavaratriPost = async (e) => {
+    e.preventDefault();
+    if (!editingNavaratriPost || !editingNavaratriPost.title || !editingNavaratriPost.image_url) return;
+    setNavaratriLoading(true);
+    setNavaratriMessage("");
+    try {
+      await fetchAPI(`/navaratri/posts/${editingNavaratriPost.id}`, {
+        method: "PUT",
+        body: JSON.stringify(editingNavaratriPost),
+      });
+      setNavaratriMessage("✅ Photo update edited successfully!");
+      setShowEditNavaratriPostModal(false);
+      setEditingNavaratriPost(null);
+      setEditPostImagePreview("");
+      loadNavaratriAdminData();
+    } catch (err) {
+      setNavaratriMessage("❌ Failed to update post: " + err.message);
+    } finally {
+      setNavaratriLoading(false);
+    }
   };
 
   const handleCreateScheduleDay = async (e) => {
@@ -16361,7 +16430,14 @@ _This is an official computer-generated receipt._`;
                               <h4 style={{ fontSize: "0.95rem", fontWeight: "700", color: "#1e293b", marginBottom: "6px" }}>{post.title}</h4>
                               <p style={{ fontSize: "0.82rem", color: "#64748b", lineHeight: "1.4" }}>{post.description}</p>
                             </div>
-                            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "12px", paddingTop: "8px", borderTop: "1px solid #f1f5f9" }}>
+                            <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px", marginTop: "12px", paddingTop: "8px", borderTop: "1px solid #f1f5f9" }}>
+                              <button
+                                type="button"
+                                onClick={() => handleOpenEditNavaratriPost(post)}
+                                style={{ background: "#f8fafc", color: "#0f172a", border: "1px solid #cbd5e1", padding: "5px 12px", borderRadius: "6px", fontSize: "0.8rem", fontWeight: "700", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: "4px" }}
+                              >
+                                ✏️ Edit Post
+                              </button>
                               <button
                                 type="button"
                                 onClick={() => handleDeleteNavaratriPost(post.id)}
@@ -26246,6 +26322,181 @@ _This is an official computer-generated receipt._`;
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {/* --- ✏️ EDIT NAVARATRI POST MODAL --- */}
+      {showEditNavaratriPostModal && editingNavaratriPost && (
+        <div className="modalBackdrop" style={{ zIndex: 100000 }}>
+          <div className="modalContent" style={{ maxWidth: "560px" }}>
+            <div className="modalHeader">
+              <div>
+                <h3 className="modalTitle" style={{ fontSize: "1.2rem", fontWeight: "800", color: "#1e293b", margin: 0, display: "flex", alignItems: "center", gap: "8px" }}>
+                  <span>✏️</span> Edit Navaratri Photo Update
+                </h3>
+                <p style={{ margin: "3px 0 0 0", fontSize: "0.78rem", color: "#64748b" }}>
+                  Update title, day number, category, description, and photo for this festival update.
+                </p>
+              </div>
+              <button
+                type="button"
+                className="closeBtn"
+                onClick={() => {
+                  setShowEditNavaratriPostModal(false);
+                  setEditingNavaratriPost(null);
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateNavaratriPost} style={{ display: "flex", flexDirection: "column", gap: "16px", marginTop: "14px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: "14px" }}>
+                <div className="formGroup" style={{ marginBottom: 0 }}>
+                  <label className="formLabel" style={{ fontWeight: "700" }}>Festival Day *</label>
+                  <select
+                    className="inputField"
+                    value={editingNavaratriPost.day_number}
+                    onChange={(e) => setEditingNavaratriPost({ ...editingNavaratriPost, day_number: Number(e.target.value) })}
+                    style={{ background: "#ffffff" }}
+                  >
+                    {[...Array(11)].map((_, i) => (
+                      <option key={i + 1} value={i + 1}>
+                        Day {i + 1} ({14 + i} Sep)
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="formGroup" style={{ marginBottom: 0 }}>
+                  <label className="formLabel" style={{ fontWeight: "700" }}>Category *</label>
+                  <select
+                    className="inputField"
+                    value={editingNavaratriPost.category}
+                    onChange={(e) => setEditingNavaratriPost({ ...editingNavaratriPost, category: e.target.value })}
+                    style={{ background: "#ffffff" }}
+                  >
+                    <option value="Puja & Darshan">Puja &amp; Darshan</option>
+                    <option value="Maha Aarti">Maha Aarti</option>
+                    <option value="Annadanam Seva">Annadanam Seva</option>
+                    <option value="Volunteers">Volunteers &amp; Cultural</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="formGroup" style={{ marginBottom: 0 }}>
+                <label className="formLabel" style={{ fontWeight: "700" }}>Post Title *</label>
+                <input
+                  type="text"
+                  required
+                  className="inputField"
+                  placeholder="e.g. 2nd Day - Divya Sahasranamarchana"
+                  value={editingNavaratriPost.title}
+                  onChange={(e) => setEditingNavaratriPost({ ...editingNavaratriPost, title: e.target.value })}
+                />
+              </div>
+
+              {/* Photo Upload & Preview */}
+              <div className="formGroup" style={{ marginBottom: 0 }}>
+                <label className="formLabel" style={{ fontWeight: "700" }}>Update Photo (Upload File or Presets)</label>
+                <div style={{ display: "grid", gridTemplateColumns: "1.2fr 0.8fr", gap: "14px", alignItems: "center" }}>
+                  <div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleUploadEditPostImage}
+                      style={{ fontSize: "0.85rem", marginBottom: "8px" }}
+                    />
+                    {editPostUploading && <div style={{ fontSize: "0.78rem", color: "#ff6b00", fontWeight: "700" }}>Uploading...</div>}
+                    
+                    <input
+                      type="text"
+                      required
+                      className="inputField"
+                      placeholder="Image URL or local path"
+                      value={editingNavaratriPost.image_url}
+                      onChange={(e) => {
+                        setEditingNavaratriPost({ ...editingNavaratriPost, image_url: e.target.value });
+                        setEditPostImagePreview(e.target.value);
+                      }}
+                      style={{ marginBottom: 0, fontSize: "0.82rem" }}
+                    />
+
+                    <div style={{ display: "flex", gap: "6px", marginTop: "6px" }}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingNavaratriPost({ ...editingNavaratriPost, image_url: "/images/navaratri-ganesha.jpg" });
+                          setEditPostImagePreview("/images/navaratri-ganesha.jpg");
+                        }}
+                        style={{ fontSize: "0.7rem", padding: "2px 6px", borderRadius: "4px", border: "1px solid #cbd5e1", background: "#fff", cursor: "pointer" }}
+                      >
+                        Ganesha
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingNavaratriPost({ ...editingNavaratriPost, image_url: "/images/navaratri-aarti.jpg" });
+                          setEditPostImagePreview("/images/navaratri-aarti.jpg");
+                        }}
+                        style={{ fontSize: "0.7rem", padding: "2px 6px", borderRadius: "4px", border: "1px solid #cbd5e1", background: "#fff", cursor: "pointer" }}
+                      >
+                        Aarti
+                      </button>
+                    </div>
+                  </div>
+
+                  <div style={{ textAlign: "center" }}>
+                    <div style={{ width: "100%", height: "95px", borderRadius: "8px", overflow: "hidden", border: "1px solid #cbd5e1", background: "#000" }}>
+                      <img
+                        src={editPostImagePreview || editingNavaratriPost.image_url || "/images/navaratri-ganesha.jpg"}
+                        alt="Preview"
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = "/images/navaratri-ganesha.jpg";
+                        }}
+                      />
+                    </div>
+                    <span style={{ fontSize: "0.7rem", color: "#64748b", marginTop: "2px", display: "block" }}>Photo Preview</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="formGroup" style={{ marginBottom: 0 }}>
+                <label className="formLabel" style={{ fontWeight: "700" }}>Description / Details</label>
+                <textarea
+                  className="inputField"
+                  rows="3"
+                  placeholder="Provide details about the puja, offerings, or activities..."
+                  value={editingNavaratriPost.description}
+                  onChange={(e) => setEditingNavaratriPost({ ...editingNavaratriPost, description: e.target.value })}
+                  style={{ resize: "none" }}
+                />
+              </div>
+
+              <div className="modalFooter" style={{ borderTop: "1px solid #e2e8f0", paddingTop: "14px", marginTop: "8px" }}>
+                <button
+                  type="button"
+                  className="btnCancel"
+                  onClick={() => {
+                    setShowEditNavaratriPostModal(false);
+                    setEditingNavaratriPost(null);
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={navaratriLoading || editPostUploading}
+                  className="btnSubmit"
+                  style={{ background: "#ff6b00", borderColor: "#ff6b00", fontWeight: "700" }}
+                >
+                  {navaratriLoading ? "Saving..." : "💾 Save Changes"}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 
