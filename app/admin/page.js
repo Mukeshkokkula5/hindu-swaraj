@@ -1152,6 +1152,13 @@ export default function AdminPage() {
   const [selectedConcessionMonth, setSelectedConcessionMonth] = useState("");
   const [concessionActionLoading, setConcessionActionLoading] = useState(false);
 
+  // 📱 WhatsApp Gateway & Automated Bot State
+  const [waStatus, setWaStatus] = useState({ isConnected: false, status: "DISCONNECTED", qrCodeDataUrl: null, connectedPhoneNumber: "" });
+  const [waLoading, setWaLoading] = useState(false);
+  const [waTestPhone, setWaTestPhone] = useState("");
+  const [waTestMsg, setWaTestMsg] = useState("");
+  const [waSendingTest, setWaSendingTest] = useState(false);
+
   // Treasury, Cash vs Bank Reconciliation, Monthly Balance Sheet & Vendors Suite
   const [treasurySummary, setTreasurySummary] = useState(null);
   const [treasuryLoading, setTreasuryLoading] = useState(false);
@@ -3691,6 +3698,69 @@ export default function AdminPage() {
       alert("❌ Failed to toggle concession: " + err.message);
     } finally {
       setConcessionActionLoading(false);
+    }
+  };
+
+  // 📱 WhatsApp Automated Gateway Handlers
+  const loadWhatsAppStatus = async () => {
+    try {
+      const res = await fetchAPI("/whatsapp/status");
+      if (res) setWaStatus(res);
+    } catch (err) {
+      console.warn("WhatsApp status notice:", err);
+    }
+  };
+
+  const handleInitWhatsApp = async (forceNew = false) => {
+    setWaLoading(true);
+    try {
+      const res = await fetchAPI("/whatsapp/init", {
+        method: "POST",
+        body: JSON.stringify({ forceNew }),
+      });
+      if (res) setWaStatus(res);
+    } catch (err) {
+      alert("❌ Error initializing WhatsApp Gateway: " + err.message);
+    } finally {
+      setWaLoading(false);
+    }
+  };
+
+  const handleLogoutWhatsApp = async () => {
+    if (!confirm("Are you sure you want to unlink the WhatsApp Gateway session?")) return;
+    setWaLoading(true);
+    try {
+      const res = await fetchAPI("/whatsapp/logout", { method: "POST" });
+      if (res) setWaStatus(res);
+      alert("🔒 WhatsApp Gateway unlinked successfully.");
+    } catch (err) {
+      alert("❌ Error unlinking WhatsApp: " + err.message);
+    } finally {
+      setWaLoading(false);
+    }
+  };
+
+  const handleSendTestWhatsApp = async (e) => {
+    if (e) e.preventDefault();
+    if (!waTestPhone.trim()) {
+      alert("Please enter a 10-digit mobile number to test WhatsApp delivery.");
+      return;
+    }
+    setWaSendingTest(true);
+    try {
+      const res = await fetchAPI("/whatsapp/send-test", {
+        method: "POST",
+        body: JSON.stringify({
+          phone: waTestPhone.trim(),
+          message: waTestMsg.trim(),
+        }),
+      });
+      alert(res.message || "✅ WhatsApp test message delivered successfully!");
+      setWaTestMsg("");
+    } catch (err) {
+      alert("❌ Failed to send WhatsApp message: " + err.message);
+    } finally {
+      setWaSendingTest(false);
     }
   };
 
@@ -11970,6 +12040,242 @@ _This is an official computer-generated receipt._`;
                         {savingSubSettings ? "Saving Settings..." : "💾 Save Subscription Policy"}
                       </button>
                     </form>
+                  </div>
+                )}
+
+                {/* 📱 WHATSAPP AUTOMATED GATEWAY CONTROL DESK (SUPER ADMIN & EXECUTIVE BEARERS) */}
+                {isFullAdmin && (
+                  <div
+                    className="panelCard"
+                    style={{
+                      background: waStatus.isConnected ? "#f0fdf4" : "#ffffff",
+                      border: `2px solid ${waStatus.isConnected ? "#86efac" : "#fed7aa"}`,
+                      borderRadius: "14px",
+                      padding: "20px 24px",
+                      marginBottom: "24px",
+                      boxShadow: "0 4px 14px rgba(22, 163, 74, 0.08)",
+                    }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px", marginBottom: "14px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                        <div
+                          style={{
+                            width: "48px",
+                            height: "48px",
+                            borderRadius: "12px",
+                            background: waStatus.isConnected ? "#dcfce7" : "#fff7ed",
+                            border: `1px solid ${waStatus.isConnected ? "#86efac" : "#fdba74"}`,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: "1.6rem",
+                          }}
+                        >
+                          💬
+                        </div>
+                        <div>
+                          <h3 style={{ margin: 0, fontSize: "1.15rem", fontWeight: "900", color: "#14532d", display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                            <span>WhatsApp Automated Background Gateway</span>
+                            <span
+                              style={{
+                                fontSize: "0.72rem",
+                                fontWeight: "900",
+                                padding: "3px 10px",
+                                borderRadius: "12px",
+                                background: waStatus.isConnected ? "#16a34a" : waStatus.status === "SCAN_QR_CODE" ? "#ea580c" : "#64748b",
+                                color: "#fff",
+                              }}
+                            >
+                              {waStatus.isConnected
+                                ? `🟢 ONLINE (+91 ${waStatus.connectedPhoneNumber || "Linked"})`
+                                : waStatus.status === "SCAN_QR_CODE"
+                                  ? "🟡 SCAN QR CODE NOW"
+                                  : "🔴 OFFLINE"}
+                            </span>
+                          </h3>
+                          <p style={{ margin: "2px 0 0 0", fontSize: "0.8rem", color: "#475569" }}>
+                            {waStatus.isConnected
+                              ? "All Emergency Blood SOS alerts, monthly dues reminders, and payment receipts will be sent automatically in background without opening WhatsApp."
+                              : "Link your association WhatsApp number once. The server will silently send formatted templates to members."}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                        <button
+                          type="button"
+                          onClick={loadWhatsAppStatus}
+                          disabled={waLoading}
+                          style={{
+                            background: "#fff",
+                            border: "1px solid #cbd5e1",
+                            color: "#334155",
+                            padding: "6px 12px",
+                            borderRadius: "6px",
+                            fontSize: "0.78rem",
+                            fontWeight: "700",
+                            cursor: "pointer",
+                          }}
+                        >
+                          🔄 Refresh Status
+                        </button>
+
+                        {!waStatus.isConnected && (
+                          <button
+                            type="button"
+                            onClick={() => handleInitWhatsApp(true)}
+                            disabled={waLoading}
+                            style={{
+                              background: "linear-gradient(135deg, #16a34a 0%, #15803d 100%)",
+                              color: "#fff",
+                              border: "none",
+                              padding: "6px 16px",
+                              borderRadius: "6px",
+                              fontSize: "0.8rem",
+                              fontWeight: "800",
+                              cursor: waLoading ? "not-allowed" : "pointer",
+                              boxShadow: "0 2px 6px rgba(22, 163, 74, 0.25)",
+                            }}
+                          >
+                            {waLoading ? "Generating QR..." : "📲 Connect WhatsApp (Scan QR)"}
+                          </button>
+                        )}
+
+                        {waStatus.isConnected && (
+                          <button
+                            type="button"
+                            onClick={handleLogoutWhatsApp}
+                            disabled={waLoading}
+                            style={{
+                              background: "#fee2e2",
+                              border: "1px solid #fca5a5",
+                              color: "#b91c1c",
+                              padding: "6px 12px",
+                              borderRadius: "6px",
+                              fontSize: "0.78rem",
+                              fontWeight: "700",
+                              cursor: "pointer",
+                            }}
+                          >
+                            🔒 Disconnect
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* QR CODE SCANNING VIEW */}
+                    {waStatus.status === "SCAN_QR_CODE" && waStatus.qrCodeDataUrl && (
+                      <div
+                        style={{
+                          background: "#fff",
+                          border: "2px dashed #16a34a",
+                          borderRadius: "12px",
+                          padding: "20px",
+                          textAlign: "center",
+                          margin: "14px 0",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          gap: "12px",
+                        }}
+                      >
+                        <div style={{ fontSize: "1rem", fontWeight: "800", color: "#166534" }}>
+                          📲 Point Your Phone Camera to Link WhatsApp:
+                        </div>
+                        <p style={{ margin: 0, fontSize: "0.84rem", color: "#475569", maxWidth: "480px", lineHeight: "1.5" }}>
+                          1. Open <b>WhatsApp</b> on your phone.<br />
+                          2. Tap <b>Settings</b> / Menu (<b>⋮</b>) &gt; <b>Linked Devices</b> &gt; <b>Link a Device</b>.<br />
+                          3. Point your camera at this QR code to connect.
+                        </p>
+
+                        <img
+                          src={waStatus.qrCodeDataUrl}
+                          alt="WhatsApp QR Code"
+                          style={{ width: "220px", height: "220px", borderRadius: "10px", border: "2px solid #16a34a" }}
+                        />
+
+                        <button
+                          type="button"
+                          onClick={() => handleInitWhatsApp(true)}
+                          style={{
+                            background: "#f0fdf4",
+                            border: "1px solid #86efac",
+                            color: "#15803d",
+                            padding: "6px 16px",
+                            borderRadius: "6px",
+                            fontSize: "0.8rem",
+                            fontWeight: "700",
+                            cursor: "pointer",
+                          }}
+                        >
+                          🔄 Refresh QR Code
+                        </button>
+                      </div>
+                    )}
+
+                    {/* TEST SENDER / STATUS BAR */}
+                    {waStatus.isConnected && (
+                      <div
+                        style={{
+                          background: "#ffffff",
+                          border: "1px solid #dcfce7",
+                          borderRadius: "10px",
+                          padding: "14px 18px",
+                          marginTop: "10px",
+                        }}
+                      >
+                        <div style={{ fontSize: "0.84rem", fontWeight: "800", color: "#166534", marginBottom: "8px" }}>
+                          🚀 Send Quick Direct Test WhatsApp Message:
+                        </div>
+                        <form onSubmit={handleSendTestWhatsApp} style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                          <input
+                            type="tel"
+                            placeholder="Recipient Mobile (e.g. 9848012345)"
+                            value={waTestPhone}
+                            onChange={(e) => setWaTestPhone(e.target.value)}
+                            style={{
+                              padding: "7px 12px",
+                              border: "1px solid #cbd5e1",
+                              borderRadius: "6px",
+                              fontSize: "0.84rem",
+                              minWidth: "220px",
+                              fontWeight: "600",
+                            }}
+                            required
+                          />
+                          <input
+                            type="text"
+                            placeholder="Custom Test Message (Optional)"
+                            value={waTestMsg}
+                            onChange={(e) => setWaTestMsg(e.target.value)}
+                            style={{
+                              padding: "7px 12px",
+                              border: "1px solid #cbd5e1",
+                              borderRadius: "6px",
+                              fontSize: "0.84rem",
+                              flex: 1,
+                              minWidth: "240px",
+                            }}
+                          />
+                          <button
+                            type="submit"
+                            disabled={waSendingTest}
+                            style={{
+                              background: "#16a34a",
+                              color: "#fff",
+                              border: "none",
+                              padding: "7px 18px",
+                              borderRadius: "6px",
+                              fontSize: "0.82rem",
+                              fontWeight: "800",
+                              cursor: waSendingTest ? "not-allowed" : "pointer",
+                            }}
+                          >
+                            {waSendingTest ? "Sending..." : "📨 Send WhatsApp"}
+                          </button>
+                        </form>
+                      </div>
+                    )}
                   </div>
                 )}
 
