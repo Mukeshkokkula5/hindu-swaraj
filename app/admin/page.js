@@ -12567,36 +12567,25 @@ _This is an official computer-generated receipt._`;
                                       <button
                                         type="button"
                                         onClick={() => handleSendSubReminder(m.user_id, false)}
+                                        disabled={sendingSubReminder}
                                         style={{
-                                          background: "#fef3c7",
-                                          border: "1px solid #fde68a",
-                                          color: "#b45309",
-                                          padding: "4px 8px",
+                                          background: "linear-gradient(135deg, #16a34a 0%, #15803d 100%)",
+                                          color: "#fff",
+                                          border: "none",
+                                          padding: "5px 12px",
                                           borderRadius: "6px",
-                                          fontSize: "0.74rem",
-                                          fontWeight: "700",
-                                          cursor: "pointer",
+                                          fontSize: "0.75rem",
+                                          fontWeight: "800",
+                                          cursor: sendingSubReminder ? "not-allowed" : "pointer",
+                                          boxShadow: "0 2px 6px rgba(22, 163, 74, 0.25)",
+                                          display: "inline-flex",
+                                          alignItems: "center",
+                                          gap: "5px",
                                         }}
-                                        title="Send in-portal notification reminder"
+                                        title="Send instant automatic WhatsApp reminder directly in background without opening any tab"
                                       >
-                                        🔔 Notify
-                                      </button>
-                                      <button
-                                        type="button"
-                                        onClick={() => handleOpenWhatsAppReminder(m)}
-                                        style={{
-                                          background: "#dcfce7",
-                                          border: "1px solid #86efac",
-                                          color: "#15803d",
-                                          padding: "4px 8px",
-                                          borderRadius: "6px",
-                                          fontSize: "0.74rem",
-                                          fontWeight: "700",
-                                          cursor: "pointer",
-                                        }}
-                                        title="Open WhatsApp reminder in single tab"
-                                      >
-                                        💬 WhatsApp
+                                        <span>💬</span>
+                                        <span>{sendingSubReminder ? "Sending..." : "Send WhatsApp"}</span>
                                       </button>
                                     </>
                                   )}
