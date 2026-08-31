@@ -16340,7 +16340,15 @@ _This is an official computer-generated receipt._`;
                       {navaratriPosts.map((post) => (
                         <div key={post.id} style={{ border: "1px solid #e2e8f0", borderRadius: "12px", overflow: "hidden", background: "#fff", display: "flex", flexDirection: "column" }}>
                           <div style={{ height: "160px", position: "relative", background: "#000" }}>
-                            <img src={post.image_url} alt={post.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                            <img
+                              src={post.image_url?.startsWith("http") || post.image_url?.startsWith("data:") ? post.image_url : (post.image_url?.startsWith("/uploads/") ? `${API_BASE_URL}${post.image_url}` : post.image_url || "/images/navaratri-ganesha.jpg")}
+                              alt={post.title}
+                              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                              onError={(e) => {
+                                e.currentTarget.onerror = null;
+                                e.currentTarget.src = "/images/navaratri-ganesha.jpg";
+                              }}
+                            />
                             <span style={{ position: "absolute", top: 8, left: 8, background: "rgba(0,0,0,0.8)", color: "#fff", padding: "3px 8px", borderRadius: "4px", fontSize: "0.75rem", fontWeight: "700" }}>
                               Day {post.day_number}
                             </span>

@@ -8,7 +8,7 @@ import styles from "./page.module.css";
 const API_BASE = (
   process.env.NEXT_PUBLIC_API_BASE_URL ||
   process.env.NEXT_PUBLIC_API_URL ||
-  "http://localhost:4000"
+  "https://hindu-backend-beta.vercel.app"
 ).replace(/\/$/, "");
 
 const getMediaUrl = (url, fallback = "/images/navaratri-ganesha.jpg") => {
@@ -21,6 +21,9 @@ const getMediaUrl = (url, fallback = "/images/navaratri-ganesha.jpg") => {
   }
   if (trimmed.startsWith("uploads/")) {
     return `${API_BASE}/${trimmed}`;
+  }
+  if (trimmed.startsWith("/images/")) {
+    return trimmed;
   }
   if (trimmed.startsWith("/")) {
     return trimmed;
@@ -250,6 +253,16 @@ const DEFAULT_POSTS = [
     image_url: "/images/navaratri-aarti.jpg",
     category: "Maha Aarti",
     created_at: "2026-09-14T19:30:00.000Z",
+  },
+  {
+    id: 3,
+    day_number: 2,
+    title: "2nd Day - Divya Sahasranamarchana & Maha Aarti",
+    description:
+      "Special Laksha Modaka puja and grand evening Aarti with Jagtial devotees.",
+    image_url: "/images/navaratri-aarti.jpg",
+    category: "Maha Aarti",
+    created_at: "2026-09-15T19:30:00.000Z",
   },
 ];
 
@@ -1348,10 +1361,14 @@ export default function NavaratriPage() {
 
           <div className={styles.heroImageWrap}>
             <img
-              src={getMediaUrl(settings.banner_image)}
+              src={getMediaUrl(settings.banner_image, "/images/navaratri-ganesha.jpg")}
               alt="Jagtial Maha Ganapathi Darshan"
               className={styles.heroImage}
               style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = "/images/navaratri-ganesha.jpg";
+              }}
             />
             <div className={styles.heroImageOverlay}>
               <div className={styles.darshanLocation}>
@@ -2112,9 +2129,13 @@ export default function NavaratriPage() {
             >
               <div className={styles.photoImgWrapper}>
                 <img
-                  src={getMediaUrl(post.image_url)}
+                  src={getMediaUrl(post.image_url, post.category === "Maha Aarti" ? "/images/navaratri-aarti.jpg" : "/images/navaratri-ganesha.jpg")}
                   alt={post.title}
                   className={styles.photoImg}
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = post.category === "Maha Aarti" ? "/images/navaratri-aarti.jpg" : "/images/navaratri-ganesha.jpg";
+                  }}
                 />
                 <span className={styles.photoDayBadge}>Day {post.day_number}</span>
                 <span className={styles.photoCategoryBadge}>{post.category}</span>
@@ -2178,9 +2199,13 @@ export default function NavaratriPage() {
 
                 <div className={styles.commercialBodyCompact}>
                   <img
-                    src={getMediaUrl(currentAd.logo_url)}
+                    src={getMediaUrl(currentAd.logo_url, "/images/navaratri-ganesha.jpg")}
                     alt={currentAd.name}
                     className={styles.commercialLogoCompact}
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = "/images/navaratri-ganesha.jpg";
+                    }}
                   />
                   <div style={{ flex: 1 }}>
                     {currentAd.offer_badge && (
@@ -2508,9 +2533,13 @@ export default function NavaratriPage() {
               ✕
             </button>
             <img
-              src={getMediaUrl(activeLightbox.image_url)}
+              src={getMediaUrl(activeLightbox.image_url, activeLightbox.category === "Maha Aarti" ? "/images/navaratri-aarti.jpg" : "/images/navaratri-ganesha.jpg")}
               alt={activeLightbox.title}
               className={styles.lightboxImage}
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = activeLightbox.category === "Maha Aarti" ? "/images/navaratri-aarti.jpg" : "/images/navaratri-ganesha.jpg";
+              }}
             />
             <div className={styles.lightboxBody}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
