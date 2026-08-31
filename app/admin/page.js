@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import DonationSection from "../../components/DonationSection";
 import AapadbandhavaAdminTab from "../../components/AapadbandhavaAdminTab";
@@ -994,6 +994,17 @@ export default function AdminPage() {
   const [forgotError, setForgotError] = useState("");
   const [forgotSuccess, setForgotSuccess] = useState("");
   const [forgotCountdown, setForgotCountdown] = useState(0);
+
+  // ⏱️ Idle Session Auto-Logout (30-Minute Inactivity Timeout)
+  const IDLE_TIMEOUT_MS = 30 * 60 * 1000; // 30 mins
+  const WARNING_BEFORE_MS = 2 * 60 * 1000; // 2 mins warning (starts at 28 mins)
+  const [idleWarningSeconds, setIdleWarningSeconds] = useState(0);
+  const lastActivityRef = useRef(Date.now());
+
+  const resetActivityTimer = useCallback(() => {
+    lastActivityRef.current = Date.now();
+    setIdleWarningSeconds((prev) => (prev > 0 ? 0 : prev));
+  }, []);
 
   // Dashboard state (Preserves Current Tab Across Refresh)
   const [activeTab, setActiveTab] = useState(() => {
@@ -4920,6 +4931,45 @@ export default function AdminPage() {
     return () => clearInterval(timer);
   }, [changePwdCountdown]);
 
+  // ⏱️ Global Inactivity Auto-Logout Tracker (30-Minute Inactivity Timeout)
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    lastActivityRef.current = Date.now();
+    const events = ["mousedown", "mousemove", "keydown", "scroll", "touchstart", "click"];
+    let throttleTimeout = null;
+
+    const handleUserActivity = () => {
+      if (!throttleTimeout) {
+        throttleTimeout = setTimeout(() => {
+          throttleTimeout = null;
+          lastActivityRef.current = Date.now();
+          setIdleWarningSeconds((prev) => (prev > 0 ? 0 : prev));
+        }, 1000);
+      }
+    };
+
+    events.forEach((evt) => window.addEventListener(evt, handleUserActivity, { passive: true }));
+
+    const checkInterval = setInterval(() => {
+      const elapsed = Date.now() - lastActivityRef.current;
+      if (elapsed >= IDLE_TIMEOUT_MS) {
+        handleLogout("🔒 Your session was automatically logged out due to 30 minutes of inactivity to protect your account. Please log in again.");
+      } else if (elapsed >= IDLE_TIMEOUT_MS - WARNING_BEFORE_MS) {
+        const remaining = Math.max(1, Math.round((IDLE_TIMEOUT_MS - elapsed) / 1000));
+        setIdleWarningSeconds(remaining);
+      } else {
+        setIdleWarningSeconds((prev) => (prev > 0 ? 0 : prev));
+      }
+    }, 2000);
+
+    return () => {
+      events.forEach((evt) => window.removeEventListener(evt, handleUserActivity));
+      clearInterval(checkInterval);
+      if (throttleTimeout) clearTimeout(throttleTimeout);
+    };
+  }, [isAuthenticated]);
+
   const handleSendOtp = async (e) => {
     if (e) e.preventDefault();
     if (!forgotIdentifier.trim()) {
@@ -5014,14 +5064,22 @@ export default function AdminPage() {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = (customMsg = "") => {
     setIsAuthenticated(false);
     setUserRole("");
     setCurrentUser(null);
     setIdCardProfile(null);
-    localStorage.removeItem("admin_auth");
-    localStorage.removeItem("admin_token");
-    localStorage.removeItem("admin_role");
+    setIdleWarningSeconds(0);
+    try {
+      localStorage.removeItem("admin_auth");
+      localStorage.removeItem("admin_token");
+      localStorage.removeItem("admin_role");
+      localStorage.removeItem("admin_user");
+      localStorage.removeItem("hsy_active_tab");
+    } catch (_) {}
+    if (customMsg && typeof customMsg === "string") {
+      setLoginError(customMsg);
+    }
   };
 
   const handleAddMember = async (e) => {
@@ -22151,6 +22209,101 @@ _This is an official computer-generated receipt._`;
                 {firstLoginLoading ? "⏳ Saving Password..." : "🔒 Set Password & Continue to Dashboard"}
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* --- ⏱️ IDLE INACTIVITY WARNING BANNER --- */}
+      {isAuthenticated && idleWarningSeconds > 0 && (
+        <div
+          style={{
+            position: "fixed",
+            bottom: "24px",
+            right: "24px",
+            zIndex: 999999,
+            background: "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)",
+            color: "#ffffff",
+            padding: "16px 20px",
+            borderRadius: "14px",
+            boxShadow: "0 20px 40px -10px rgba(0, 0, 0, 0.5), 0 0 0 2px #ea580c",
+            display: "flex",
+            alignItems: "center",
+            gap: "16px",
+            maxWidth: "460px",
+          }}
+        >
+          <div
+            style={{
+              width: "44px",
+              height: "44px",
+              borderRadius: "50%",
+              background: "#fee2e2",
+              border: "2px solid #ef4444",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "1.4rem",
+              flexShrink: 0,
+            }}
+          >
+            ⏳
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontWeight: "800", fontSize: "0.92rem", color: "#fdba74", display: "flex", alignItems: "center", gap: "6px" }}>
+              <span>⚠️ Inactivity Auto-Logout</span>
+              <span
+                style={{
+                  background: "#dc2626",
+                  color: "#ffffff",
+                  padding: "2px 8px",
+                  borderRadius: "10px",
+                  fontSize: "0.78rem",
+                  fontFamily: "monospace",
+                  fontWeight: "900",
+                }}
+              >
+                {idleWarningSeconds}s
+              </span>
+            </div>
+            <p style={{ margin: "4px 0 0 0", fontSize: "0.78rem", color: "#cbd5e1", lineHeight: "1.35" }}>
+              Session will terminate to protect your account. Click to stay signed in.
+            </p>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+            <button
+              type="button"
+              onClick={resetActivityTimer}
+              style={{
+                background: "linear-gradient(135deg, #ea580c 0%, #c2410c 100%)",
+                color: "#ffffff",
+                border: "none",
+                padding: "8px 14px",
+                borderRadius: "8px",
+                fontSize: "0.82rem",
+                fontWeight: "800",
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+                boxShadow: "0 2px 8px rgba(234, 88, 12, 0.4)",
+              }}
+            >
+              Stay Logged In
+            </button>
+            <button
+              type="button"
+              onClick={() => handleLogout("You have logged out.")}
+              style={{
+                background: "transparent",
+                color: "#94a3b8",
+                border: "1px solid #475569",
+                padding: "4px 8px",
+                borderRadius: "6px",
+                fontSize: "0.72rem",
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+              }}
+            >
+              Logout Now
+            </button>
           </div>
         </div>
       )}
