@@ -3718,7 +3718,29 @@ export default function AdminPage() {
         method: "POST",
         body: JSON.stringify({ forceNew }),
       });
-      if (res) setWaStatus(res);
+      if (res) {
+        setWaStatus(res);
+        if (res.status === "SCAN_QR_CODE" || res.qrCodeDataUrl) {
+          let attempts = 0;
+          const pollInterval = setInterval(async () => {
+            attempts++;
+            if (attempts > 35) {
+              clearInterval(pollInterval);
+              return;
+            }
+            try {
+              const check = await fetchAPI("/whatsapp/status");
+              if (check) {
+                setWaStatus(check);
+                if (check.isConnected) {
+                  clearInterval(pollInterval);
+                  alert("🎉 WhatsApp Gateway Connected Successfully to " + (check.connectedPhoneNumber || "device") + "!");
+                }
+              }
+            } catch (e) {}
+          }, 2500);
+        }
+      }
     } catch (err) {
       alert("❌ Error initializing WhatsApp Gateway: " + err.message);
     } finally {
