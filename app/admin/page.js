@@ -1149,6 +1149,7 @@ export default function AdminPage() {
   const [concessionLoading, setConcessionLoading] = useState(false);
   const [showConcessionModal, setShowConcessionModal] = useState(false);
   const [concessionReason, setConcessionReason] = useState("");
+  const [selectedConcessionMonth, setSelectedConcessionMonth] = useState("");
   const [concessionActionLoading, setConcessionActionLoading] = useState(false);
 
   // Treasury, Cash vs Bank Reconciliation, Monthly Balance Sheet & Vendors Suite
@@ -3601,7 +3602,8 @@ export default function AdminPage() {
     setConcessionLoading(true);
     try {
       const res = await fetchAPI("/subscriptions/concession/requests");
-      if (res && res.data) setConcessionRequests(res.data);
+      if (res && res.requests) setConcessionRequests(res.requests);
+      else if (res && res.data) setConcessionRequests(res.data);
     } catch (err) {
       console.warn("Failed to load concession requests:", err.message);
     } finally {
@@ -3615,13 +3617,17 @@ export default function AdminPage() {
       alert("Please provide a reason for your ₹116 concession request (e.g. Student, Unemployed, Financial Hardship).");
       return;
     }
+    const targetMonth = selectedConcessionMonth || subscriptionMonthFilter || (mySubscriptionStatus?.current_month) || new Date().toISOString().slice(0, 7);
     setConcessionActionLoading(true);
     try {
       const res = await fetchAPI("/subscriptions/concession/request", {
         method: "POST",
-        body: JSON.stringify({ reason: concessionReason.trim() }),
+        body: JSON.stringify({
+          reason: concessionReason.trim(),
+          month_year: targetMonth,
+        }),
       });
-      alert(res.message || "✅ Concession request submitted! The Executive Committee will review it.");
+      alert(res.message || `✅ Concession request for ${targetMonth} submitted! The Executive Committee will review it.`);
       setShowConcessionModal(false);
       setConcessionReason("");
       await loadMySubscriptionStatus();
@@ -3633,15 +3639,17 @@ export default function AdminPage() {
     }
   };
 
-  const handleApproveConcession = async (userId) => {
+  const handleApproveConcession = async (targetId, monthYear) => {
     setConcessionActionLoading(true);
     try {
-      const res = await fetchAPI(`/subscriptions/concession/${userId}/approve`, {
+      const res = await fetchAPI(`/subscriptions/concession/${targetId}/approve`, {
         method: "PUT",
+        body: JSON.stringify({ month_year: monthYear }),
       });
-      alert(res.message || "✅ Concession approved! Monthly fee set to ₹116.");
+      alert(res.message || `✅ Concession approved for ${monthYear || "month"}! Monthly fee set to ₹116.`);
       await loadConcessionRequests();
       await loadSubscriptionDuesMatrix(subscriptionMonthFilter);
+      await loadMySubscriptionStatus();
     } catch (err) {
       alert("❌ Failed to approve concession: " + err.message);
     } finally {
@@ -3649,17 +3657,18 @@ export default function AdminPage() {
     }
   };
 
-  const handleRejectConcession = async (userId) => {
+  const handleRejectConcession = async (targetId, monthYear) => {
     const reason = prompt("Enter reason for rejection (Optional):") || "";
     setConcessionActionLoading(true);
     try {
-      const res = await fetchAPI(`/subscriptions/concession/${userId}/reject`, {
+      const res = await fetchAPI(`/subscriptions/concession/${targetId}/reject`, {
         method: "PUT",
-        body: JSON.stringify({ reason }),
+        body: JSON.stringify({ reason, month_year: monthYear }),
       });
       alert(res.message || "Concession request rejected.");
       await loadConcessionRequests();
       await loadSubscriptionDuesMatrix(subscriptionMonthFilter);
+      await loadMySubscriptionStatus();
     } catch (err) {
       alert("❌ Failed to reject concession: " + err.message);
     } finally {
@@ -3667,15 +3676,17 @@ export default function AdminPage() {
     }
   };
 
-  const handleToggleConcession = async (userId) => {
+  const handleToggleConcession = async (targetId, monthYear) => {
     setConcessionActionLoading(true);
     try {
-      const res = await fetchAPI(`/subscriptions/concession/${userId}/toggle`, {
+      const res = await fetchAPI(`/subscriptions/concession/${targetId}/toggle`, {
         method: "PUT",
+        body: JSON.stringify({ month_year: monthYear || subscriptionMonthFilter }),
       });
       alert(res.message || "✅ Concession status toggled successfully!");
       await loadConcessionRequests();
       await loadSubscriptionDuesMatrix(subscriptionMonthFilter);
+      await loadMySubscriptionStatus();
     } catch (err) {
       alert("❌ Failed to toggle concession: " + err.message);
     } finally {
@@ -12270,7 +12281,7 @@ _This is an official computer-generated receipt._`;
                     <div>
                       <h3 style={{ fontSize: "1.1rem", fontWeight: "800", color: "#9a3412", margin: 0, display: "flex", alignItems: "center", gap: "8px" }}>
                         <span>🏷️</span>
-                        <span>Member Concession Applications (₹116/month Reduced Relief Dues)</span>
+                        <span>Member Concession Applications (₹116/month Per-Month Fee Relief)</span>
                         {concessionRequests.filter((r) => r.concession_status === "REQUESTED").length > 0 && (
                           <span style={{ background: "#ea580c", color: "#fff", fontSize: "0.74rem", fontWeight: "900", padding: "2px 8px", borderRadius: "12px" }}>
                             {concessionRequests.filter((r) => r.concession_status === "REQUESTED").length} PENDING APPROVAL
@@ -12278,7 +12289,7 @@ _This is an official computer-generated receipt._`;
                         )}
                       </h3>
                       <p style={{ fontSize: "0.8rem", color: "#64748b", margin: "2px 0 0 0" }}>
-                        Review student, job seeker &amp; financial hardship concession requests. Approved members pay ₹116 instead of standard ₹216.
+                        Review student, job seeker &amp; financial hardship monthly concession requests. Approved requests apply specifically to the <b>requested billing month</b> (₹116 instead of ₹216).
                       </p>
                     </div>
 
@@ -12305,7 +12316,7 @@ _This is an official computer-generated receipt._`;
                     <div style={{ padding: "24px", textAlign: "center", color: "#64748b", background: "#fffaf5", borderRadius: "8px", border: "1px dashed #fed7aa" }}>
                       <span style={{ fontSize: "1.5rem", display: "block", marginBottom: "4px" }}>🏷️</span>
                       <p style={{ margin: 0, fontSize: "0.85rem", fontWeight: "600" }}>No pending or processed concession requests.</p>
-                      <span style={{ fontSize: "0.78rem", color: "#94a3b8" }}>Members can apply for ₹116 concession from their personal dashboard section.</span>
+                      <span style={{ fontSize: "0.78rem", color: "#94a3b8" }}>Members can apply for ₹116 concession for any pending month from their personal dashboard.</span>
                     </div>
                   ) : (
                     <div className="tableContainer">
@@ -12313,6 +12324,7 @@ _This is an official computer-generated receipt._`;
                         <thead>
                           <tr>
                             <th>Member Details</th>
+                            <th>Billing Month (నెల)</th>
                             <th>Role</th>
                             <th>Application Reason (కారణం)</th>
                             <th>Status</th>
@@ -12322,12 +12334,17 @@ _This is an official computer-generated receipt._`;
                         </thead>
                         <tbody>
                           {concessionRequests.map((req) => (
-                            <tr key={req.id} style={{ background: req.concession_status === "REQUESTED" ? "#fffbf5" : "inherit" }}>
+                            <tr key={req.due_id || `${req.user_id}_${req.month_year}`} style={{ background: req.concession_status === "REQUESTED" ? "#fffbf5" : "inherit" }}>
                               <td>
                                 <div style={{ fontWeight: "700", color: "#1e293b" }}>{req.name}</div>
                                 <div style={{ fontSize: "0.78rem", color: "#64748b" }}>
                                   {req.association_id || "HSY-MEM"} &bull; {req.phone || "N/A"}
                                 </div>
+                              </td>
+                              <td>
+                                <span style={{ background: "#e0f2fe", color: "#0369a1", padding: "3px 8px", borderRadius: "6px", fontSize: "0.76rem", fontWeight: "800", display: "inline-block" }}>
+                                  📅 {req.month_year}
+                                </span>
                               </td>
                               <td>
                                 <span style={{ fontSize: "0.75rem", fontWeight: "700", background: "#f1f5f9", color: "#475569", padding: "2px 8px", borderRadius: "6px" }}>
@@ -12361,7 +12378,7 @@ _This is an official computer-generated receipt._`;
                                     display: "inline-block",
                                   }}
                                 >
-                                  {req.concession_status === "APPROVED" && "✅ APPROVED (₹116)"}
+                                  {req.concession_status === "APPROVED" && `✅ APPROVED (₹116 for ${req.month_year})`}
                                   {req.concession_status === "REJECTED" && "❌ REJECTED"}
                                   {req.concession_status === "REQUESTED" && "⏳ PENDING REVIEW"}
                                 </span>
@@ -12375,7 +12392,7 @@ _This is an official computer-generated receipt._`;
                                     <>
                                       <button
                                         type="button"
-                                        onClick={() => handleApproveConcession(req.id)}
+                                        onClick={() => handleApproveConcession(req.due_id || req.user_id, req.month_year)}
                                         disabled={concessionActionLoading}
                                         style={{
                                           background: "#16a34a",
@@ -12388,11 +12405,11 @@ _This is an official computer-generated receipt._`;
                                           cursor: "pointer",
                                         }}
                                       >
-                                        ✓ Approve ₹116
+                                        ✓ Approve ₹116 for {req.month_year}
                                       </button>
                                       <button
                                         type="button"
-                                        onClick={() => handleRejectConcession(req.id)}
+                                        onClick={() => handleRejectConcession(req.due_id || req.user_id, req.month_year)}
                                         disabled={concessionActionLoading}
                                         style={{
                                           background: "#dc2626",
@@ -12412,7 +12429,7 @@ _This is an official computer-generated receipt._`;
                                   {isFullAdmin && req.concession_status !== "REQUESTED" && (
                                     <button
                                       type="button"
-                                      onClick={() => handleToggleConcession(req.id)}
+                                      onClick={() => handleToggleConcession(req.due_id || req.user_id, req.month_year)}
                                       disabled={concessionActionLoading}
                                       style={{
                                         background: "#f1f5f9",
@@ -12425,7 +12442,7 @@ _This is an official computer-generated receipt._`;
                                         cursor: "pointer",
                                       }}
                                     >
-                                      🔄 Toggle ₹116/₹216
+                                      🔄 Toggle ₹116/₹216 ({req.month_year})
                                     </button>
                                   )}
                                 </div>
@@ -12443,84 +12460,84 @@ _This is an official computer-generated receipt._`;
             {/* MEMBER PERSONAL SUBSCRIPTION LEDGER (ALL ROLES) */}
             <div className="panelCard" style={{ background: "#ffffff", border: "1px solid #e2e8f0" }}>
               {/* Member Personal Concession Tier Banner */}
-              <div
-                style={{
-                  background:
-                    mySubscriptionStatus?.user?.concession_status === "APPROVED"
-                      ? "#f0fdf4"
-                      : mySubscriptionStatus?.user?.concession_status === "REQUESTED"
-                        ? "#fffbeb"
-                        : "#f8fafc",
-                  border: `1px solid ${
-                    mySubscriptionStatus?.user?.concession_status === "APPROVED"
-                      ? "#86efac"
-                      : mySubscriptionStatus?.user?.concession_status === "REQUESTED"
-                        ? "#fde68a"
-                        : "#e2e8f0"
-                  }`,
-                  borderRadius: "10px",
-                  padding: "14px 18px",
-                  marginBottom: "16px",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  flexWrap: "wrap",
-                  gap: "12px",
-                }}
-              >
-                <div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
-                    <span style={{ fontWeight: "800", fontSize: "0.92rem", color: "#1e293b" }}>
-                      My Monthly Subscription Fee: ₹{mySubscriptionStatus?.settings?.fee_amount || 216}
-                    </span>
-                    {mySubscriptionStatus?.user?.concession_status === "APPROVED" && (
-                      <span style={{ background: "#dcfce7", color: "#15803d", border: "1px solid #86efac", padding: "2px 8px", borderRadius: "12px", fontSize: "0.74rem", fontWeight: "800" }}>
-                        ⭐ ₹116 Concession Rate Active
-                      </span>
-                    )}
-                    {mySubscriptionStatus?.user?.concession_status === "REQUESTED" && (
-                      <span style={{ background: "#fef3c7", color: "#b45309", border: "1px solid #fde68a", padding: "2px 8px", borderRadius: "12px", fontSize: "0.74rem", fontWeight: "800" }}>
-                        ⏳ Concession Application (₹116/mo) Under Super Admin Review
-                      </span>
-                    )}
-                    {(!mySubscriptionStatus?.user?.concession_status || mySubscriptionStatus?.user?.concession_status === "NONE" || mySubscriptionStatus?.user?.concession_status === "REJECTED") && (
-                      <span style={{ background: "#f1f5f9", color: "#475569", border: "1px solid #cbd5e1", padding: "2px 8px", borderRadius: "12px", fontSize: "0.74rem", fontWeight: "700" }}>
-                        Standard Rate (₹216/month)
-                      </span>
-                    )}
-                  </div>
-                  <p style={{ margin: "4px 0 0 0", fontSize: "0.8rem", color: "#64748b" }}>
-                    {mySubscriptionStatus?.user?.concession_status === "APPROVED"
-                      ? "Your account is approved for the ₹116 concession rate (Students / Financial Relief)."
-                      : mySubscriptionStatus?.user?.concession_status === "REQUESTED"
-                        ? `Application submitted: "${mySubscriptionStatus?.user?.concession_reason || ""}". Awaiting President / Super Admin review.`
-                        : "Students, unemployed youth, or members seeking financial relief can apply for the ₹116/month concession rate."}
-                  </p>
-                </div>
+              {(() => {
+                const curMonth = mySubscriptionStatus?.current_month || new Date().toISOString().slice(0, 7);
+                const curDueStatus = mySubscriptionStatus?.current_due?.concession_status || mySubscriptionStatus?.user_concession?.status || "NONE";
+                const applicableFee = mySubscriptionStatus?.user_concession?.applicable_fee || mySubscriptionStatus?.current_due?.amount || 216;
+                const isApproved = curDueStatus === "APPROVED" || applicableFee === 116;
+                const isRequested = curDueStatus === "REQUESTED";
 
-                {mySubscriptionStatus?.user?.concession_status !== "APPROVED" && mySubscriptionStatus?.user?.concession_status !== "REQUESTED" && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setConcessionReason("");
-                      setShowConcessionModal(true);
-                    }}
+                return (
+                  <div
                     style={{
-                      background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
-                      color: "#fff",
-                      border: "none",
-                      padding: "8px 16px",
-                      borderRadius: "8px",
-                      fontWeight: "800",
-                      fontSize: "0.84rem",
-                      cursor: "pointer",
-                      boxShadow: "0 2px 6px rgba(217,119,6,0.25)",
+                      background: isApproved ? "#f0fdf4" : isRequested ? "#fffbeb" : "#f8fafc",
+                      border: `1px solid ${isApproved ? "#86efac" : isRequested ? "#fde68a" : "#e2e8f0"}`,
+                      borderRadius: "10px",
+                      padding: "14px 18px",
+                      marginBottom: "16px",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      flexWrap: "wrap",
+                      gap: "12px",
                     }}
                   >
-                    🏷️ Request ₹116 Concession
-                  </button>
-                )}
-              </div>
+                    <div>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                        <span style={{ fontWeight: "800", fontSize: "0.92rem", color: "#1e293b" }}>
+                          My Monthly Subscription Fee ({curMonth}): ₹{applicableFee}
+                        </span>
+                        {isApproved && (
+                          <span style={{ background: "#dcfce7", color: "#15803d", border: "1px solid #86efac", padding: "2px 8px", borderRadius: "12px", fontSize: "0.74rem", fontWeight: "800" }}>
+                            ⭐ ₹116 Concession Rate Active for {curMonth}
+                          </span>
+                        )}
+                        {isRequested && (
+                          <span style={{ background: "#fef3c7", color: "#b45309", border: "1px solid #fde68a", padding: "2px 8px", borderRadius: "12px", fontSize: "0.74rem", fontWeight: "800" }}>
+                            ⏳ Concession Application (₹116 for {curMonth}) Under Review
+                          </span>
+                        )}
+                        {!isApproved && !isRequested && (
+                          <span style={{ background: "#f1f5f9", color: "#475569", border: "1px solid #cbd5e1", padding: "2px 8px", borderRadius: "12px", fontSize: "0.74rem", fontWeight: "700" }}>
+                            Standard Rate (₹216 for {curMonth})
+                          </span>
+                        )}
+                      </div>
+                      <p style={{ margin: "4px 0 0 0", fontSize: "0.8rem", color: "#64748b" }}>
+                        {isApproved
+                          ? `Your dues for ${curMonth} have been approved at the ₹116 concession rate (Students / Financial Relief).`
+                          : isRequested
+                            ? `Application submitted for ${curMonth}: "${mySubscriptionStatus?.current_due?.concession_reason || mySubscriptionStatus?.user_concession?.reason || ""}". Awaiting President / Super Admin approval.`
+                            : `Students, job seekers, or members facing temporary hardship can apply for ₹116 fee relief for ${curMonth}.`}
+                      </p>
+                    </div>
+
+                    {!isApproved && !isRequested && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedConcessionMonth(curMonth);
+                          setConcessionReason("");
+                          setShowConcessionModal(true);
+                        }}
+                        style={{
+                          background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+                          color: "#fff",
+                          border: "none",
+                          padding: "8px 16px",
+                          borderRadius: "8px",
+                          fontWeight: "800",
+                          fontSize: "0.84rem",
+                          cursor: "pointer",
+                          boxShadow: "0 2px 6px rgba(217,119,6,0.25)",
+                        }}
+                      >
+                        🏷️ Request ₹116 Concession for {curMonth}
+                      </button>
+                    )}
+                  </div>
+                );
+              })()}
 
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px", flexWrap: "wrap", gap: "10px" }}>
                 <div>
@@ -26935,10 +26952,10 @@ _This is an official computer-generated receipt._`;
               </div>
               <div>
                 <h3 style={{ margin: 0, fontSize: "1.25rem", fontWeight: "900", color: "#1e293b" }}>
-                  Apply for ₹116/Month Concession
+                  Apply for ₹116 Concession ({selectedConcessionMonth || subscriptionMonthFilter || "Requested Month"})
                 </h3>
                 <span style={{ fontSize: "0.78rem", color: "#64748b" }}>
-                  Hindu Swaraj Youth Association Financial Relief Program
+                  Hindu Swaraj Youth Association Single-Month Financial Relief Program
                 </span>
               </div>
             </div>
@@ -26955,10 +26972,23 @@ _This is an official computer-generated receipt._`;
                 lineHeight: "1.45",
               }}
             >
-              ℹ️ Standard monthly membership subscription is <b>₹216</b>. If you are a <b>Student, Unemployed Job Seeker, Volunteer, or facing Financial Hardship</b>, submit this application for Super Admin / President approval to set your fee to <b>₹116/month</b>.
+              ℹ️ Concession is requested on a <b>monthly request basis (for the requested month only)</b>. Standard monthly membership subscription is <b>₹216</b>. If you are a <b>Student, Unemployed Job Seeker, Volunteer, or facing Financial Hardship</b>, submit this application for Super Admin / President approval to set your fee to <b>₹116 for {selectedConcessionMonth || subscriptionMonthFilter || "this month"}</b>.
             </div>
 
             <form onSubmit={handleRequestConcession}>
+              <div className="formGroup" style={{ marginBottom: "14px" }}>
+                <label className="formLabel" style={{ fontWeight: "700" }}>
+                  Billing Month for Concession (నెల)
+                </label>
+                <input
+                  type="month"
+                  className="inputField"
+                  value={selectedConcessionMonth || subscriptionMonthFilter || new Date().toISOString().slice(0, 7)}
+                  onChange={(e) => setSelectedConcessionMonth(e.target.value)}
+                  required
+                />
+              </div>
+
               <div className="formGroup" style={{ marginBottom: "18px" }}>
                 <label className="formLabel" style={{ fontWeight: "700" }}>
                   Reason for Concession (వివరణ / కారణం) <span style={{ color: "#dc2626" }}>*</span>
