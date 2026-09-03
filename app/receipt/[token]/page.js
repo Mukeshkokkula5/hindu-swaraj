@@ -615,11 +615,23 @@ export default function PublicReceiptPage() {
 
       {/* Top Actions Bar */}
       <div className="actions-bar">
+        <a
+          href={`${API_BASE_URL}/receipts/pdf/${receiptNo}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="print-btn"
+          style={{ textDecoration: "none", background: "#0f2942", color: "#ffffff", border: "1px solid #c29d53" }}
+        >
+          <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          Download Official PDF
+        </a>
         <button onClick={() => window.print()} className="print-btn">
           <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
           </svg>
-          Print Receipt
+          Print Web Receipt
         </button>
       </div>
 
