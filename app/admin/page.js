@@ -5364,7 +5364,8 @@ export default function AdminPage() {
 
     if (editingMember) {
       try {
-        await fetchAPI(`/members/${editingMember.dbId}`, {
+        const updateId = editingMember.dbId || editingMember.id;
+        await fetchAPI(`/members/${updateId}`, {
           method: "PUT",
           body: JSON.stringify({
             name: newMember.name,
@@ -5373,6 +5374,7 @@ export default function AdminPage() {
             address: "Jagtial, Telangana",
             role: newMember.role,
             active: newMember.status === "ACTIVE",
+            photo_url: newMember.photo_url,
           }),
         });
         loadAllData();
@@ -5425,6 +5427,7 @@ export default function AdminPage() {
             address: "Jagtial, Telangana",
             role: newMember.role,
             password: rawTempPassword,
+            photo_url: newMember.photo_url || "/images/leader-president.png",
           }),
         });
         loadAllData();
@@ -22358,7 +22361,7 @@ _This is an official computer-generated receipt._`;
               <div style={{ display: "flex", alignItems: "center", gap: "14px", marginTop: "6px" }}>
                 <img
                   src={
-                    newMember.photo_url?.startsWith("http")
+                    newMember.photo_url?.startsWith("data:") || newMember.photo_url?.startsWith("http")
                       ? newMember.photo_url
                       : newMember.photo_url?.startsWith("/uploads/")
                       ? `${API_BASE_URL}${newMember.photo_url}`
@@ -22384,8 +22387,22 @@ _This is an official computer-generated receipt._`;
                     onChange={async (e) => {
                       const file = e.target.files?.[0];
                       if (!file) return;
+
+                      // 1. Instant local preview (zero-wait)
+                      const reader = new FileReader();
+                      reader.onload = (re) => {
+                        if (re.target?.result) {
+                          setNewMember((prev) => ({ ...prev, photo_url: re.target.result }));
+                        }
+                      };
+                      reader.readAsDataURL(file);
+
+                      // 2. Server upload
                       const formData = new FormData();
+                      formData.append("image", file);
                       formData.append("file", file);
+                      formData.append("photo", file);
+
                       try {
                         const token = localStorage.getItem("admin_token") || localStorage.getItem("token");
                         const res = await fetch(`${API_BASE_URL}/association-posts/upload`, {
@@ -22394,14 +22411,14 @@ _This is an official computer-generated receipt._`;
                           body: formData,
                         });
                         const data = await res.json();
-                        if (data.success && data.fileUrl) {
-                          const uploaded = data.fileUrl.startsWith("http")
-                            ? data.fileUrl
-                            : `${API_BASE_URL}${data.fileUrl}`;
+                        if (data.success && (data.fileUrl || data.url)) {
+                          const uploaded = (data.fileUrl || data.url).startsWith("http") || (data.fileUrl || data.url).startsWith("data:")
+                            ? (data.fileUrl || data.url)
+                            : `${API_BASE_URL}${data.fileUrl || data.url}`;
                           setNewMember((prev) => ({ ...prev, photo_url: uploaded }));
                         }
                       } catch (err) {
-                        console.error("Member photo upload failed", err);
+                        console.warn("Server upload warning, keeping preview", err);
                       }
                     }}
                     className="inputField"
