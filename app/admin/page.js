@@ -17317,7 +17317,7 @@ _This is an official computer-generated receipt._`;
                             <td style={{ textAlign: "center", display: "flex", gap: "6px", justifyContent: "center", alignItems: "center" }}>
                               <a
                                 href={`https://wa.me/${w.mobile ? w.mobile.replace(/[^0-9]/g, "") : ""}?text=${encodeURIComponent(
-                                  `🪔 *శ్రీ సిద్ధి వినాయక స్వామి వారి దివ్య పూజా ఆశీర్వచన పత్రం - 2026*\n\nభక్తుని పేరు: ${w.devotee_name}\nగోత్రం: ${w.gotram || "శివ గోత్రం"}\nటోకెన్ ఐడీ: ${w.token_no || `HSY-NAV-${w.id}`}\nప్రాంతం: ${w.city || "Jagtial"}\n\nహిందూ స్వరాజ్ యూత్ వెల్ఫేర్ అసోసియేషన్, జగిత్యాల (Regd. No: 784/2025)\nదర్శనం & సర్టిఫికేట్: https://hinduswaraj.org/vinayaka-navaratri`
+                                  `🪔 *శ్రీ సిద్ధి వినాయక స్వామి వారి దివ్య పూజా ఆశీర్వచన పత్రం - 2026*\n\nభక్తుని పేరు: ${w.devotee_name}\nగోత్రం: ${w.gotram || "శివ గోత్రం"}\nటోకెన్ ఐడీ: ${w.token_no || `HSY-NAV-${w.id}`}\nప్రాంతం: ${w.city || "Jagtial"}\n\nహిందూ స్వరాజ్ యూత్ వెల్ఫేర్ అసోసియేషన్, జగిత్యాల (Regd. No: 784/2025)\nదర్శనం & సర్టిఫికేట్: https://www.hinduswarajyouth.online/vinayaka-navaratri`
                                 )}`}
                                 target="_blank"
                                 rel="noreferrer"

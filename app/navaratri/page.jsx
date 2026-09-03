@@ -265,7 +265,7 @@ const DEFAULT_SPONSORS = [
     tagline: "Official Swarna Kavacham & Grand Aarti Title Sponsor • Main Road, Jagtial",
     logo_url: "/images/navaratri-ganesha.jpg",
     contact_phone: "+91 98480 12345",
-    website_url: "https://hinduswaraj.org",
+    website_url: "https://www.hinduswarajyouth.online",
   },
   {
     id: 2,
