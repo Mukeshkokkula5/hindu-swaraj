@@ -22,7 +22,11 @@ const numberToWords = (num) => {
 };
 
 export default function PublicReceiptPage() {
-  const { token } = useParams();
+  const params = useParams();
+  const rawToken = params?.token;
+  const token = Array.isArray(rawToken)
+    ? rawToken[rawToken.length - 1]
+    : (typeof rawToken === "string" ? rawToken.replace(/^verify\/?/, "") : rawToken);
   const [donation, setDonation] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

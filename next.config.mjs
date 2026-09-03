@@ -32,6 +32,18 @@ const nextConfig = {
       },
     ];
   },
+  async rewrites() {
+    return [
+      {
+        source: "/receipts/verify/:token",
+        destination: "/receipts/:token",
+      },
+      {
+        source: "/receipt/verify/:token",
+        destination: "/receipt/:token",
+      },
+    ];
+  },
 };
 
 export default nextConfig;
