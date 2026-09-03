@@ -83,10 +83,34 @@ export default function Navbar() {
     };
   }, [servicesHubOpen]);
 
+  // Clean up duplicate hashes on load if any exist
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.location.hash.includes("#home")) {
+      history.replaceState(null, "", window.location.pathname || "/");
+    }
+  }, []);
+
+  const handleNavClick = (e, targetHash) => {
+    setMenuOpen(false);
+    if (typeof window !== "undefined" && window.location.pathname === "/") {
+      e.preventDefault();
+      if (!targetHash) {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        history.replaceState(null, "", "/");
+        return;
+      }
+      const el = document.querySelector(targetHash);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth" });
+        history.replaceState(null, "", targetHash);
+      }
+    }
+  };
+
   return (
     <nav className={`${styles.navbar} ${scrolled ? styles.scrolled : ''}`} id="navbar">
       <div className={styles.navContainer}>
-        <Link href="/" className={styles.logo}>
+        <Link href="/" className={styles.logo} onClick={(e) => handleNavClick(e, "")}>
           <Image
             src="/images/logo_v2.png"
             alt="Hindu Swaraj Youth"
@@ -101,10 +125,10 @@ export default function Navbar() {
         </Link>
 
         <div className={`${styles.navLinks} ${menuOpen ? styles.navLinksOpen : ''}`}>
-          <Link href="/#home" className={styles.navLink} onClick={() => setMenuOpen(false)}>
+          <Link href="/" className={styles.navLink} onClick={(e) => handleNavClick(e, "")}>
             Home
           </Link>
-          <Link href="/#about" className={styles.navLink} onClick={() => setMenuOpen(false)}>
+          <Link href="/#about" className={styles.navLink} onClick={(e) => handleNavClick(e, "#about")}>
             About Us
           </Link>
 
@@ -126,16 +150,16 @@ export default function Navbar() {
             </span>
           </button>
 
-          <Link href="/#activities" className={styles.navLink} onClick={() => setMenuOpen(false)}>
+          <Link href="/#activities" className={styles.navLink} onClick={(e) => handleNavClick(e, "#activities")}>
             Activities
           </Link>
-          <Link href="/#leadership" className={styles.navLink} onClick={() => setMenuOpen(false)}>
+          <Link href="/#leadership" className={styles.navLink} onClick={(e) => handleNavClick(e, "#leadership")}>
             Team
           </Link>
-          <Link href="/#gallery" className={styles.navLink} onClick={() => setMenuOpen(false)}>
+          <Link href="/#gallery" className={styles.navLink} onClick={(e) => handleNavClick(e, "#gallery")}>
             Gallery
           </Link>
-          <Link href="/#footer" className={styles.navLink} onClick={() => setMenuOpen(false)}>
+          <Link href="/#footer" className={styles.navLink} onClick={(e) => handleNavClick(e, "#footer")}>
             Contact
           </Link>
 
@@ -146,7 +170,7 @@ export default function Navbar() {
             Login
           </Link>
 
-          <Link href="/#donate" className={`btn btn-saffron ${styles.donateBtn}`} onClick={() => setMenuOpen(false)}>
+          <Link href="/#donate" className={`btn btn-saffron ${styles.donateBtn}`} onClick={(e) => handleNavClick(e, "#donate")}>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
             </svg>
