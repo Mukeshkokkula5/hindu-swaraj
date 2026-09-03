@@ -135,14 +135,14 @@
 
 .hubModal {
   width: 100%;
-  max-width: 860px;
+  max-width: 920px;
   max-height: 90vh;
   overflow-y: auto;
   background: linear-gradient(150deg, #0a1628 0%, #0d213e 50%, #081220 100%);
   border: 1.5px solid rgba(212, 175, 55, 0.45);
   border-radius: 24px;
   box-shadow: 0 25px 80px rgba(0, 0, 0, 0.9), 0 0 45px rgba(212, 175, 55, 0.22);
-  padding: 26px 28px;
+  padding: 26px 30px;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -170,8 +170,8 @@
 }
 
 .hubLogoImg {
-  width: 54px;
-  height: 54px;
+  width: 62px;
+  height: 62px;
   object-fit: contain;
   filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.4));
   flex-shrink: 0;
@@ -346,6 +346,19 @@
     gap: 8px;
     text-align: center;
   }
+}
+
+.dropdownItemBadge {
+  font-size: 0.64rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
 }
 
 .badgeEmergency {
