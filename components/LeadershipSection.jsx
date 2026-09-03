@@ -84,43 +84,43 @@ export default function LeadershipSection() {
   });
 
   return (
-    <section className={styles.section} id="leadership">
-      <div className={styles.container}>
-        {/* Header */}
+    <section className={styles.leadership} id="leadership">
+      <div className="container">
         <div className={styles.header}>
-          <span className={styles.subTitle}>LEADERSHIP &amp; TEAM</span>
-          <h2 className={styles.title}>
-            మా కార్యవర్గం <span>(Governing Body &amp; Members)</span>
-          </h2>
-          <div className={styles.divider}></div>
-          <p className={styles.description}>
-            హిందూ స్వరాజ్ యూత్ వెల్ఫేర్ అసోసియేషన్ (Regd. No: 784/2025) ద్వారా సమాజ సేవలో నిరంతరం శ్రమిస్తున్న నిస్వార్థ నాయకత్వం మరియు సభ్యులు.
+          <span className="section-label">OUR TEAM</span>
+          <h2 className="section-title">Leadership &amp; Committee ({leaders.length} Members)</h2>
+          <p className="section-subtitle">
+            Meet the dedicated leadership team, committee members, and youth volunteers driving Hindu Swaraj Youth Welfare Association (Regd. No: 784/2025).
           </p>
         </div>
 
-        {/* Filter Tabs & Search Bar */}
-        <div className={styles.filterToolbar}>
+        {/* Filter and Search Bar */}
+        <div className={styles.controlsBar}>
           <div className={styles.filterTabs}>
             <button
-              className={`${styles.filterBtn} ${filterRole === 'ALL' ? styles.active : ''}`}
+              type="button"
+              className={`${styles.filterTab} ${filterRole === 'ALL' ? styles.filterTabActive : ''}`}
               onClick={() => setFilterRole('ALL')}
             >
-              All Team ({leaders.length})
+              All Members ({leaders.length})
             </button>
             <button
-              className={`${styles.filterBtn} ${filterRole === 'EXECUTIVE' ? styles.active : ''}`}
+              type="button"
+              className={`${styles.filterTab} ${filterRole === 'EXECUTIVE' ? styles.filterTabActive : ''}`}
               onClick={() => setFilterRole('EXECUTIVE')}
             >
               Key Executives
             </button>
             <button
-              className={`${styles.filterBtn} ${filterRole === 'EC' ? styles.active : ''}`}
+              type="button"
+              className={`${styles.filterTab} ${filterRole === 'EC' ? styles.filterTabActive : ''}`}
               onClick={() => setFilterRole('EC')}
             >
               Executive Committee
             </button>
             <button
-              className={`${styles.filterBtn} ${filterRole === 'MEMBERS' ? styles.active : ''}`}
+              type="button"
+              className={`${styles.filterTab} ${filterRole === 'MEMBERS' ? styles.filterTabActive : ''}`}
               onClick={() => setFilterRole('MEMBERS')}
             >
               Members
@@ -146,49 +146,20 @@ export default function LeadershipSection() {
               key={leader.id || i}
               className={styles.leaderCard}
               onClick={() => setActiveLeaderModal(leader)}
-              title="Click to view full photo and profile"
+              title="Click to view official profile"
             >
-              <div
-                className={styles.avatarWrapper}
-                onMouseEnter={() => setHoveredLeaderId(leader.id || i)}
-                onMouseLeave={() => setHoveredLeaderId(null)}
-              >
-                <div className={styles.avatarCircle}>
-                  <img
-                    src={getMediaUrl(leader.photo_url || leader.image)}
-                    alt={leader.name}
-                    className={styles.leaderAvatar}
-                    onError={(e) => {
-                      e.currentTarget.src = '/images/leader-president.png';
-                    }}
-                  />
-                  <div className={styles.zoomHintIcon}>🔍</div>
-                </div>
-
+              <div className={styles.avatarWrapper}>
+                <img
+                  src={getMediaUrl(leader.photo_url || leader.image)}
+                  alt={leader.name}
+                  className={styles.leaderAvatar}
+                  onError={(e) => {
+                    e.currentTarget.src = '/images/leader-president.png';
+                  }}
+                />
                 {leader.display_order ? (
                   <div className={styles.orderBadge}>{leader.display_order}</div>
                 ) : null}
-
-                {/* Floating Magnified HD Popout on Hover */}
-                {hoveredLeaderId === (leader.id || i) && (
-                  <div className={styles.hoverPopout} onClick={(e) => e.stopPropagation()}>
-                    <div className={styles.popoutImageWrap}>
-                      <img
-                        src={getMediaUrl(leader.photo_url || leader.image)}
-                        alt={leader.name}
-                        className={styles.popoutImage}
-                        onError={(e) => {
-                          e.currentTarget.src = '/images/leader-president.png';
-                        }}
-                      />
-                      <div className={styles.popoutBadge}>
-                        {leader.display_order ? `#${leader.display_order} ` : ''}{leader.role}
-                      </div>
-                    </div>
-                    <div className={styles.popoutName}>{leader.name}</div>
-                    <div className={styles.popoutHint}>🔍 క్లిక్ చేసి పూర్తి ఫోటో చూడండి</div>
-                  </div>
-                )}
               </div>
 
               <div className={styles.leaderInfo}>
