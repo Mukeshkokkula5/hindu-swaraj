@@ -9455,6 +9455,7 @@ _This is an official computer-generated receipt._`;
                                     role: item.role,
                                     phone: item.phone,
                                     status: item.status,
+                                    photo_url: item.photo_url || "",
                                   });
                                   setShowMemberModal(true);
                                 }}
@@ -22505,6 +22506,68 @@ _This is an official computer-generated receipt._`;
               >
                 ×
               </button>
+            </div>
+
+            {/* Member Photo Upload */}
+            <div className="formGroup" style={{ marginBottom: "16px" }}>
+              <label className="formLabel">Member Photo (ID Card &amp; Team Showcase)</label>
+              <div style={{ display: "flex", alignItems: "center", gap: "14px", marginTop: "6px" }}>
+                <img
+                  src={
+                    newMember.photo_url?.startsWith("http")
+                      ? newMember.photo_url
+                      : newMember.photo_url?.startsWith("/uploads/")
+                      ? `${API_BASE_URL}${newMember.photo_url}`
+                      : newMember.photo_url || "/images/leader-president.png"
+                  }
+                  alt="Member Avatar"
+                  style={{
+                    width: "56px",
+                    height: "56px",
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                    border: "2px solid #f97316",
+                    flexShrink: 0,
+                  }}
+                  onError={(e) => {
+                    e.target.src = "/images/leader-president.png";
+                  }}
+                />
+                <div style={{ flex: 1 }}>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const formData = new FormData();
+                      formData.append("file", file);
+                      try {
+                        const token = localStorage.getItem("admin_token") || localStorage.getItem("token");
+                        const res = await fetch(`${API_BASE_URL}/association-posts/upload`, {
+                          method: "POST",
+                          headers: { Authorization: `Bearer ${token}` },
+                          body: formData,
+                        });
+                        const data = await res.json();
+                        if (data.success && data.fileUrl) {
+                          const uploaded = data.fileUrl.startsWith("http")
+                            ? data.fileUrl
+                            : `${API_BASE_URL}${data.fileUrl}`;
+                          setNewMember((prev) => ({ ...prev, photo_url: uploaded }));
+                        }
+                      } catch (err) {
+                        console.error("Member photo upload failed", err);
+                      }
+                    }}
+                    className="inputField"
+                    style={{ fontSize: "0.8rem", padding: "6px 8px" }}
+                  />
+                  <small style={{ color: "#64748b", fontSize: "0.72rem" }}>
+                    Square photo (JPG/PNG). Updates website Team and ID Card.
+                  </small>
+                </div>
+              </div>
             </div>
 
             <div className="formGroup">
