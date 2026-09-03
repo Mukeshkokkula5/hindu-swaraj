@@ -111,102 +111,241 @@
 }
 
 /* Services Dropdown Wrapper */
-.dropdownContainer {
-  position: relative;
-  display: inline-block;
-}
-
-.dropdownMenu {
-  position: absolute;
-  top: calc(100% + 12px);
-  left: 50%;
-  transform: translateX(-50%);
-  width: 360px;
-  background: rgba(11, 19, 43, 0.97);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1.5px solid rgba(255, 179, 0, 0.4);
-  border-radius: 18px;
-  padding: 10px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85), 0 0 30px rgba(255, 179, 0, 0.25);
-  z-index: 1100;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  animation: dropFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.dropdownMenu::before {
-  content: '';
-  position: absolute;
-  top: -18px;
-  left: 0;
-  right: 0;
-  height: 18px;
-  background: transparent;
-}
-
-@keyframes dropFadeIn {
-  from { opacity: 0; transform: translate(-50%, -8px); }
-  to { opacity: 1; transform: translate(-50%, 0); }
-}
-
-.dropdownItemCard {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 14px;
-  border-radius: 12px;
-  text-decoration: none;
-  background: transparent;
-  transition: all 0.2s ease;
-  border: 1px solid transparent;
-}
-
-.dropdownItemCard:hover {
-  background: rgba(255, 179, 0, 0.1);
-  border-color: rgba(255, 179, 0, 0.25);
-  transform: translateX(4px);
-}
-
-.dropdownIconWrap {
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
+/* ========================================================
+   👑 GRAND ROYAL SEVA HUB MODAL OVERLAY
+======================================================== */
+.hubOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 9, 18, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  z-index: 99999;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.25rem;
-  flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  animation: hubOverlayFadeIn 0.2s ease-out;
 }
 
-.dropdownItemContent {
+@keyframes hubOverlayFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.hubModal {
+  width: 100%;
+  max-width: 860px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: linear-gradient(150deg, #0a1628 0%, #0d213e 50%, #081220 100%);
+  border: 1.5px solid rgba(212, 175, 55, 0.45);
+  border-radius: 24px;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.9), 0 0 45px rgba(212, 175, 55, 0.22);
+  padding: 26px 28px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  animation: hubModalZoomIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes hubModalZoomIn {
+  from { opacity: 0; transform: scale(0.95) translateY(12px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.hubHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 18px;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+  margin-bottom: 20px;
+}
+
+.hubBrandBlock {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.hubLogoImg {
+  width: 54px;
+  height: 54px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.4));
+  flex-shrink: 0;
+}
+
+.hubTitleMain {
+  font-size: 1.18rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hubTitleSub {
+  font-size: 0.8rem;
+  color: #cbd5e1;
+  margin-top: 2px;
+}
+
+.hubBadgeRegd {
+  display: inline-block;
+  background: rgba(254, 240, 138, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  color: #fef08a;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 20px;
+  margin-top: 4px;
+  letter-spacing: 0.4px;
+}
+
+.hubCloseBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.hubCloseBtn:hover {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: #ef4444;
+  color: #fca5a5;
+  transform: rotate(90deg);
+}
+
+.hubGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 720px) {
+  .hubGrid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+
+.hubCard {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  text-decoration: none;
+  transition: all 0.22s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.hubCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: #d4af37;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.hubCard:hover {
+  background: rgba(212, 175, 55, 0.09);
+  border-color: rgba(212, 175, 55, 0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.hubCard:hover::before {
+  opacity: 1;
+}
+
+.hubCardIcon {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.hubCardInfo {
   flex: 1;
   display: flex;
   flex-direction: column;
 }
 
-.dropdownItemTitleRow {
+.hubCardTitleRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 6px;
+  gap: 8px;
 }
 
-.dropdownItemTitle {
-  font-size: 0.88rem;
+.hubCardTitle {
+  font-size: 0.95rem;
   font-weight: 800;
-  color: #fff;
+  color: #ffffff;
 }
 
-.dropdownItemBadge {
-  font-size: 0.62rem;
-  font-weight: 900;
-  padding: 2px 6px;
-  border-radius: 6px;
-  letter-spacing: 0.5px;
+.hubCardDesc {
+  font-size: 0.76rem;
+  color: #94a3b8;
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+.hubCardArrow {
+  color: rgba(212, 175, 55, 0.5);
+  font-size: 1.2rem;
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+
+.hubCard:hover .hubCardArrow {
+  color: #d4af37;
+  transform: translateX(4px);
+}
+
+.hubFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.78rem;
+  color: #64748b;
+}
+
+@media (max-width: 600px) {
+  .hubFooter {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
 }
 
 .badgeEmergency {
@@ -237,13 +376,6 @@
   background: rgba(59, 130, 246, 0.2);
   color: #93c5fd;
   border: 1px solid #3b82f6;
-}
-
-.dropdownItemDesc {
-  font-size: 0.72rem;
-  color: #94a3b8;
-  margin-top: 2px;
-  line-height: 1.35;
 }
 
 .loginBtn {

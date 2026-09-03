@@ -58,9 +58,7 @@ const SEVA_SERVICES = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [servicesDropdownOpen, setServicesDropdownOpen] = useState(false);
-  const dropdownRef = useRef(null);
-  const timeoutRef = useRef(null);
+  const [servicesHubOpen, setServicesHubOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -68,27 +66,22 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close dropdown on outside click
+  // Lock scroll and listen for ESC key when Hub is open
   useEffect(() => {
-    const handleOutsideClick = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setServicesDropdownOpen(false);
-      }
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") setServicesHubOpen(false);
     };
-    document.addEventListener('click', handleOutsideClick);
-    return () => document.removeEventListener('click', handleOutsideClick);
-  }, []);
-
-  const handleMouseEnter = () => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    setServicesDropdownOpen(true);
-  };
-
-  const handleMouseLeave = () => {
-    timeoutRef.current = setTimeout(() => {
-      setServicesDropdownOpen(false);
-    }, 220);
-  };
+    if (servicesHubOpen) {
+      document.addEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "";
+    };
+  }, [servicesHubOpen]);
 
   return (
     <nav className={`${styles.navbar} ${scrolled ? styles.scrolled : ''}`} id="navbar">
@@ -115,56 +108,23 @@ export default function Navbar() {
             About Us
           </Link>
 
-          {/* ================= 🚩 SERVICES & SEVA MEGA DROPDOWN ================= */}
-          <div
-            className={styles.dropdownContainer}
-            ref={dropdownRef}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
+          {/* ================= 🚩 GRAND ROYAL SEVA HUB BUTTON ================= */}
+          <button
+            type="button"
+            className={`${styles.navLink} ${styles.navLinkHighlight}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              setServicesHubOpen(true);
+              setMenuOpen(false);
+            }}
+            title="Explore all Hindu Swaraj Welfare Services"
           >
-            <button
-              type="button"
-              className={`${styles.navLink} ${styles.navLinkHighlight}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                if (timeoutRef.current) clearTimeout(timeoutRef.current);
-                setServicesDropdownOpen((prev) => !prev);
-              }}
-            >
-              <span>🚩</span>
-              <span>సేవా విభాగాలు (Services)</span>
-              <span style={{ fontSize: '0.65rem', transition: 'transform 0.2s', transform: servicesDropdownOpen ? 'rotate(180deg)' : 'none' }}>
-                ▼
-              </span>
-            </button>
-
-            {servicesDropdownOpen && (
-              <div className={styles.dropdownMenu}>
-                {SEVA_SERVICES.map((item, idx) => (
-                  <Link
-                    key={idx}
-                    href={item.href}
-                    className={styles.dropdownItemCard}
-                    onClick={() => {
-                      setServicesDropdownOpen(false);
-                      setMenuOpen(false);
-                    }}
-                  >
-                    <div className={styles.dropdownIconWrap}>{item.icon}</div>
-                    <div className={styles.dropdownItemContent}>
-                      <div className={styles.dropdownItemTitleRow}>
-                        <span className={styles.dropdownItemTitle}>{item.title}</span>
-                        <span className={`${styles.dropdownItemBadge} ${item.badgeClass}`}>
-                          {item.badge}
-                        </span>
-                      </div>
-                      <span className={styles.dropdownItemDesc}>{item.desc}</span>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
+            <span>🚩</span>
+            <span>సేవా విభాగాలు (Services)</span>
+            <span style={{ fontSize: "0.65rem", marginLeft: "2px" }}>
+              ✦
+            </span>
+          </button>
 
           <Link href="/#activities" className={styles.navLink} onClick={() => setMenuOpen(false)}>
             Activities
@@ -204,6 +164,88 @@ export default function Navbar() {
           <span></span>
         </button>
       </div>
+
+      {/* ================= 👑 GRAND ROYAL SEVA HUB MODAL ================= */}
+      {servicesHubOpen && (
+        <div
+          className={styles.hubOverlay}
+          onClick={() => setServicesHubOpen(false)}
+        >
+          <div
+            className={styles.hubModal}
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+          >
+            {/* HEADER */}
+            <div className={styles.hubHeader}>
+              <div className={styles.hubBrandBlock}>
+                <Image
+                  src="/images/logo_v2.png"
+                  alt="HSYWA Emblem"
+                  width={54}
+                  height={54}
+                  className={styles.hubLogoImg}
+                />
+                <div>
+                  <h3 className={styles.hubTitleMain}>
+                    <span>🚩</span>
+                    <span>హిందూ స్వరాజ్ అధికారిక సేవా విభాగాలు</span>
+                  </h3>
+                  <div className={styles.hubTitleSub}>
+                    HSYWA Official Welfare, Spiritual & Emergency Initiatives
+                  </div>
+                  <span className={styles.hubBadgeRegd}>
+                    Govt. Regd. Society No: 784/2025 • Jagtial, Telangana
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                className={styles.hubCloseBtn}
+                onClick={() => setServicesHubOpen(false)}
+                aria-label="Close Seva Hub"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* 6 GRAND SERVICE CARDS GRID */}
+            <div className={styles.hubGrid}>
+              {SEVA_SERVICES.map((item, idx) => (
+                <Link
+                  key={idx}
+                  href={item.href}
+                  className={styles.hubCard}
+                  onClick={() => setServicesHubOpen(false)}
+                >
+                  <div className={styles.hubCardIcon}>{item.icon}</div>
+                  <div className={styles.hubCardInfo}>
+                    <div className={styles.hubCardTitleRow}>
+                      <span className={styles.hubCardTitle}>{item.title}</span>
+                      <span className={`${styles.dropdownItemBadge} ${item.badgeClass}`}>
+                        {item.badge}
+                      </span>
+                    </div>
+                    <span className={styles.hubCardDesc}>{item.desc}</span>
+                  </div>
+                  <div className={styles.hubCardArrow}>→</div>
+                </Link>
+              ))}
+            </div>
+
+            {/* FOOTER */}
+            <div className={styles.hubFooter}>
+              <div>
+                📞 <b>24/7 Helpline:</b> +91 84998 78425 &nbsp;|&nbsp; 📍 <b>Regd. Office:</b> H.No. 4-1-140, Vani Nagar, Jagtial
+              </div>
+              <div style={{ color: '#94a3b8', fontSize: '0.72rem' }}>
+                Press <b>ESC</b> or click outside to close
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }
