@@ -122,6 +122,14 @@ export default function PublicTransparencyPortal() {
 
   useEffect(() => {
     fetchPublicData();
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const verifyParam = params.get('verify');
+      if (verifyParam) {
+        setVerifyCode(verifyParam);
+        doVerify(verifyParam);
+      }
+    }
   }, []);
 
   const fetchPublicData = async () => {
@@ -139,17 +147,20 @@ export default function PublicTransparencyPortal() {
     }
   };
 
-  // Handle Certificate Verification Lookup
-  const handleVerify = async (e) => {
-    e.preventDefault();
-    if (!verifyCode.trim()) return;
+  const doVerify = async (code) => {
+    const cleanCode = (code || '').trim();
+    if (!cleanCode) return;
     setVerifying(true);
     setVerifyResult(null);
 
     try {
-      const res = await fetch(`${API_BASE_URL}/public/verify/${encodeURIComponent(verifyCode.trim())}`);
+      const res = await fetch(`${API_BASE_URL}/public/verify/${encodeURIComponent(cleanCode)}`);
       const data = await res.json();
       setVerifyResult(data);
+      setTimeout(() => {
+        const el = document.getElementById('verifier-box');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 300);
     } catch (err) {
       setVerifyResult({
         valid: false,
@@ -158,6 +169,12 @@ export default function PublicTransparencyPortal() {
     } finally {
       setVerifying(false);
     }
+  };
+
+  // Handle Certificate Verification Lookup
+  const handleVerify = async (e) => {
+    e.preventDefault();
+    doVerify(verifyCode);
   };
 
   // Handle Citizen Grievance Submission
@@ -269,7 +286,7 @@ export default function PublicTransparencyPortal() {
         </div>
 
         {/* 2. Universal Certificate & Receipt Validator */}
-        <section className={styles.sectionCard}>
+        <section id="verifier-box" className={styles.sectionCard}>
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>
               <span>🔍</span>
@@ -287,7 +304,7 @@ export default function PublicTransparencyPortal() {
             <div className={styles.verifierInputRow}>
               <input
                 type="text"
-                placeholder="e.g. HSY-SEVA-2026-0001, HSY-BD-2026-0001, HSY-VOL-1..."
+                placeholder="e.g. HSY-SEVA-2026-0001, HSY-BD-2026-0001, HSY/JGTL/2026/0004..."
                 value={verifyCode}
                 onChange={(e) => setVerifyCode(e.target.value)}
                 className={styles.verifierInput}
@@ -319,6 +336,12 @@ export default function PublicTransparencyPortal() {
                         <span style={{ color: '#94a3b8', fontSize: '0.75rem', display: 'block' }}>HOLDER NAME:</span>
                         <strong style={{ color: '#fff', fontSize: '1.1rem' }}>{verifyResult.holder_name}</strong>
                       </div>
+                      {verifyResult.role && (
+                        <div>
+                          <span style={{ color: '#94a3b8', fontSize: '0.75rem', display: 'block' }}>DESIGNATION / ROLE:</span>
+                          <strong style={{ color: '#38bdf8', fontSize: '1.1rem' }}>{verifyResult.role}</strong>
+                        </div>
+                      )}
                       {verifyResult.amount && (
                         <div>
                           <span style={{ color: '#94a3b8', fontSize: '0.75rem', display: 'block' }}>CONTRIBUTION AMOUNT:</span>
@@ -328,7 +351,15 @@ export default function PublicTransparencyPortal() {
                       {verifyResult.blood_group && (
                         <div>
                           <span style={{ color: '#94a3b8', fontSize: '0.75rem', display: 'block' }}>BLOOD GROUP / UNITS:</span>
-                          <strong style={{ color: '#f43f5e', fontSize: '1.1rem' }}>{verifyResult.blood_group} ({verifyResult.units})</strong>
+                          <strong style={{ color: '#f43f5e', fontSize: '1.1rem' }}>{verifyResult.blood_group} {verifyResult.units ? `(${verifyResult.units})` : ''}</strong>
+                        </div>
+                      )}
+                      {verifyResult.status && (
+                        <div>
+                          <span style={{ color: '#94a3b8', fontSize: '0.75rem', display: 'block' }}>MEMBERSHIP STATUS:</span>
+                          <strong style={{ color: '#4ade80', fontSize: '1rem' }}>
+                            {verifyResult.status === 'VERIFIED_MEMBER' ? 'ACTIVE LIFETIME MEMBER' : verifyResult.status}
+                          </strong>
                         </div>
                       )}
                       <div>

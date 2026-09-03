@@ -4549,7 +4549,7 @@ export default function AdminPage() {
       : cardData.photo_url?.startsWith("/")
         ? `${typeof window !== "undefined" ? window.location.origin : ""}${cardData.photo_url}`
         : `${API_BASE_URL}/${cardData.photo_url || "images/leader-president.png"}`;
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(`https://hinduswarajyouth.online/admin?verify=${memberId}`)}`;
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(`https://hinduswarajyouth.online/public?verify=${encodeURIComponent(memberId)}`)}`;
     const presSig = signatures.president_signature_url || "";
     const sealImg = signatures.association_seal_url || "";
 
@@ -21011,7 +21011,7 @@ _This is an official computer-generated receipt._`;
           const cardUser = idCardProfile || currentUser || {};
           const isViewingOther = idCardProfile && idCardProfile.id && currentUser && String(idCardProfile.id) !== String(currentUser.id);
           const memberIdStr = cardUser.member_id || cardUser.id || cardUser.association_id || "HSY/JGTL/2026/001";
-          const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(`https://hinduswarajyouth.online/admin?verify=${memberIdStr}`)}`;
+          const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(`https://hinduswarajyouth.online/public?verify=${encodeURIComponent(memberIdStr)}`)}`;
           const cardPhoto = cardUser.photo_url?.startsWith("data:") || cardUser.photo_url?.startsWith("http")
             ? cardUser.photo_url
             : cardUser.photo_url?.startsWith("/uploads/")
