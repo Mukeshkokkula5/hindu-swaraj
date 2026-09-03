@@ -4680,6 +4680,8 @@ export default function AdminPage() {
               height: 100%;
               object-fit: cover;
               object-position: center 20%;
+              transform: scale(1.25);
+              transform-origin: center 22%;
               image-rendering: high-quality;
             }
             .member-name {
@@ -21243,9 +21245,10 @@ _This is an official computer-generated receipt._`;
                             height: "100%",
                             objectFit: "cover",
                             objectPosition: "center 20%",
+                            transform: "scale(1.25)",
+                            transformOrigin: "center 22%",
                             imageRendering: "high-quality",
                             WebkitBackfaceVisibility: "hidden",
-                            transform: "translateZ(0)",
                           }}
                         />
                       </div>

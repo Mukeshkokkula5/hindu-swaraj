@@ -122,14 +122,16 @@ export default function LeadershipSection() {
           {filteredLeaders.map((leader, i) => (
             <div key={leader.id || i} className={styles.leaderCard}>
               <div className={styles.avatarWrapper}>
-                <img
-                  src={getMediaUrl(leader.photo_url || leader.image)}
-                  alt={leader.name}
-                  className={styles.leaderAvatar}
-                  onError={(e) => {
-                    e.currentTarget.src = '/images/leader-president.png';
-                  }}
-                />
+                <div className={styles.avatarCircle}>
+                  <img
+                    src={getMediaUrl(leader.photo_url || leader.image)}
+                    alt={leader.name}
+                    className={styles.leaderAvatar}
+                    onError={(e) => {
+                      e.currentTarget.src = '/images/leader-president.png';
+                    }}
+                  />
+                </div>
                 {leader.display_order ? (
                   <div className={styles.orderBadge}>{leader.display_order}</div>
                 ) : null}
