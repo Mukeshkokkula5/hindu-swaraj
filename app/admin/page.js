@@ -1943,6 +1943,11 @@ export default function AdminPage() {
             role: m.role,
             phone: m.phone,
             status: m.active ? "ACTIVE" : "INACTIVE",
+            photo_url: m.photo_url || "",
+            blood_group: m.blood_group || "B+",
+            address: m.address || "Jagtial, Telangana",
+            member_id: m.member_id,
+            association_id: m.association_id,
           })),
         );
       } catch (err) {
@@ -9432,7 +9437,32 @@ _This is an official computer-generated receipt._`;
                         <td style={{ fontWeight: "700", color: "var(--navy)" }}>
                           {item.id}
                         </td>
-                        <td style={{ fontWeight: "600" }}>{item.name}</td>
+                        <td style={{ fontWeight: "600" }}>
+                          <div style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
+                            <img
+                              src={
+                                item.photo_url?.startsWith("data:") || item.photo_url?.startsWith("http")
+                                  ? item.photo_url
+                                  : item.photo_url?.startsWith("/uploads/")
+                                  ? `${API_BASE_URL}${item.photo_url}`
+                                  : item.photo_url || "/images/leader-president.png"
+                              }
+                              alt={item.name}
+                              style={{
+                                width: "32px",
+                                height: "32px",
+                                borderRadius: "50%",
+                                objectFit: "cover",
+                                border: "1.5px solid #ea580c",
+                                flexShrink: 0,
+                              }}
+                              onError={(e) => {
+                                e.currentTarget.src = "/images/leader-president.png";
+                              }}
+                            />
+                            <span>{item.name}</span>
+                          </div>
+                        </td>
                         <td
                           style={{ fontWeight: "600", color: "var(--maroon)" }}
                         >
@@ -20982,7 +21012,7 @@ _This is an official computer-generated receipt._`;
           const isViewingOther = idCardProfile && idCardProfile.id && currentUser && String(idCardProfile.id) !== String(currentUser.id);
           const memberIdStr = cardUser.member_id || cardUser.id || cardUser.association_id || "HSY/JGTL/2026/001";
           const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(`https://hinduswarajyouth.online/admin?verify=${memberIdStr}`)}`;
-          const cardPhoto = cardUser.photo_url?.startsWith("http")
+          const cardPhoto = cardUser.photo_url?.startsWith("data:") || cardUser.photo_url?.startsWith("http")
             ? cardUser.photo_url
             : cardUser.photo_url?.startsWith("/uploads/")
               ? `${API_BASE_URL}${cardUser.photo_url}`
