@@ -4941,6 +4941,13 @@ export default function AdminPage() {
 
   useEffect(() => {
     setMounted(true);
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const verifyCode = params.get("verify");
+      if (verifyCode) {
+        window.location.replace(`/public?verify=${encodeURIComponent(verifyCode)}`);
+      }
+    }
   }, []);
 
   useEffect(() => {
