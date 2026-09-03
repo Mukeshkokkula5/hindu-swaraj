@@ -366,7 +366,7 @@ export default function VolunteerPage() {
                   <label className={styles.label}>Full Address / Colony</label>
                   <input
                     type="text"
-                    placeholder="e.g. H.No 4-2-12, Aravind Nagar, Jagtial"
+                    placeholder="e.g. H.No 4-1-140, Vani Nagar, Jagtial"
                     className={styles.input}
                     value={formData.address}
                     onChange={(e) => setFormData({ ...formData, address: e.target.value })}

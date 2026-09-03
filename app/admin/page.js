@@ -886,7 +886,7 @@ const downloadReceiptPDF = (
                   <div class="sig-bar"></div>
                   <div class="sig-title">Authorized Signatory</div>
                   <div class="sig-org">Hindu Swaraj Youth</div>
-                  <div class="sig-org">Aravind Nagar, Jagtial</div>
+                  <div class="sig-org">H.No. 4-1-140, Vani Nagar, Jagtial</div>
                 </div>
               </div>
             </div>
@@ -903,7 +903,7 @@ const downloadReceiptPDF = (
                 <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/>
                 </svg>
-                <span>Aravind Nagar, Jagtial</span>
+                <span>H.No. 4-1-140, Vani Nagar, Jagtial</span>
               </div>
               <div class="ft-item">
                 <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24">
