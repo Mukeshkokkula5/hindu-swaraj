@@ -238,14 +238,9 @@ export default function VolunteerPage() {
               </div>
 
               <div className={styles.actionRow}>
-                <a
-                  href={`https://wa.me/918499878425?text=${encodeURIComponent(`Hello Hindu Swaraj Team, I have submitted my volunteer application (#VOL-${submittedVolunteer.id}).`)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.waBtn}
-                >
-                  <span>💬</span>
-                  <span>Connect with Coordinator on WhatsApp</span>
+                <a href="tel:+918499878425" className={styles.waBtn} style={{ background: '#0284c7' }}>
+                  <span>📞</span>
+                  <span>Helpline: +91 8499878425</span>
                 </a>
                 <a href="/" className={styles.homeBtn}>
                   <span>🏠</span>

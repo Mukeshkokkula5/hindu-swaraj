@@ -1,6 +1,6 @@
 import { Outfit } from 'next/font/google';
 import './globals.css';
-import WhatsAppWidget from '@/components/WhatsAppWidget';
+// WhatsAppWidget temporarily disabled per user directive
 
 const outfit = Outfit({
   subsets: ['latin'],
@@ -60,7 +60,7 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         {children}
-        <WhatsAppWidget />
+        {/* WhatsApp widget temporarily disabled per user directive */}
       </body>
     </html>
   );
