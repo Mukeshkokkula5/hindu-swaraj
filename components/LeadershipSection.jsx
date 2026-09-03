@@ -18,6 +18,18 @@ const getMediaUrl = (url) => {
   return url;
 };
 
+const formatRoleDisplay = (role) => {
+  if (!role) return 'Member';
+  const r = role.toUpperCase();
+  if (r.includes('EC') || r.includes('EXECUTIVE COMMITTEE')) return 'EC Member';
+  if (r.includes('GENERAL') && r.includes('SECRETARY')) return 'General Secretary';
+  if (r.includes('JOINT') && r.includes('SECRETARY')) return 'Joint Secretary';
+  if (r.includes('VICE') && r.includes('PRESIDENT')) return 'Vice President';
+  if (r.includes('PRESIDENT')) return 'President';
+  if (r.includes('TREASURER')) return 'Treasurer';
+  return role;
+};
+
 const DEFAULT_LEADERS = [];
 
 export default function LeadershipSection() {
@@ -87,9 +99,9 @@ export default function LeadershipSection() {
     <section className={styles.leadership} id="leadership">
       <div className="container">
         <div className={styles.header}>
-          <span className="section-label">OUR TEAM</span>
-          <h2 className="section-title">Leadership &amp; Committee ({leaders.length} Members)</h2>
-          <p className="section-subtitle">
+          <span className={styles.sectionLabel}>OUR TEAM</span>
+          <h2 className={styles.sectionTitle}>Leadership &amp; Committee ({leaders.length} Members)</h2>
+          <p className={styles.sectionSubtitle}>
             Meet the dedicated leadership team, committee members, and youth volunteers driving Hindu Swaraj Youth Welfare Association (Regd. No: 784/2025).
           </p>
         </div>
@@ -167,7 +179,7 @@ export default function LeadershipSection() {
                   {leader.name}
                 </h3>
                 <span className={styles.leaderRole} title={leader.role}>
-                  {leader.role}
+                  {formatRoleDisplay(leader.role)}
                 </span>
 
                 {/* Quick Social Icons */}
