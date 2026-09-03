@@ -25,6 +25,8 @@ export default function LeadershipSection() {
   const [loading, setLoading] = useState(true);
   const [filterRole, setFilterRole] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeLeaderModal, setActiveLeaderModal] = useState(null);
+  const [hoveredLeaderId, setHoveredLeaderId] = useState(null);
 
   useEffect(() => {
     async function fetchLeaders() {
@@ -45,6 +47,15 @@ export default function LeadershipSection() {
     fetchLeaders();
   }, []);
 
+  // Close modal on ESC key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') setActiveLeaderModal(null);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const filteredLeaders = leaders.filter((m) => {
     const matchesSearch =
       (m.name && m.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
@@ -53,55 +64,66 @@ export default function LeadershipSection() {
     if (!matchesSearch) return false;
 
     if (filterRole === 'ALL') return true;
-    if (filterRole === 'CORE') {
-      const roleLower = (m.role || '').toLowerCase();
+    if (filterRole === 'EXECUTIVE') {
+      const r = (m.role || '').toUpperCase();
       return (
-        roleLower.includes('president') ||
-        roleLower.includes('secretary') ||
-        roleLower.includes('treasurer')
+        r.includes('PRESIDENT') ||
+        r.includes('SECRETARY') ||
+        r.includes('TREASURER')
       );
     }
     if (filterRole === 'EC') {
-      const roleLower = (m.role || '').toLowerCase();
-      return roleLower.includes('executive') || roleLower.includes('committee') || roleLower.includes('member');
+      const r = (m.role || '').toUpperCase();
+      return r.includes('EC') || r.includes('COMMITTEE');
+    }
+    if (filterRole === 'MEMBERS') {
+      const r = (m.role || '').toUpperCase();
+      return r.includes('MEMBER') && !r.includes('EC');
     }
     return true;
   });
 
   return (
-    <section className={styles.leadership} id="leadership">
-      <div className="container">
+    <section className={styles.section} id="leadership">
+      <div className={styles.container}>
+        {/* Header */}
         <div className={styles.header}>
-          <span className="section-label">OUR TEAM</span>
-          <h2 className="section-title">Leadership &amp; Committee ({leaders.length} Members)</h2>
-          <p className="section-subtitle">
-            Meet the dedicated leadership team, committee members, and youth volunteers driving Hindu Swaraj Youth Welfare Association.
+          <span className={styles.subTitle}>LEADERSHIP &amp; TEAM</span>
+          <h2 className={styles.title}>
+            మా కార్యవర్గం <span>(Governing Body &amp; Members)</span>
+          </h2>
+          <div className={styles.divider}></div>
+          <p className={styles.description}>
+            హిందూ స్వరాజ్ యూత్ వెల్ఫేర్ అసోసియేషన్ (Regd. No: 784/2025) ద్వారా సమాజ సేవలో నిరంతరం శ్రమిస్తున్న నిస్వార్థ నాయకత్వం మరియు సభ్యులు.
           </p>
         </div>
 
-        {/* Filter and Search Bar for large teams */}
-        <div className={styles.controlsBar}>
+        {/* Filter Tabs & Search Bar */}
+        <div className={styles.filterToolbar}>
           <div className={styles.filterTabs}>
             <button
-              type="button"
-              className={`${styles.filterTab} ${filterRole === 'ALL' ? styles.filterTabActive : ''}`}
+              className={`${styles.filterBtn} ${filterRole === 'ALL' ? styles.active : ''}`}
               onClick={() => setFilterRole('ALL')}
             >
-              All Members ({leaders.length})
+              All Team ({leaders.length})
             </button>
             <button
-              type="button"
-              className={`${styles.filterTab} ${filterRole === 'CORE' ? styles.filterTabActive : ''}`}
-              onClick={() => setFilterRole('CORE')}
+              className={`${styles.filterBtn} ${filterRole === 'EXECUTIVE' ? styles.active : ''}`}
+              onClick={() => setFilterRole('EXECUTIVE')}
             >
-              Office Bearers
+              Key Executives
             </button>
             <button
-              type="button"
-              className={`${styles.filterTab} ${filterRole === 'EC' ? styles.filterTabActive : ''}`}
+              className={`${styles.filterBtn} ${filterRole === 'EC' ? styles.active : ''}`}
               onClick={() => setFilterRole('EC')}
             >
               Executive Committee
+            </button>
+            <button
+              className={`${styles.filterBtn} ${filterRole === 'MEMBERS' ? styles.active : ''}`}
+              onClick={() => setFilterRole('MEMBERS')}
+            >
+              Members
             </button>
           </div>
 
@@ -120,8 +142,17 @@ export default function LeadershipSection() {
         {/* Compact Grid of Members */}
         <div className={styles.leadersGrid}>
           {filteredLeaders.map((leader, i) => (
-            <div key={leader.id || i} className={styles.leaderCard}>
-              <div className={styles.avatarWrapper}>
+            <div
+              key={leader.id || i}
+              className={styles.leaderCard}
+              onClick={() => setActiveLeaderModal(leader)}
+              title="Click to view full photo and profile"
+            >
+              <div
+                className={styles.avatarWrapper}
+                onMouseEnter={() => setHoveredLeaderId(leader.id || i)}
+                onMouseLeave={() => setHoveredLeaderId(null)}
+              >
                 <div className={styles.avatarCircle}>
                   <img
                     src={getMediaUrl(leader.photo_url || leader.image)}
@@ -131,10 +162,33 @@ export default function LeadershipSection() {
                       e.currentTarget.src = '/images/leader-president.png';
                     }}
                   />
+                  <div className={styles.zoomHintIcon}>🔍</div>
                 </div>
+
                 {leader.display_order ? (
                   <div className={styles.orderBadge}>{leader.display_order}</div>
                 ) : null}
+
+                {/* Floating Magnified HD Popout on Hover */}
+                {hoveredLeaderId === (leader.id || i) && (
+                  <div className={styles.hoverPopout} onClick={(e) => e.stopPropagation()}>
+                    <div className={styles.popoutImageWrap}>
+                      <img
+                        src={getMediaUrl(leader.photo_url || leader.image)}
+                        alt={leader.name}
+                        className={styles.popoutImage}
+                        onError={(e) => {
+                          e.currentTarget.src = '/images/leader-president.png';
+                        }}
+                      />
+                      <div className={styles.popoutBadge}>
+                        {leader.display_order ? `#${leader.display_order} ` : ''}{leader.role}
+                      </div>
+                    </div>
+                    <div className={styles.popoutName}>{leader.name}</div>
+                    <div className={styles.popoutHint}>🔍 క్లిక్ చేసి పూర్తి ఫోటో చూడండి</div>
+                  </div>
+                )}
               </div>
 
               <div className={styles.leaderInfo}>
@@ -145,9 +199,9 @@ export default function LeadershipSection() {
                   {leader.role}
                 </span>
 
-                {/* Quick Social Icons (Phone & Email omitted per privacy directive) */}
+                {/* Quick Social Icons */}
                 {(leader.social_fb || leader.social_insta || leader.social_linkedin) && (
-                  <div className={styles.socialIconsMini}>
+                  <div className={styles.socialIconsMini} onClick={(e) => e.stopPropagation()}>
                   {leader.social_fb && (
                     <a
                       href={leader.social_fb}
@@ -178,6 +232,55 @@ export default function LeadershipSection() {
             </div>
           ))}
         </div>
+
+        {/* Grand Lightbox Modal on Click */}
+        {activeLeaderModal && (
+          <div className={styles.modalOverlay} onClick={() => setActiveLeaderModal(null)}>
+            <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+              <button
+                className={styles.modalCloseBtn}
+                onClick={() => setActiveLeaderModal(null)}
+                aria-label="Close"
+              >
+                ✕
+              </button>
+
+              <div className={styles.modalCard}>
+                <div className={styles.modalImageContainer}>
+                  <img
+                    src={getMediaUrl(activeLeaderModal.photo_url || activeLeaderModal.image)}
+                    alt={activeLeaderModal.name}
+                    className={styles.modalImage}
+                    onError={(e) => {
+                      e.currentTarget.src = '/images/leader-president.png';
+                    }}
+                  />
+                  {activeLeaderModal.display_order ? (
+                    <div className={styles.modalOrderBadge}>
+                      #{activeLeaderModal.display_order}
+                    </div>
+                  ) : null}
+                </div>
+
+                <div className={styles.modalDetails}>
+                  <div className={styles.modalGovtBadge}>
+                    🏛️ GOVT OF TELANGANA REGD. NO: 784/2025
+                  </div>
+                  <h2 className={styles.modalName}>{activeLeaderModal.name}</h2>
+                  <div className={styles.modalRoleBadge}>
+                    {activeLeaderModal.role}
+                  </div>
+                  <p className={styles.modalTagline}>
+                    Executive Leadership &amp; Active Governing Member &bull; Jagtial
+                  </p>
+                  <div className={styles.modalOrgNotice}>
+                    🚩 హిందూ స్వరాజ్ యూత్ వెల్ఫేర్ అసోసియేషన్
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {filteredLeaders.length === 0 && (
           <div style={{ textAlign: 'center', padding: '40px 20px', color: '#64748b' }}>
