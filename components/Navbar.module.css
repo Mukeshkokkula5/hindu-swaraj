@@ -136,6 +136,16 @@
   animation: dropFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.dropdownMenu::before {
+  content: '';
+  position: absolute;
+  top: -18px;
+  left: 0;
+  right: 0;
+  height: 18px;
+  background: transparent;
+}
+
 @keyframes dropFadeIn {
   from { opacity: 0; transform: translate(-50%, -8px); }
   to { opacity: 1; transform: translate(-50%, 0); }

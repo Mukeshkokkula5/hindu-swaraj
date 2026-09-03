@@ -60,6 +60,7 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [servicesDropdownOpen, setServicesDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const timeoutRef = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -77,6 +78,17 @@ export default function Navbar() {
     document.addEventListener('click', handleOutsideClick);
     return () => document.removeEventListener('click', handleOutsideClick);
   }, []);
+
+  const handleMouseEnter = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setServicesDropdownOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    timeoutRef.current = setTimeout(() => {
+      setServicesDropdownOpen(false);
+    }, 220);
+  };
 
   return (
     <nav className={`${styles.navbar} ${scrolled ? styles.scrolled : ''}`} id="navbar">
@@ -107,14 +119,15 @@ export default function Navbar() {
           <div
             className={styles.dropdownContainer}
             ref={dropdownRef}
-            onMouseEnter={() => setServicesDropdownOpen(true)}
-            onMouseLeave={() => setServicesDropdownOpen(false)}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
           >
             <button
               type="button"
               className={`${styles.navLink} ${styles.navLinkHighlight}`}
               onClick={(e) => {
                 e.stopPropagation();
+                if (timeoutRef.current) clearTimeout(timeoutRef.current);
                 setServicesDropdownOpen((prev) => !prev);
               }}
             >
