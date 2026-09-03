@@ -6987,10 +6987,11 @@ _This is an official computer-generated receipt._`;
               <div className="brandLogoWrap">
                 <Image
                   src="/images/logo_v2.png"
-                  alt="Logo"
-                  width={110}
-                  height={110}
+                  alt="Hindu Swaraj Logo"
+                  width={150}
+                  height={150}
                   className="brandLogoImg"
+                  priority
                 />
               </div>
               <h2 className="brandTitle">HINDU SWARAJ</h2>
