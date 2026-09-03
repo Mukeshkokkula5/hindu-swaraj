@@ -1485,7 +1485,6 @@ export default function AdminPage() {
   const [showEditNavaratriPostModal, setShowEditNavaratriPostModal] = useState(false);
   const [editingNavaratriPost, setEditingNavaratriPost] = useState(null);
   const [editPostImagePreview, setEditPostImagePreview] = useState("");
-  const [editPostUploading, setEditPostUploading] = useState(false);
   const [newNavaratriPost, setNewNavaratriPost] = useState({
     day_number: 1,
     title: "",
@@ -1521,7 +1520,7 @@ export default function AdminPage() {
   // Association Team & Member Posts States
   const [assocMembers, setAssocMembers] = useState([]);
   const [assocPosts, setAssocPosts] = useState([]);
-  const [assocSubTab, setAssocSubTab] = useState("members"); // "members" | "posts"
+  const [assocSubTab, setAssocSubTab] = useState("posts"); // "posts" | "social" | "bank"
   const [assocLoading, setAssocLoading] = useState(false);
   const [assocUploading, setAssocUploading] = useState(false);
   const [assocMessage, setAssocMessage] = useState("");
@@ -15642,26 +15641,6 @@ _This is an official computer-generated receipt._`;
             <div style={{ display: "flex", gap: "12px", borderBottom: "2px solid #e2e8f0", marginBottom: "24px" }}>
               <button
                 type="button"
-                onClick={() => setAssocSubTab("members")}
-                style={{
-                  padding: "12px 20px",
-                  fontWeight: "700",
-                  fontSize: "0.95rem",
-                  background: "none",
-                  border: "none",
-                  borderBottom: assocSubTab === "members" ? "3px solid #0284c7" : "3px solid transparent",
-                  color: assocSubTab === "members" ? "#0284c7" : "#64748b",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                }}
-              >
-                👥 Association Members &amp; Leaders ({assocMembers.length})
-              </button>
-
-              <button
-                type="button"
                 onClick={() => setAssocSubTab("posts")}
                 style={{
                   padding: "12px 20px",
@@ -15721,142 +15700,7 @@ _This is an official computer-generated receipt._`;
               </button>
             </div>
 
-            {/* SUB-TAB 1: ASSOCIATION MEMBERS */}
-            {assocSubTab === "members" && (
-              <div className="panelCard">
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", flexWrap: "wrap", gap: "10px" }}>
-                  <div>
-                    <h3 className="panelTitle" style={{ fontSize: "1.15rem", fontWeight: "700", margin: 0 }}>
-                      👥 Leadership &amp; Active Members Roster
-                    </h3>
-                    <p style={{ fontSize: "0.85rem", color: "#64748b", margin: "4px 0 0 0" }}>
-                      Add executive committee members, upload their photo, and toggle visibility on the public website.
-                    </p>
-                  </div>
-                  {isFullAdmin && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setAssocMemberPhotoPreview("");
-                        setShowAddAssocMemberModal(true);
-                      }}
-                      style={{
-                        background: "#0284c7",
-                        color: "#fff",
-                        border: "none",
-                        padding: "9px 18px",
-                        borderRadius: "6px",
-                        fontWeight: "700",
-                        fontSize: "0.88rem",
-                        cursor: "pointer",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "6px",
-                      }}
-                    >
-                      ➕ Add New Member
-                    </button>
-                  )}
-                </div>
-
-                {assocLoading && assocMembers.length === 0 ? (
-                  <p style={{ textAlign: "center", padding: "30px", color: "#64748b" }}>Loading members...</p>
-                ) : assocMembers.length === 0 ? (
-                  <p style={{ textAlign: "center", padding: "30px", color: "#64748b" }}>No members added yet. Click Add New Member above.</p>
-                ) : (
-                  <div className="tableContainer">
-                    <table className="adminTable">
-                      <thead>
-                        <tr>
-                          <th>PHOTO</th>
-                          <th>NAME &amp; ROLE</th>
-                          <th>CONTACT DETAILS</th>
-                          <th>BIO / DETAILS</th>
-                          <th style={{ textAlign: "center" }}>ORDER</th>
-                          <th style={{ textAlign: "center" }}>WEBSITE VISIBILITY</th>
-                          <th style={{ textAlign: "center" }}>{isFullAdmin ? "ACTIONS" : "ACCESS"}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {assocMembers.map((m) => (
-                          <tr key={m.id}>
-                            <td style={{ width: "60px" }}>
-                              <img
-                                src={m.photo_url?.startsWith("http") ? m.photo_url : (m.photo_url?.startsWith("/uploads/") ? `${API_BASE_URL}${m.photo_url}` : m.photo_url || "/images/leader-president.png")}
-                                alt={m.name}
-                                style={{ width: "48px", height: "48px", borderRadius: "50%", objectFit: "cover", border: "2px solid #e2e8f0" }}
-                                onError={(e) => {
-                                  e.currentTarget.src = "/images/leader-president.png";
-                                }}
-                              />
-                            </td>
-                            <td>
-                              <div style={{ fontWeight: "700", color: "#1e293b", fontSize: "0.95rem" }}>{m.name}</div>
-                              <span style={{ fontSize: "0.78rem", fontWeight: "700", background: "rgba(2, 132, 199, 0.1)", color: "#0284c7", padding: "2px 8px", borderRadius: "6px", display: "inline-block", marginTop: 2 }}>
-                                {m.role}
-                              </span>
-                            </td>
-                            <td style={{ fontSize: "0.85rem" }}>
-                              {m.phone && <div>📞 {m.phone}</div>}
-                              {m.email && <div style={{ color: "#64748b" }}>✉️ {m.email}</div>}
-                            </td>
-                            <td style={{ fontSize: "0.82rem", color: "#475569", maxWidth: "220px" }}>
-                              {m.bio || "-"}
-                            </td>
-                            <td style={{ textAlign: "center", fontWeight: "700" }}>
-                              #{m.display_order || 0}
-                            </td>
-                            <td style={{ textAlign: "center" }}>
-                              <span
-                                style={{
-                                  fontSize: "0.75rem",
-                                  fontWeight: "700",
-                                  padding: "3px 8px",
-                                  borderRadius: "12px",
-                                  background: m.show_on_website ? "rgba(16, 185, 129, 0.15)" : "rgba(100, 116, 139, 0.15)",
-                                  color: m.show_on_website ? "#047857" : "#475569",
-                                }}
-                              >
-                                {m.show_on_website ? "VISIBLE" : "HIDDEN"}
-                              </span>
-                            </td>
-                            <td style={{ textAlign: "center" }}>
-                              {isFullAdmin ? (
-                                <div style={{ display: "flex", gap: "6px", justifyContent: "center" }}>
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      setEditingAssocMember(m);
-                                      setAssocMemberPhotoPreview(m.photo_url || "");
-                                    }}
-                                    style={{ background: "#f1f5f9", border: "1px solid #cbd5e1", padding: "5px 10px", borderRadius: "4px", fontSize: "0.78rem", fontWeight: "600", cursor: "pointer" }}
-                                  >
-                                    ✏️ Edit
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => handleDeleteAssocMember(m.id)}
-                                    style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", color: "#ef4444", padding: "5px 10px", borderRadius: "4px", fontSize: "0.78rem", fontWeight: "600", cursor: "pointer" }}
-                                  >
-                                    🗑 Delete
-                                  </button>
-                                </div>
-                              ) : (
-                                <span style={{ color: "#64748b", fontSize: "0.78rem" }}>
-                                  View Only
-                                </span>
-                              )}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* SUB-TAB 2: MEMBER POSTS & PHOTO FEED */}
+            {/* SUB-TAB: MEMBER POSTS & PHOTO FEED */}
             {assocSubTab === "posts" && (
               <div className="panelCard">
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", flexWrap: "wrap", gap: "10px" }}>
