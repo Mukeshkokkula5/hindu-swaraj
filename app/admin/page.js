@@ -4544,7 +4544,7 @@ export default function AdminPage() {
     const bloodGroup = cardData.blood_group || "B+";
     const phone = cardData.phone || "+91 8499878425";
     const address = cardData.address || "Jagtial, Telangana";
-    const photoUrl = cardData.photo_url?.startsWith("http")
+    const photoUrl = cardData.photo_url?.startsWith("data:") || cardData.photo_url?.startsWith("http")
       ? cardData.photo_url
       : cardData.photo_url?.startsWith("/")
         ? `${typeof window !== "undefined" ? window.location.origin : ""}${cardData.photo_url}`
@@ -4664,8 +4664,8 @@ export default function AdminPage() {
               user-select: none;
             }
             .photo-frame {
-              width: 105px;
-              height: 105px;
+              width: 115px;
+              height: 130px;
               border-radius: 12px;
               border: 3px solid #f59e0b;
               box-shadow: 0 4px 12px rgba(0,0,0,0.12);
@@ -4679,6 +4679,8 @@ export default function AdminPage() {
               width: 100%;
               height: 100%;
               object-fit: cover;
+              object-position: center 20%;
+              image-rendering: high-quality;
             }
             .member-name {
               font-size: 15px;
@@ -21222,8 +21224,8 @@ _This is an official computer-generated receipt._`;
 
                       {/* Photo Frame */}
                       <div style={{
-                        width: "105px",
-                        height: "105px",
+                        width: "115px",
+                        height: "130px",
                         borderRadius: "12px",
                         border: "3px solid #f59e0b",
                         boxShadow: "0 4px 12px rgba(0,0,0,0.12)",
@@ -21236,7 +21238,15 @@ _This is an official computer-generated receipt._`;
                         <img
                           src={cardPhoto}
                           alt={cardUser.name}
-                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                            objectPosition: "center 20%",
+                            imageRendering: "high-quality",
+                            WebkitBackfaceVisibility: "hidden",
+                            transform: "translateZ(0)",
+                          }}
                         />
                       </div>
 
