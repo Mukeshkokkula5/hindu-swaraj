@@ -52,12 +52,14 @@ export const metadata = {
   },
 };
 
+import InstallAppBanner from '../components/InstallAppBanner';
+
 export const viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
   viewportFit: 'cover',
-  themeColor: '#1B130E',
+  themeColor: '#800A0D',
 };
 
 export default function RootLayout({ children }) {
@@ -65,10 +67,15 @@ export default function RootLayout({ children }) {
     <html lang="en" className={outfit.variable}>
       <head>
         <link rel="icon" href="/images/logo_v2.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/icon-192.png" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="Hindu Swaraj" />
       </head>
       <body>
         {children}
-        {/* WhatsApp widget temporarily disabled per user directive */}
+        <InstallAppBanner />
       </body>
     </html>
   );

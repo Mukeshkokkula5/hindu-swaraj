@@ -1,0 +1,25 @@
+{
+  "appId": "online.hinduswarajyouth.app",
+  "appName": "Hindu Swaraj",
+  "webDir": "public",
+  "server": {
+    "url": "https://www.hinduswarajyouth.online",
+    "cleartext": true,
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": true,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": false
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "launchAutoHide": true,
+      "backgroundColor": "#1B130E",
+      "androidSplashResourceName": "splash",
+      "androidScaleType": "CENTER_CROP",
+      "showSpinner": false
+    }
+  }
+}

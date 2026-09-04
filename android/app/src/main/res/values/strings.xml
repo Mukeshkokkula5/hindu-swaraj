@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Hindu Swaraj</string>
+    <string name="title_activity_main">Hindu Swaraj</string>
+    <string name="package_name">online.hinduswarajyouth.app</string>
+    <string name="custom_url_scheme">online.hinduswarajyouth.app</string>
+</resources>

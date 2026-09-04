@@ -9,6 +9,8 @@ const importantLinks = [
   { label: '🩸 Blood Donation Portal & Heroes', href: '/blood-donation' },
   { label: 'Become a Volunteer', href: '/volunteer' },
   { label: 'Donate', href: '/#donate' },
+  { label: 'Privacy Policy', href: '/privacy-policy' },
+  { label: 'Terms & Conditions', href: '/terms' },
   { label: 'Contact Us', href: '/#footer' },
 ];
 
