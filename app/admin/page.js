@@ -2005,8 +2005,9 @@ export default function AdminPage() {
             name: f.fund_name,
             fund_name: f.fund_name,
             type: f.fund_type,
-            amount: Number(f.base_amount || 0),
-            balance: Number(f.balance || 0),
+            amount: Number(f.balance !== undefined ? f.balance : (f.base_amount || 0)),
+            balance: Number(f.balance !== undefined ? f.balance : (f.base_amount || 0)),
+            baseAmount: Number(f.base_amount || 0),
             totalCollection: Number(f.total_collection || 0),
             status: f.status,
           })),
@@ -9915,7 +9916,7 @@ _This is an official computer-generated receipt._`;
                       <tr>
                         <th>NAME</th>
                         <th>TYPE</th>
-                        <th>BASE AMOUNT</th>
+                        <th>CURRENT BALANCE</th>
                         <th>TOTAL COLLECTION</th>
                         <th>STATUS</th>
                         <th style={{ textAlign: "center" }}>{isFullAdmin ? "ACTIONS" : "ACCESS"}</th>
@@ -9953,8 +9954,8 @@ _This is an official computer-generated receipt._`;
                               {fund.type}
                             </span>
                           </td>
-                          <td style={{ fontWeight: "700" }}>
-                            ₹{fund.amount.toLocaleString()}
+                          <td style={{ fontWeight: "700", color: Number(fund.balance !== undefined ? fund.balance : fund.amount) > 0 ? "#16a34a" : "#0f172a" }}>
+                            ₹{Number(fund.balance !== undefined ? fund.balance : (fund.amount || 0)).toLocaleString()}
                           </td>
                           <td style={{ fontWeight: "700", color: "#10b981" }}>
                             ₹{fund.totalCollection.toLocaleString()}
@@ -23197,7 +23198,7 @@ _This is an official computer-generated receipt._`;
                 <option value="">-- Choose Fund --</option>
                 {funds.map((f) => (
                   <option key={f.id} value={f.id}>
-                    {f.name} (Balance: ₹{f.amount.toLocaleString()})
+                    {f.name} (Balance: ₹{Number(f.balance !== undefined ? f.balance : (f.amount || 0)).toLocaleString()})
                   </option>
                 ))}
               </select>
@@ -23763,7 +23764,7 @@ _This is an official computer-generated receipt._`;
                 <option value="">-- Choose Fund --</option>
                 {funds.map((f) => (
                   <option key={f.id} value={f.id}>
-                    {f.name} (Balance: ₹{f.amount.toLocaleString()})
+                    {f.name} (Balance: ₹{Number(f.balance !== undefined ? f.balance : (f.amount || 0)).toLocaleString()})
                   </option>
                 ))}
               </select>
@@ -24265,7 +24266,7 @@ _This is an official computer-generated receipt._`;
                 <option value="">-- Choose Fund Category --</option>
                 {funds.map((f) => (
                   <option key={f.id} value={f.id}>
-                    {f.name} (Balance: ₹{f.amount.toLocaleString()})
+                    {f.name} (Balance: ₹{Number(f.balance !== undefined ? f.balance : (f.amount || 0)).toLocaleString()})
                   </option>
                 ))}
               </select>
