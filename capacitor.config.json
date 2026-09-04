@@ -3,7 +3,7 @@
   "appName": "Hindu Swaraj",
   "webDir": "public",
   "server": {
-    "url": "https://www.hinduswarajyouth.online",
+    "url": "https://www.hinduswarajyouth.online/admin",
     "cleartext": true,
     "androidScheme": "https"
   },

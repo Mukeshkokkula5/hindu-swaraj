@@ -4,8 +4,8 @@ export default function manifest() {
     short_name: 'Hindu Swaraj',
     description:
       'Official Mobile App for Hindu Swaraj Youth Welfare Association Jagtial (Regd. No. 784/2025). 24/7 Emergency Blood Seva, Navaratri Seva, and Member Dues.',
-    start_url: '/',
-    id: '/',
+    start_url: '/admin',
+    id: '/admin',
     display: 'standalone',
     background_color: '#1B130E',
     theme_color: '#800A0D',

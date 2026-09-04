@@ -6,6 +6,9 @@ import AapadbandhavaAdminTab from "../../components/AapadbandhavaAdminTab";
 import MasterPageCMSAdminTab from "../../components/MasterPageCMSAdminTab";
 import ElectionCommandDesk from "../../components/ElectionCommandDesk";
 import MemberVotingBooth from "../../components/MemberVotingBooth";
+import AppSplash from "../../components/app/AppSplash";
+import OnboardingSlides from "../../components/app/OnboardingSlides";
+import MobileAppBottomNav from "../../components/app/MobileAppBottomNav";
 import "./admin.css";
 
 const ROLES_LIST = [
@@ -970,6 +973,25 @@ export default function AdminPage() {
     return null;
   });
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const seen = localStorage.getItem("hsy_onboarding_seen");
+      if (!seen) {
+        setShowOnboarding(true);
+      }
+    }
+  }, []);
+
+  const handleFinishOnboarding = () => {
+    setShowOnboarding(false);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("hsy_onboarding_seen", "true");
+    }
+  };
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -6996,10 +7018,15 @@ _This is an official computer-generated receipt._`;
 
   if (!isAuthenticated) {
     return (
-      <div className="loginScreen">
-        <div className="loginContainer">
-          {/* Left Side: Brand Panel */}
-          <div className="loginBrandSide">
+      <>
+        {showSplash && <AppSplash onComplete={() => setShowSplash(false)} />}
+        {showOnboarding && !showSplash && (
+          <OnboardingSlides onFinish={handleFinishOnboarding} />
+        )}
+        <div className="loginScreen">
+          <div className="loginContainer">
+            {/* Left Side: Brand Panel */}
+            <div className="loginBrandSide">
             <div className="brandGlow1"></div>
             <div className="brandGlow2"></div>
             <div className="brandContent">
@@ -7468,11 +7495,15 @@ _This is an official computer-generated receipt._`;
           </div>
         </div>
       </div>
-    );
+    </>
+  );
   }
 
   return (
     <div className="adminPage">
+      {/* App Splash for authenticated user on launch */}
+      {showSplash && <AppSplash onComplete={() => setShowSplash(false)} />}
+
       {/* Mobile Top Sticky Navigation Bar */}
       <header className="adminMobileTopBar">
         <div className="adminMobileBrand">
@@ -7488,23 +7519,46 @@ _This is an official computer-generated receipt._`;
             <div className="adminMobileSub">{userRole ? userRole.replace(/_/g, " ") : "CONTROL CENTER"}</div>
           </div>
         </div>
-        <button
-          type="button"
-          className="adminMobileMenuBtn"
-          onClick={() => setMobileSidebarOpen((prev) => !prev)}
-          aria-label="Toggle Navigation Menu"
-        >
-          {mobileSidebarOpen ? (
-            <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          ) : (
-            <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          )}
-          <span>{mobileSidebarOpen ? "Close" : "Menu"}</span>
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <a
+            href="/"
+            target="_blank"
+            rel="noreferrer"
+            style={{
+              fontSize: "0.74rem",
+              fontWeight: "700",
+              color: "#d97706",
+              textDecoration: "none",
+              padding: "5px 10px",
+              borderRadius: "6px",
+              background: "#fffbeb",
+              border: "1px solid #fde68a",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "4px",
+            }}
+            title="Open Public Website in new tab"
+          >
+            🌐 Web
+          </a>
+          <button
+            type="button"
+            className="adminMobileMenuBtn"
+            onClick={() => setMobileSidebarOpen((prev) => !prev)}
+            aria-label="Toggle Navigation Menu"
+          >
+            {mobileSidebarOpen ? (
+              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            )}
+            <span>{mobileSidebarOpen ? "Close" : "Menu"}</span>
+          </button>
+        </div>
       </header>
 
       {/* Mobile Backdrop Overlay */}
@@ -27447,6 +27501,19 @@ _This is an official computer-generated receipt._`;
         </div>
       )}
 
+      {/* Mobile Native Bottom Navigation Bar */}
+      <MobileAppBottomNav
+        activeTab={activeTab}
+        setActiveTab={(tab) => {
+          setActiveTab(tab);
+          if (typeof window !== "undefined") {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }
+        }}
+        onOpenMenu={() => setMobileSidebarOpen(true)}
+        hasTabAccess={hasTabAccess}
+        pendingDuesCount={subscriptionDuesMatrix?.summary?.pending_members || 0}
+      />
     </div>
   );
 }

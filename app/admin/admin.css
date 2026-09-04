@@ -13,7 +13,7 @@
   min-height: 100vh;
   min-height: 100dvh;
   width: 100vw;
-  background: radial-gradient(circle at 10% 20%, #fefdfb 0%, #f3ede6 100%);
+  background: radial-gradient(circle at 50% 25%, #2a0407 0%, #130103 55%, #050001 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -28,30 +28,29 @@
 .loginContainer {
   display: flex;
   width: 100%;
-  max-width: 860px;
-  max-height: calc(100vh - 40px); /* Fit within screen height */
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(27, 19, 14, 0.08);
-  border-radius: var(--radius-xl);
+  max-width: 880px;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border: 1px solid rgba(212, 160, 23, 0.35);
+  border-radius: 24px;
   overflow: hidden;
-  box-shadow: 0 30px 60px rgba(27, 19, 14, 0.08), 0 0 40px rgba(128, 10, 13, 0.03);
+  box-shadow: 0 35px 80px rgba(0, 0, 0, 0.7), 0 0 50px rgba(212, 160, 23, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.2);
   margin: auto;
 }
 
 /* Left Brand Side */
 .loginBrandSide {
   flex: 1.1;
-  background: linear-gradient(135deg, var(--maroon-dark) 0%, #1c0203 100%);
-  padding: 36px;
+  background: linear-gradient(135deg, rgba(128, 10, 13, 0.4) 0%, rgba(15, 2, 3, 0.8) 100%);
+  padding: 40px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   position: relative;
   overflow: hidden;
-  border-right: 1px solid rgba(212, 160, 23, 0.1);
+  border-right: 1px solid rgba(212, 160, 23, 0.2);
   text-align: center;
 }
 
@@ -146,10 +145,11 @@
 /* Right Form Side */
 .loginFormSide {
   flex: 1;
-  padding: 36px;
+  padding: 40px;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  background: rgba(14, 2, 4, 0.55);
 }
 
 .loginFormCard {
@@ -161,17 +161,17 @@
 }
 
 .formTitle {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   font-weight: 800;
-  color: var(--navy);
+  color: #ffffff;
   letter-spacing: -0.5px;
   margin-bottom: 4px;
 }
 
 .formSubtitle {
-  font-size: 0.82rem;
-  color: var(--text-secondary);
-  line-height: 1.3;
+  font-size: 0.84rem;
+  color: #cbd5e1;
+  line-height: 1.4;
 }
 
 .formGroup {
@@ -180,11 +180,11 @@
 
 .formLabel {
   display: block;
-  font-size: 0.7rem;
-  font-weight: 700;
+  font-size: 0.72rem;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--text-secondary);
+  letter-spacing: 0.8px;
+  color: #d4a017;
   margin-bottom: 6px;
 }
 
@@ -197,7 +197,7 @@
 .inputIcon {
   position: absolute;
   left: 14px;
-  color: var(--text-muted);
+  color: #94a3b8;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -208,14 +208,18 @@
 .inputField {
   width: 100%;
   padding: 12px 14px 12px 42px;
-  background: #ffffff;
-  border: 1px solid rgba(27, 19, 14, 0.12);
-  border-radius: var(--radius-md);
-  color: var(--navy);
-  font-size: 0.9rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(212, 160, 23, 0.3);
+  border-radius: 12px;
+  color: #ffffff;
+  font-size: 0.95rem;
   font-family: inherit;
   outline: none;
   transition: all var(--transition-fast);
+}
+
+.inputField::placeholder {
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .passwordField {
@@ -228,7 +232,7 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: var(--text-muted);
+  color: #94a3b8;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -240,17 +244,17 @@
 }
 
 .eyeButton:hover {
-  color: var(--saffron);
+  color: #d4a017;
 }
 
 .inputWrapper:focus-within .inputIcon {
-  color: var(--saffron);
+  color: #d4a017;
 }
 
 .inputField:focus {
-  border-color: var(--saffron);
-  background: #ffffff;
-  box-shadow: 0 0 0 3px rgba(216, 88, 24, 0.15);
+  border-color: #d4a017;
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 0 16px rgba(212, 160, 23, 0.35);
 }
 
 .forgotPasswordWrapper {
@@ -261,46 +265,40 @@
 
 .forgotPasswordLink {
   font-size: 0.75rem;
-  color: var(--text-secondary);
+  color: #cbd5e1;
   text-decoration: none;
   transition: color var(--transition-fast);
   font-weight: 600;
 }
 
 .forgotPasswordLink:hover {
-  color: var(--saffron);
+  color: #d4a017;
   text-decoration: underline;
 }
 
 .loginBtn {
   width: 100%;
-  margin-top: 12px;
-  padding: 12px;
-  font-size: 0.9rem;
-  font-weight: 700;
-  border-radius: var(--radius-full);
-  background: linear-gradient(
-    135deg,
-    var(--maroon) 0%,
-    var(--maroon-dark) 100%
-  );
-  color: var(--white);
-  box-shadow: 0 4px 14px rgba(128, 10, 13, 0.3);
+  margin-top: 14px;
+  padding: 14px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #d4a017 0%, #b45309 100%);
+  color: #120102;
+  border: none;
+  box-shadow: 0 6px 22px rgba(212, 160, 23, 0.45);
   transition: all var(--transition-base);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
+  cursor: pointer;
 }
 
 .loginBtn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(128, 10, 13, 0.5);
-  background: linear-gradient(
-    135deg,
-    var(--maroon-light) 0%,
-    var(--maroon) 100%
-  );
+  box-shadow: 0 8px 28px rgba(212, 160, 23, 0.65);
+  background: linear-gradient(135deg, #fef08a 0%, #d4a017 100%);
 }
 
 .errorMsg {
@@ -848,6 +846,10 @@
   display: none;
 }
 
+.mobileAppBottomNav {
+  display: none !important;
+}
+
 /* --- RESPONSIVE ADAPTATIONS --- */
 @media (max-width: 1024px) {
   .statsGrid {
@@ -1001,12 +1003,16 @@
 
   /* Main Panel Content Area */
   .mainContent {
-    padding: 16px 12px !important;
+    padding: 16px 12px 90px 12px !important;
     max-height: none !important;
     overflow-y: visible !important;
     width: 100% !important;
     max-width: 100vw !important;
     box-sizing: border-box !important;
+  }
+
+  .mobileAppBottomNav {
+    display: flex !important;
   }
 
   .contentHeader {
