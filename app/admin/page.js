@@ -1972,9 +1972,9 @@ export default function AdminPage() {
             fund_id: e.fund_id,
             fund_name: e.fund_name || "General Fund",
             bill_url: e.bill_url
-              ? e.bill_url.startsWith("http")
+              ? (e.bill_url.startsWith("http") || e.bill_url.startsWith("data:") || e.bill_url.startsWith("blob:"))
                 ? e.bill_url
-                : `${API_BASE_URL}${e.bill_url}`
+                : `${API_BASE_URL}${e.bill_url.startsWith("/") ? "" : "/"}${e.bill_url}`
               : "",
             requested_by_name: e.requested_by_name || "Association Officer",
             requested_by_role: e.requested_by_role || "",
@@ -23486,7 +23486,7 @@ _This is an official computer-generated receipt._`;
                   justifyContent: "center",
                   alignItems: "center",
                 }}>
-                  {viewingExpense.bill_url.toLowerCase().endsWith(".pdf") ? (
+                  {viewingExpense.bill_url.toLowerCase().endsWith(".pdf") || viewingExpense.bill_url.startsWith("data:application/pdf") ? (
                     <div style={{ padding: "30px", color: "#fff" }}>
                       <div style={{ fontSize: "2rem", marginBottom: "10px" }}>📄</div>
                       <p style={{ fontWeight: "700", margin: "0 0 10px" }}>PDF Document Attached</p>
@@ -23509,11 +23509,52 @@ _This is an official computer-generated receipt._`;
                       </a>
                     </div>
                   ) : (
-                    <img
-                      src={viewingExpense.bill_url}
-                      alt="Expense Bill Voucher"
-                      style={{ maxWidth: "100%", maxHeight: "330px", objectFit: "contain", borderRadius: "6px" }}
-                    />
+                    <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center" }}>
+                      <img
+                        src={viewingExpense.bill_url}
+                        alt="Expense Bill Voucher"
+                        style={{ maxWidth: "100%", maxHeight: "330px", objectFit: "contain", borderRadius: "6px" }}
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                          const errDiv = e.currentTarget.nextElementSibling;
+                          if (errDiv) errDiv.style.display = "block";
+                        }}
+                      />
+                      <div
+                        style={{
+                          display: "none",
+                          padding: "24px 16px",
+                          textAlign: "center",
+                          color: "#f87171",
+                        }}
+                      >
+                        <div style={{ fontSize: "2.2rem", marginBottom: "8px" }}>⚠️</div>
+                        <p style={{ fontWeight: "700", color: "#f1f5f9", margin: "0 0 6px", fontSize: "0.95rem" }}>
+                          Bill Image Expired / File Not Found
+                        </p>
+                        <p style={{ fontSize: "0.8rem", color: "#94a3b8", margin: "0 0 14px", maxWidth: "340px", lineHeight: "1.4" }}>
+                          The previously uploaded image was stored in temporary storage and is no longer reachable. Please click below to re-upload the bill document.
+                        </p>
+                        {(isFullAdmin || isTreasurer) && (
+                          <button
+                            type="button"
+                            onClick={() => handleOpenEditExpense(viewingExpense)}
+                            style={{
+                              background: "#0284c7",
+                              color: "#fff",
+                              border: "none",
+                              padding: "7px 16px",
+                              borderRadius: "6px",
+                              fontWeight: "700",
+                              fontSize: "0.82rem",
+                              cursor: "pointer",
+                            }}
+                          >
+                            📎 Re-upload Bill Now
+                          </button>
+                        )}
+                      </div>
+                    </div>
                   )}
                 </div>
               ) : (
@@ -23553,7 +23594,7 @@ _This is an official computer-generated receipt._`;
             {/* Modal Footer Actions */}
             <div className="modalFooter" style={{ borderTop: "1px solid #e2e8f0", paddingTop: "14px", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "10px" }}>
               <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                {(isFullAdmin || isTreasurer) && viewingExpense.status !== "APPROVED" && (
+                {(isFullAdmin || isTreasurer) && (
                   <button
                     type="button"
                     onClick={() => handleOpenEditExpense(viewingExpense)}
@@ -23571,7 +23612,7 @@ _This is an official computer-generated receipt._`;
                       gap: "6px",
                     }}
                   >
-                    ✏️ Edit / Correct Record
+                    ✏️ Edit / Update Bill
                   </button>
                 )}
 
