@@ -969,6 +969,7 @@ export default function AdminPage() {
     }
     return null;
   });
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -7472,8 +7473,50 @@ _This is an official computer-generated receipt._`;
 
   return (
     <div className="adminPage">
+      {/* Mobile Top Sticky Navigation Bar */}
+      <header className="adminMobileTopBar">
+        <div className="adminMobileBrand">
+          <Image
+            src="/images/logo_v2.png"
+            alt="Logo"
+            width={34}
+            height={34}
+            style={{ borderRadius: "50%" }}
+          />
+          <div>
+            <div className="adminMobileTitle">HINDU SWARAJ</div>
+            <div className="adminMobileSub">{userRole ? userRole.replace(/_/g, " ") : "CONTROL CENTER"}</div>
+          </div>
+        </div>
+        <button
+          type="button"
+          className="adminMobileMenuBtn"
+          onClick={() => setMobileSidebarOpen((prev) => !prev)}
+          aria-label="Toggle Navigation Menu"
+        >
+          {mobileSidebarOpen ? (
+            <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          ) : (
+            <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          )}
+          <span>{mobileSidebarOpen ? "Close" : "Menu"}</span>
+        </button>
+      </header>
+
+      {/* Mobile Backdrop Overlay */}
+      {mobileSidebarOpen && (
+        <div
+          className="adminSidebarBackdrop"
+          onClick={() => setMobileSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar Navigation */}
-      <aside className="sidebar">
+      <aside className={`sidebar ${mobileSidebarOpen ? "sidebarMobileOpen" : ""}`}>
         <div className="sidebarHeader">
           <Image
             src="/images/logo_v2.png"
@@ -7482,13 +7525,29 @@ _This is an official computer-generated receipt._`;
             height={48}
             style={{ borderRadius: "50%" }}
           />
-          <div>
+          <div style={{ flex: 1 }}>
             <span className="sidebarTitle">HINDU SWARAJ</span>
             <div className="sidebarBrandSub">CONTROL CENTER</div>
           </div>
+          <button
+            type="button"
+            className="sidebarMobileCloseBtn"
+            onClick={() => setMobileSidebarOpen(false)}
+            aria-label="Close menu"
+          >
+            ✕
+          </button>
         </div>
 
-        <nav className="navMenu" style={{ paddingBottom: "30px" }}>
+        <nav
+          className="navMenu"
+          style={{ paddingBottom: "30px" }}
+          onClick={(e) => {
+            if (e.target.closest(".navItem") || e.target.closest(".logoutBtn")) {
+              setMobileSidebarOpen(false);
+            }
+          }}
+        >
           {/* 📊 Overview / Dashboard */}
           {hasTabAccess("overview") && (
             <button
@@ -8095,15 +8154,7 @@ _This is an official computer-generated receipt._`;
       </aside>
 
       {/* Main Panel Content */}
-      <main
-        className="mainContent"
-        style={{
-          flex: 1,
-          padding: "40px",
-          overflowY: "auto",
-          maxHeight: "100vh",
-        }}
-      >
+      <main className="mainContent">
         {/* =====================================================
             🔔 TOP MONTHLY FIXED SUBSCRIPTION DUES ALERT BANNER (ALL ROLES)
         ===================================================== */}
