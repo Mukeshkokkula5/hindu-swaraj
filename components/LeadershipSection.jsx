@@ -21,12 +21,14 @@ const getMediaUrl = (url) => {
 const formatRoleDisplay = (role) => {
   if (!role) return 'Member';
   const r = role.toUpperCase();
-  if (r.includes('EC') || r.includes('EXECUTIVE COMMITTEE')) return 'EC Member';
-  if (r.includes('GENERAL') && r.includes('SECRETARY')) return 'General Secretary';
-  if (r.includes('JOINT') && r.includes('SECRETARY')) return 'Joint Secretary';
   if (r.includes('VICE') && r.includes('PRESIDENT')) return 'Vice President';
   if (r.includes('PRESIDENT')) return 'President';
+  if (r.includes('GENERAL') && (r.includes('SECRETARY') || r.includes('SEC') || r === 'GS')) return 'General Secretary';
+  if (r.includes('JOINT') && (r.includes('SECRETARY') || r.includes('SEC') || r === 'JS')) return 'Joint Secretary';
+  if (r.includes('SECRETARY') || r === 'SEC') return 'Secretary';
   if (r.includes('TREASURER')) return 'Treasurer';
+  if (/\bEC\b/.test(r) || r.includes('EC_MEMBER') || r.includes('EXECUTIVE COMMITTEE')) return 'EC Member';
+  if (r.includes('MEMBER')) return 'Member';
   return role;
 };
 
@@ -76,21 +78,28 @@ export default function LeadershipSection() {
     if (!matchesSearch) return false;
 
     if (filterRole === 'ALL') return true;
+    const r = (m.role || '').toUpperCase();
+    const isKeyExec =
+      r.includes('PRESIDENT') ||
+      r.includes('SECRETARY') ||
+      r.includes('TREASURER') ||
+      r === 'GS' ||
+      r === 'JS';
+    const isEc =
+      !isKeyExec &&
+      (/\bEC\b/.test(r) ||
+        r.includes('EC_MEMBER') ||
+        r.includes('EXECUTIVE COMMITTEE') ||
+        r.includes('COMMITTEE'));
+
     if (filterRole === 'EXECUTIVE') {
-      const r = (m.role || '').toUpperCase();
-      return (
-        r.includes('PRESIDENT') ||
-        r.includes('SECRETARY') ||
-        r.includes('TREASURER')
-      );
+      return isKeyExec;
     }
     if (filterRole === 'EC') {
-      const r = (m.role || '').toUpperCase();
-      return r.includes('EC') || r.includes('COMMITTEE');
+      return isEc;
     }
     if (filterRole === 'MEMBERS') {
-      const r = (m.role || '').toUpperCase();
-      return r.includes('MEMBER') && !r.includes('EC');
+      return !isKeyExec && !isEc;
     }
     return true;
   });
