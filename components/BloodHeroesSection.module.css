@@ -365,10 +365,24 @@
 }
 
 @media (max-width: 640px) {
+  .sectionContainer {
+    padding: 50px 16px;
+  }
+  .heroesGrid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .statCard {
+    padding: 14px 10px;
+  }
   .certificateSheet {
     padding: 24px 16px;
   }
   .mainTitle {
-    font-size: 1.8rem;
+    font-size: 1.7rem;
   }
 }

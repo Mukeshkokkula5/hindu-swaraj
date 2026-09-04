@@ -136,8 +136,10 @@
 .hubModal {
   width: 100%;
   max-width: 920px;
-  max-height: 90vh;
+  max-height: 85vh;
+  max-height: 85dvh;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   background: linear-gradient(150deg, #0a1628 0%, #0d213e 50%, #081220 100%);
   border: 1.5px solid rgba(212, 175, 55, 0.45);
   border-radius: 24px;
@@ -452,6 +454,22 @@
   transform: rotate(-45deg) translate(5px, -5px);
 }
 
+/* Mobile Backdrop Overlay */
+.navOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 9, 18, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 999;
+  animation: navOverlayFade 0.2s ease-out;
+}
+
+@keyframes navOverlayFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 /* Mobile & Tablet Breakpoint */
 @media (max-width: 1180px) {
   .hamburger {
@@ -462,17 +480,23 @@
     position: fixed;
     top: 0;
     right: -100%;
-    width: 320px;
+    width: min(320px, 85vw);
     height: 100vh;
+    height: 100dvh;
     background: #0b132b;
     flex-direction: column;
     justify-content: flex-start;
     gap: 8px;
-    padding: 90px 24px 32px;
+    padding-top: max(80px, calc(env(safe-area-inset-top, 0px) + 70px));
+    padding-bottom: max(32px, calc(env(safe-area-inset-bottom, 0px) + 24px));
+    padding-left: 20px;
+    padding-right: 20px;
     transition: right var(--transition-base);
     box-shadow: -4px 0 30px rgba(0, 0, 0, 0.5);
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     border-left: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 1000;
   }
 
   .navLinksOpen {
@@ -508,17 +532,41 @@
   }
 }
 
+@media (max-width: 600px) {
+  .hubModal {
+    padding: 18px 14px;
+    border-radius: 18px;
+  }
+
+  .hubTitleMain {
+    font-size: 0.98rem;
+  }
+
+  .hubLogoImg {
+    width: 44px;
+    height: 44px;
+  }
+}
+
 @media (max-width: 480px) {
+  .navContainer {
+    padding: 0 14px;
+  }
+
+  .logo {
+    gap: 8px;
+  }
+
   .logoTitle {
-    font-size: 0.85rem;
+    font-size: 0.82rem;
   }
 
   .logoSubtitle {
-    font-size: 0.55rem;
+    font-size: 0.52rem;
   }
 
   .logoImg {
-    width: 40px !important;
-    height: 40px !important;
+    width: 36px !important;
+    height: 36px !important;
   }
 }
