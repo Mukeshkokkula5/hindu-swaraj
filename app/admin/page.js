@@ -6545,7 +6545,6 @@ export default function AdminPage() {
               </div>
             </div>
 
-            {/* --- 3-STEP DIGITAL SIGNATURES BLOCK --- */}
             <div class="signatures-area">
               <div class="sig-box">
                 <div class="sig-img-container">
@@ -6555,7 +6554,7 @@ export default function AdminPage() {
       }
                 </div>
                 <div class="sig-line">
-                  <strong>${expense.requested_by_name || signatures.treasurer_name || "Treasurer"}</strong><br/>
+                  <strong>${(expense.requested_by_name && expense.requested_by_name !== "Super Admin") ? expense.requested_by_name : (signatures.treasurer_name || "Sambari Sai")}</strong><br/>
                   <span style="font-size: 0.7rem; color: #64748b;">Prepared by (Treasurer)</span>
                 </div>
               </div>
@@ -6568,7 +6567,7 @@ export default function AdminPage() {
       }
                 </div>
                 <div class="sig-line">
-                  <strong>${expense.passed_by_name || (expense.status === "APPROVED" ? signatures.gs_name || "General Secretary" : "GS Verification")}</strong><br/>
+                  <strong>${(expense.passed_by_name && expense.passed_by_name !== "Super Admin") ? expense.passed_by_name : (signatures.gs_name || "Thota Srikanth")}</strong><br/>
                   <span style="font-size: 0.7rem; color: ${expense.status === "PASSED_BY_GS" || expense.status === "APPROVED" ? "#16a34a" : "#64748b"};">
                     ${expense.status === "PASSED_BY_GS" || expense.status === "APPROVED" ? "✓ Verified &amp; Passed (GS)" : "Verified &amp; Passed (GS)"}
                   </span>
@@ -6583,7 +6582,7 @@ export default function AdminPage() {
       }
                 </div>
                 <div class="sig-line">
-                  <strong>${expense.approved_by_name || (expense.status === "APPROVED" ? signatures.president_name || "Vinodh Kumar K" : "President Approval")}</strong><br/>
+                  <strong>${(expense.approved_by_name && expense.approved_by_name !== "Super Admin") ? expense.approved_by_name : (signatures.president_name || "Vinodh Kumar Kokkula")}</strong><br/>
                   <span style="font-size: 0.7rem; color: ${expense.status === "APPROVED" ? "#16a34a" : "#64748b"};">
                     ${expense.status === "APPROVED" ? "✓ Approved by (President)" : "Approved by (President)"}
                   </span>
