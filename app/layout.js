@@ -52,8 +52,6 @@ export const metadata = {
   },
 };
 
-import InstallAppBanner from '../components/InstallAppBanner';
-
 export const viewport = {
   width: 'device-width',
   initialScale: 1,
@@ -75,9 +73,7 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         {children}
-        <InstallAppBanner />
       </body>
     </html>
   );
 }
-
