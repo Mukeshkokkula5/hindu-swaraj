@@ -19,6 +19,17 @@ const getMediaUrl = (url) => {
 };
 
 const DEFAULT_POSTS = [
+  {
+    id: 7,
+    title: 'Free Medical Camp & Doctors Felicitation Ceremony',
+    description: 'Organized Free Medical Camp providing checkups and medicines, followed by grand felicitation of devoted doctors and volunteers in front of Lord Ganesha.',
+    image_url: '/images/navaratri-medical-felicitation.jpg',
+    category: 'Community Seva',
+    author_name: 'Hindu Swaraj Committee',
+    author_role: 'Jagtial',
+    event_date: '05 Sep 2026',
+    likes_count: 72,
+  },
   { id: 1, title: 'Mega Blood Donation Camp at Jagtial', description: 'Successfully organized our 14th Mega Blood Donation Camp collecting 120+ units of blood for local hospitals and patients.', image_url: '/images/activity-blood.png', category: 'Blood Donation', author_name: 'Rajesh Kumar', author_role: 'President', event_date: '12 Aug 2026', likes_count: 42 },
   { id: 2, title: 'Green Jagtial Tree Plantation Drive', description: 'Youth volunteers planted over 250 saplings across schools and community parks in Jagtial to promote environmental awareness.', image_url: '/images/activity-trees.png', category: 'Environment', author_name: 'Suresh Reddy', author_role: 'Vice President', event_date: '05 Aug 2026', likes_count: 38 },
   { id: 3, title: 'Free Educational Kit Distribution', description: 'Distributed notebooks, school bags, and academic supplies to 150+ underprivileged students in Jagtial district.', image_url: '/images/activity-education.png', category: 'Education', author_name: 'Anil Sharma', author_role: 'General Secretary', event_date: '28 Jul 2026', likes_count: 29 },

@@ -254,6 +254,16 @@ const DEFAULT_POSTS = [
     category: "Maha Aarti",
     created_at: "2026-09-14T19:30:00.000Z",
   },
+  {
+    id: 3,
+    day_number: 1,
+    title: "Doctors Felicitation & Medical Seva Ceremony",
+    description:
+      "Grand felicitation of devoted doctors & medical volunteers with sacred shawls and mementos in front of Lord Ganesha.",
+    image_url: "/images/navaratri-medical-felicitation.jpg",
+    category: "Volunteers",
+    created_at: "2026-09-05T12:00:00.000Z",
+  },
 ];
 
 // Fallback default sponsors
