@@ -10156,46 +10156,61 @@ _This is an official computer-generated receipt._`;
                   flexWrap: "wrap",
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                  <label style={{ fontSize: "0.85rem", fontWeight: "700", color: "#475569" }}>Billing Month:</label>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <label style={{ fontSize: "0.88rem", fontWeight: "700", color: "#1e293b", whiteSpace: "nowrap" }}>Billing Month:</label>
                   <select
-                    className="inputField"
                     value={reportMonth}
                     onChange={(e) => {
                       setReportMonth(e.target.value);
                       loadReportsData(e.target.value, reportYear);
                     }}
                     style={{
-                      width: "140px",
+                      width: "155px",
+                      padding: "9px 12px",
                       background: "#ffffff",
+                      color: "#0f172a",
+                      border: "1.5px solid #cbd5e1",
+                      borderRadius: "8px",
                       fontWeight: "700",
+                      fontSize: "0.9rem",
+                      cursor: "pointer",
+                      outline: "none",
                     }}
                   >
-                    <option value="Jan">January (01)</option>
-                    <option value="Feb">February (02)</option>
-                    <option value="Mar">March (03)</option>
-                    <option value="Apr">April (04)</option>
-                    <option value="May">May (05)</option>
-                    <option value="Jun">June (06)</option>
-                    <option value="Jul">July (07)</option>
-                    <option value="Aug">August (08)</option>
-                    <option value="Sep">September (09)</option>
-                    <option value="Oct">October (10)</option>
-                    <option value="Nov">November (11)</option>
-                    <option value="Dec">December (12)</option>
+                    <option value="Jan" style={{ color: "#0f172a", background: "#fff" }}>January (01)</option>
+                    <option value="Feb" style={{ color: "#0f172a", background: "#fff" }}>February (02)</option>
+                    <option value="Mar" style={{ color: "#0f172a", background: "#fff" }}>March (03)</option>
+                    <option value="Apr" style={{ color: "#0f172a", background: "#fff" }}>April (04)</option>
+                    <option value="May" style={{ color: "#0f172a", background: "#fff" }}>May (05)</option>
+                    <option value="Jun" style={{ color: "#0f172a", background: "#fff" }}>June (06)</option>
+                    <option value="Jul" style={{ color: "#0f172a", background: "#fff" }}>July (07)</option>
+                    <option value="Aug" style={{ color: "#0f172a", background: "#fff" }}>August (08)</option>
+                    <option value="Sep" style={{ color: "#0f172a", background: "#fff" }}>September (09)</option>
+                    <option value="Oct" style={{ color: "#0f172a", background: "#fff" }}>October (10)</option>
+                    <option value="Nov" style={{ color: "#0f172a", background: "#fff" }}>November (11)</option>
+                    <option value="Dec" style={{ color: "#0f172a", background: "#fff" }}>December (12)</option>
                   </select>
                 </div>
 
-                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                  <label style={{ fontSize: "0.85rem", fontWeight: "700", color: "#475569" }}>Year:</label>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <label style={{ fontSize: "0.88rem", fontWeight: "700", color: "#1e293b", whiteSpace: "nowrap" }}>Year:</label>
                   <input
-                    type="text"
-                    className="inputField"
+                    type="number"
                     value={reportYear}
                     onChange={(e) => setReportYear(e.target.value)}
                     onBlur={() => loadReportsData(reportMonth, reportYear)}
-                    placeholder="Year (2026)"
-                    style={{ width: "110px", fontWeight: "700" }}
+                    placeholder="2026"
+                    style={{
+                      width: "95px",
+                      padding: "9px 12px",
+                      background: "#ffffff",
+                      color: "#0f172a",
+                      border: "1.5px solid #cbd5e1",
+                      borderRadius: "8px",
+                      fontWeight: "700",
+                      fontSize: "0.9rem",
+                      outline: "none",
+                    }}
                   />
                 </div>
 
