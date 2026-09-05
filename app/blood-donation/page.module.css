@@ -843,17 +843,6 @@
   .heroTitle {
     font-size: 2rem;
   }
-  .formsGrid {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-  .formCard {
-    padding: 20px 16px;
-  }
-  .donorsGrid {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
   .certificateSheet {
     padding: 20px 14px;
   }

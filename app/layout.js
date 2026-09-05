@@ -52,28 +52,17 @@ export const metadata = {
   },
 };
 
-export const viewport = {
-  width: 'device-width',
-  initialScale: 1,
-  maximumScale: 5,
-  viewportFit: 'cover',
-  themeColor: '#800A0D',
-};
-
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={outfit.variable}>
       <head>
         <link rel="icon" href="/images/logo_v2.png" type="image/png" />
-        <link rel="apple-touch-icon" href="/icon-192.png" />
-        <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="Hindu Swaraj" />
       </head>
       <body>
         {children}
+        {/* WhatsApp widget temporarily disabled per user directive */}
       </body>
     </html>
   );
 }
+

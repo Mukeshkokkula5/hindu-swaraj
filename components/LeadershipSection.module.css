@@ -406,7 +406,7 @@
 
 @media (max-width: 768px) {
   .leadersGrid {
-    grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     gap: 12px;
   }
   
@@ -426,32 +426,5 @@
   
   .searchBox {
     width: 100%;
-  }
-}
-
-@media (max-width: 380px) {
-  .leadersGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
-  }
-  
-  .leaderCard {
-    padding: 12px 6px 10px;
-  }
-
-  .avatarWrapper {
-    width: 64px;
-    height: 64px;
-    margin-bottom: 8px;
-  }
-
-  .leaderName {
-    font-size: 0.78rem;
-    min-height: auto;
-  }
-
-  .leaderRole {
-    font-size: 0.65rem;
-    padding: 2px 6px;
   }
 }

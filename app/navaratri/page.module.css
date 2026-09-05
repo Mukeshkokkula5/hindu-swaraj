@@ -3090,12 +3090,6 @@
   100% { transform: translate(var(--dx), 320px) rotate(360deg); opacity: 0; }
 }
 
-@media (max-width: 640px) {
-  .photoGrid {
-    grid-template-columns: 1fr;
-  }
-}
-
 
 
 

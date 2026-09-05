@@ -66,15 +66,12 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Lock scroll and listen for ESC key when Hub or Mobile Menu is open
+  // Lock scroll and listen for ESC key when Hub is open
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === "Escape") {
-        setServicesHubOpen(false);
-        setMenuOpen(false);
-      }
+      if (e.key === "Escape") setServicesHubOpen(false);
     };
-    if (servicesHubOpen || menuOpen) {
+    if (servicesHubOpen) {
       document.addEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "hidden";
     } else {
@@ -84,7 +81,7 @@ export default function Navbar() {
       document.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "";
     };
-  }, [servicesHubOpen, menuOpen]);
+  }, [servicesHubOpen]);
 
   // Clean up duplicate hashes on load if any exist
   useEffect(() => {
@@ -191,15 +188,6 @@ export default function Navbar() {
           <span></span>
         </button>
       </div>
-
-      {/* Mobile Drawer Backdrop Overlay */}
-      {menuOpen && (
-        <div
-          className={styles.navOverlay}
-          onClick={() => setMenuOpen(false)}
-          aria-hidden="true"
-        />
-      )}
 
       {/* ================= 👑 GRAND ROYAL SEVA HUB MODAL ================= */}
       {servicesHubOpen && (
