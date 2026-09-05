@@ -290,34 +290,37 @@ export default function CovidSevaPage() {
         </div>
 
         <div className={styles.photoGrid}>
-          {data.photos.map((photo, idx) => (
-            <div
-              key={photo.id || idx}
-              className={styles.galleryCard}
-              onClick={() =>
-                setLightbox({
-                  title: photo.title || `Photo ${idx + 1}`,
-                  image_url: getMediaUrl(photo.image_url),
-                  caption: photo.caption || photo.title,
-                })
-              }
-            >
-              <div className={styles.galleryImgWrap}>
-                <img
-                  src={getMediaUrl(photo.image_url)}
-                  alt={photo.title || "Covid Seva"}
-                  className={styles.galleryImg}
-                  onError={(e) => {
-                    e.currentTarget.onerror = null;
-                    e.currentTarget.src = "/images/medical-camp/photo-1.jpg";
-                  }}
-                />
-                <div className={styles.galleryOverlay}>
-                  <span className={styles.galleryCaption}>{photo.title}</span>
+          {data.photos.map((photo, idx) => {
+            const photoSrc = getMediaUrl(photo.url || photo.image_url);
+            return (
+              <div
+                key={photo.id || idx}
+                className={styles.galleryCard}
+                onClick={() =>
+                  setLightbox({
+                    title: photo.title || `Photo ${idx + 1}`,
+                    image_url: photoSrc,
+                    caption: photo.caption || photo.title,
+                  })
+                }
+              >
+                <div className={styles.galleryImgWrap}>
+                  <img
+                    src={photoSrc}
+                    alt={photo.title || "Covid Seva"}
+                    className={styles.galleryImg}
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = "/images/medical-camp/photo-1.jpg";
+                    }}
+                  />
+                  <div className={styles.galleryOverlay}>
+                    <span className={styles.galleryCaption}>{photo.title}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 
@@ -340,16 +343,16 @@ export default function CovidSevaPage() {
               className={styles.clippingCard}
               onClick={() =>
                 setLightbox({
-                  title: `${clip.paper_name} - ${clip.headline}`,
-                  image_url: getMediaUrl(clip.image_url),
-                  caption: `${clip.paper_name} (${clip.date_str}) • ${clip.headline}: ${clip.snippet}`,
+                  title: `${clip.paper_name || 'Newspaper'} - ${clip.headline || ''}`,
+                  image_url: getMediaUrl(clip.image_url || clip.url),
+                  caption: `${clip.paper_name || ''} (${clip.date_str || clip.clipping_date || ''}) • ${clip.headline || ''}${clip.snippet ? `: ${clip.snippet}` : ''}`,
                 })
               }
             >
               <div className={styles.clippingImgWrap}>
                 <img
-                  src={getMediaUrl(clip.image_url)}
-                  alt={clip.headline}
+                  src={getMediaUrl(clip.image_url || clip.url)}
+                  alt={clip.headline || "Press Clipping"}
                   className={styles.clippingImg}
                   onError={(e) => {
                     e.currentTarget.onerror = null;
@@ -360,10 +363,10 @@ export default function CovidSevaPage() {
               <div className={styles.clippingBody}>
                 <div className={styles.clippingSourceRow}>
                   <span>{clip.paper_name}</span>
-                  <span>{clip.date_str}</span>
+                  <span>{clip.date_str || clip.clipping_date}</span>
                 </div>
                 <h4 className={styles.clippingHeadline}>{clip.headline}</h4>
-                <p className={styles.clippingSnippet}>{clip.snippet}</p>
+                {clip.snippet && <p className={styles.clippingSnippet}>{clip.snippet}</p>}
               </div>
             </div>
           ))}
