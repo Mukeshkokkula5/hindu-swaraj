@@ -12,7 +12,7 @@
   position: relative;
   background: radial-gradient(circle at 50% 20%, #4a0d10 0%, #200406 60%, #100203 100%);
   color: #ffffff;
-  padding: 100px 20px 80px 20px;
+  padding: 140px 20px 80px 20px;
   text-align: center;
   overflow: hidden;
   border-bottom: 4px solid var(--gold);
@@ -667,7 +667,7 @@
   }
 
   .heroSection {
-    padding: 70px 16px 60px 16px;
+    padding: 120px 16px 60px 16px;
   }
 
   .lightboxImgWrap {
