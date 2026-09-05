@@ -24350,9 +24350,9 @@ _This is an official computer-generated receipt._`;
                       : {}),
                   });
                 }}
-                style={{ appearance: "none", background: "#ffffff" }}
+                style={{ background: "#ffffff", color: "#0f172a", cursor: "pointer" }}
               >
-                <option value="">-- None (General / Non-Member) --</option>
+                <option value="" style={{ color: "#0f172a", background: "#ffffff" }}>-- None (General / Non-Member) --</option>
                 {members
                   .filter((m) => {
                     if (!memberSearchQuery.trim()) return true;
@@ -24365,7 +24365,7 @@ _This is an official computer-generated receipt._`;
                     );
                   })
                   .map((m) => (
-                    <option key={m.dbId || m.id} value={m.dbId || m.id}>
+                    <option key={m.dbId || m.id} value={m.dbId || m.id} style={{ color: "#0f172a", background: "#ffffff" }}>
                       {m.name} ({m.id}) {m.phone ? ` - 📞 ${m.phone}` : ""}
                     </option>
                   ))}
@@ -24380,12 +24380,12 @@ _This is an official computer-generated receipt._`;
                 onChange={(e) =>
                   setNewDonation({ ...newDonation, fund_id: e.target.value })
                 }
-                style={{ appearance: "none", background: "#ffffff" }}
+                style={{ background: "#ffffff", color: "#0f172a", cursor: "pointer" }}
                 required
               >
-                <option value="">-- Choose Fund Category --</option>
+                <option value="" style={{ color: "#0f172a", background: "#ffffff" }}>-- Choose Fund Category --</option>
                 {funds.map((f) => (
-                  <option key={f.id} value={f.id}>
+                  <option key={f.id} value={f.id} style={{ color: "#0f172a", background: "#ffffff" }}>
                     {f.name} (Balance: ₹{Number(f.balance !== undefined ? f.balance : (f.amount || 0)).toLocaleString()})
                   </option>
                 ))}
