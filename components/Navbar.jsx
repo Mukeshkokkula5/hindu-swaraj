@@ -161,9 +161,6 @@ export default function Navbar() {
           <Link href="/#activities" className={styles.navLink} onClick={(e) => handleNavClick(e, "#activities")}>
             Activities
           </Link>
-          <Link href="/covid-seva" className={styles.navLink} onClick={() => setMenuOpen(false)}>
-            50-Day Covid Seva
-          </Link>
           <Link href="/#leadership" className={styles.navLink} onClick={(e) => handleNavClick(e, "#leadership")}>
             Team
           </Link>
