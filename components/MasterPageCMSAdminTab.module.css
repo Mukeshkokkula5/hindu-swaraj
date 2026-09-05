@@ -224,3 +224,103 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Covid Seva CMS Items and Lists */
+.sectionBlock {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 22px;
+}
+
+.sectionBlockTitle {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #ffd700;
+  margin: 0 0 14px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.itemsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.itemCard {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+}
+
+.itemCardTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.itemThumbnail {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #000;
+}
+
+.addBtnSmall {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid #f59e0b;
+  color: #fbbf24;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.addBtnSmall:hover {
+  background: #f59e0b;
+  color: #000;
+}
+
+.uploadRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.uploadFileInput {
+  display: none;
+}
+
+.uploadFileLabel {
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid #3b82f6;
+  color: #93c5fd;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.uploadFileLabel:hover {
+  background: #3b82f6;
+  color: #fff;
+}
+

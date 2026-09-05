@@ -46,6 +46,14 @@ const SEVA_SERVICES = [
     badgeClass: styles.badgeNavaratri,
   },
   {
+    title: '50 రోజుల కరోనా అన్నదానం',
+    desc: '50 Days Non-Stop Corona Food Seva Milestone',
+    href: '/covid-seva',
+    icon: '🍲',
+    badge: 'MILESTONE',
+    badgeClass: styles.badgeEmergency,
+  },
+  {
     title: 'వాలంటీర్ రిజిస్ట్రేషన్',
     desc: 'Join as an Active Hindu Swaraj Warrior',
     href: '/volunteer',
@@ -152,6 +160,9 @@ export default function Navbar() {
 
           <Link href="/#activities" className={styles.navLink} onClick={(e) => handleNavClick(e, "#activities")}>
             Activities
+          </Link>
+          <Link href="/covid-seva" className={styles.navLink} onClick={() => setMenuOpen(false)}>
+            50-Day Covid Seva
           </Link>
           <Link href="/#leadership" className={styles.navLink} onClick={(e) => handleNavClick(e, "#leadership")}>
             Team

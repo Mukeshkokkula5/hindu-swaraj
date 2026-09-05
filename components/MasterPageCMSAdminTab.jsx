@@ -68,6 +68,43 @@ export default function MasterPageCMSAdminTab({ token, currentUser }) {
     location: 'Jagtial',
   });
 
+  // 5. 50-Day Corona Seva Settings State
+  const [covidSevaSettings, setCovidSevaSettings] = useState({
+    hero_title: '50 DAYS NON-STOP CORONA FOOD SEVA MAHAYAGNAM',
+    hero_subtitle: 'Standing strong for Jagtial during the dark times of the COVID-19 pandemic. Over 50 consecutive days of unceasing, selfless Annadanam for the hungry and stranded.',
+    story_telugu: `కరోనా మహమ్మారి జగిత్యాల పట్టణాన్ని వణికించిన రోజుల్లో... లాక్‌డౌన్ ఆంక్షల వల్ల బస్టాండ్లు, రైల్వే స్టేషన్లు, రోడ్లపై తిండిలేక అలమటించిన అన్నార్థులు, వలస కార్మికులు, అనాథలు మరియు ఆసుపత్రి రోగులకు మేమున్నామంటూ హిందూ స్వరాజ్ యూత్ సభ్యులు అండగా నిలిచారు.
+
+నిరంతరం 50 రోజుల పాటు ప్రతి రోజూ ఉదయం, సాయంత్రం వేడివేడి పౌష్టికాహార భోజన ప్యాకెట్లు తయారు చేసి జగిత్యాల నలుమూలలా స్వయంగా వెళ్లి పంపిణీ చేశారు. 
+
+ఈ మహా సంకల్పానికి సహకరించిన ప్రతి ఒక్క దాతకు, రక్తదాతలకు, కార్యకర్తలకు, జగిత్యాల పోలీస్ యంత్రాంగానికి మరియు మున్సిపల్ సిబ్బందికి మా హృదయపూర్వక ధన్యవాదాలు.`,
+    story_english: `During the unprecedented peak of the COVID-19 nationwide lockdowns in 2020, Jagtial faced severe distress. Stranded migrant workers, daily wage laborers, hospital attendants, and impoverished citizens were left without basic sustenance.
+
+Hindu Swaraj Youth stepped up to the frontlines. With safety precautions and burning compassion, our volunteers organized a community kitchen that prepared and distributed hygienic, hot meals daily without missing a single day for 50 consecutive days.`,
+    youtube_url: 'https://www.youtube.com/watch?v=kYJ3W2F_c2o',
+    video_title: '50 Days Corona Annadanam Documentary - Hindu Swaraj Youth Jagtial',
+    stat_days: 50,
+    stat_meals: '50,000+',
+    stat_volunteers: '100+',
+    stat_families: '5,000+',
+    photos: [
+      { url: '/images/medical-camp/photo-1.jpg', title: 'నిరంతర అన్నదాన తయారీ', caption: 'రోజూ వేలాది మందికి పౌష్టికాహార భోజనం తయారీ' },
+      { url: '/images/medical-camp/photo-2.jpg', title: 'వీధుల్లో భోజన ప్యాకెట్ల పంపిణీ', caption: 'జగిత్యాల వీధుల్లో ఆకలితో ఉన్న వారికి నేరుగా అందజేత' },
+      { url: '/images/medical-camp/photo-3.jpg', title: 'వలస కార్మికులకు ఆహార ప్యాకెట్లు', caption: 'నడచి వెళ్లే కార్మికులకు మంచినీరు మరియు అన్నదానం' },
+      { url: '/images/navaratri-medical-felicitation.jpg', title: 'నిస్వార్థ సేవా బృందం', caption: '50 రోజుల సేవా యజ్ఞంలో పాల్గొన్న హిందూ స్వరాజ్ కార్యకర్తలు' }
+    ],
+    newspaper_clippings: [
+      { paper_name: 'ఈనాడు (Eenadu)', clipping_date: 'మే 2020', headline: 'కరోనా కష్టకాలంలో హిందూ స్వరాజ్ యూత్ అన్నదానం ఆదర్శం', image_url: '/images/activity-disaster.png' },
+      { paper_name: 'సాక్షి (Sakshi)', clipping_date: 'జూన్ 2020', headline: '50 రోజులు నిరాటంకంగా అన్నదానం అందించిన యువత', image_url: '/images/hero-shivaji.png' },
+      { paper_name: 'నమస్తే తెలంగాణ (Namasthe Telangana)', clipping_date: 'జూన్ 2020', headline: 'లాక్‌డౌన్‌లో అన్నార్థుల ఆకలి తీర్చిన హిందూ స్వరాజ్ సేవా సైన్యం', image_url: '/images/activity-disaster.png' }
+    ],
+    certificates: [
+      { title: 'Covid Seva Ratna Award', issuer: 'జగిత్యాల పౌర సమాజం & రెవెన్యూ డిపార్ట్‌మెంట్', year: '2020', description: 'లాక్‌డౌన్ సమయంలో నిరంతర ప్రజాసేవ, ఆహార పంపిణీకి గాను అందించిన ప్రశంసా పత్రం.' },
+      { title: 'Corona Warriors Appreciation Certificate', issuer: 'జిల్లా యంత్రాంగం, జగిత్యాల', year: '2020', description: 'కోవిడ్-19 విపత్కర పరిస్థితుల్లో ప్రాణాలకు తెగించి అన్నదానం చేసినందుకు ప్రత్యేక గుర్తింపు.' }
+    ],
+    is_active: true
+  });
+  const [uploadingCovidFile, setUploadingCovidFile] = useState(false);
+
   // Load all settings on mount
   useEffect(() => {
     loadAllPageSettings();
@@ -76,10 +113,13 @@ export default function MasterPageCMSAdminTab({ token, currentUser }) {
   const loadAllPageSettings = async () => {
     setLoading(true);
     try {
-      const [assocRes, navRes, commRes] = await Promise.all([
+      const [assocRes, navRes, commRes, covidRes] = await Promise.all([
         fetch(`${API_BASE_URL}/association-settings/public`).catch(() => null),
         fetch(`${API_BASE_URL}/navaratri/settings`).catch(() => null),
         fetch(`${API_BASE_URL}/community/posts?limit=15`).catch(() => null),
+        fetch(`${API_BASE_URL}/covid-seva/admin`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        }).catch(() => null),
       ]);
 
       if (assocRes && assocRes.ok) {
@@ -93,6 +133,18 @@ export default function MasterPageCMSAdminTab({ token, currentUser }) {
       if (commRes && commRes.ok) {
         const data = await commRes.json();
         if (data.data) setCommunityPosts(data.data);
+      }
+      if (covidRes && covidRes.ok) {
+        const data = await covidRes.json();
+        if (data && data.data) {
+          setCovidSevaSettings((prev) => ({
+            ...prev,
+            ...data.data,
+            photos: Array.isArray(data.data.photos) ? data.data.photos : prev.photos,
+            newspaper_clippings: Array.isArray(data.data.newspaper_clippings) ? data.data.newspaper_clippings : prev.newspaper_clippings,
+            certificates: Array.isArray(data.data.certificates) ? data.data.certificates : prev.certificates,
+          }));
+        }
       }
     } catch (e) {
       console.warn('Failed to load page settings:', e);
@@ -210,6 +262,166 @@ export default function MasterPageCMSAdminTab({ token, currentUser }) {
     setPublicDisbursements((prev) => prev.filter((item) => item.id !== id));
   };
 
+  // ------------------ COVID SEVA HELPERS & HANDLERS ------------------
+  const getYouTubeEmbedUrl = (url) => {
+    if (!url) return '';
+    const trimmed = url.trim();
+    if (trimmed.includes('youtube.com/embed/')) return trimmed;
+    const match = trimmed.match(/(?:youtube\.com\/(?:watch\?v=|live\/|embed\/)|youtu\.be\/)([\w-]{11})/);
+    if (match && match[1]) {
+      return `https://www.youtube.com/embed/${match[1]}`;
+    }
+    if (/^[\w-]{11}$/.test(trimmed)) {
+      return `https://www.youtube.com/embed/${trimmed}`;
+    }
+    return trimmed;
+  };
+
+  const resolveImgSrc = (url) => {
+    if (!url) return '/images/activity-disaster.png';
+    if (url.startsWith('/uploads/')) return `${API_BASE_URL}${url}`;
+    return url;
+  };
+
+  const handleSaveCovidSevaSettings = async (e) => {
+    if (e) e.preventDefault();
+    setSaveStatus('Saving 50-Day Corona Food Seva Memorial Settings...');
+    try {
+      const res = await fetch(`${API_BASE_URL}/covid-seva/admin`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(covidSevaSettings),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setSaveStatus('✅ 50-Day Corona Seva Memorial Settings updated successfully! 🍲');
+      } else {
+        throw new Error(data.error || 'Update failed');
+      }
+    } catch (err) {
+      setSaveStatus('❌ Error: ' + err.message);
+    }
+    setTimeout(() => setSaveStatus(''), 4000);
+  };
+
+  const handleUploadCovidMedia = async (e, type, index) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingCovidFile(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch(`${API_BASE_URL}/covid-seva/admin/upload`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+      const data = await res.json();
+      if (res.ok && data.success && data.url) {
+        if (type === 'photo') {
+          setCovidSevaSettings((prev) => {
+            const updated = [...prev.photos];
+            updated[index] = { ...updated[index], url: data.url };
+            return { ...prev, photos: updated };
+          });
+        } else if (type === 'clipping') {
+          setCovidSevaSettings((prev) => {
+            const updated = [...prev.newspaper_clippings];
+            updated[index] = { ...updated[index], image_url: data.url };
+            return { ...prev, newspaper_clippings: updated };
+          });
+        }
+        alert('✅ File uploaded successfully!');
+      } else {
+        alert(data.error || 'Upload failed');
+      }
+    } catch (err) {
+      alert('Upload error: ' + err.message);
+    } finally {
+      setUploadingCovidFile(false);
+    }
+  };
+
+  const handleAddPhoto = () => {
+    setCovidSevaSettings((prev) => ({
+      ...prev,
+      photos: [
+        ...prev.photos,
+        { url: '/images/activity-disaster.png', title: 'కొత్త ఫోటో శీర్షిక', caption: 'కరోనా సేవా వివరాలు' },
+      ],
+    }));
+  };
+
+  const handleUpdatePhoto = (index, field, value) => {
+    setCovidSevaSettings((prev) => {
+      const updated = [...prev.photos];
+      updated[index] = { ...updated[index], [field]: value };
+      return { ...prev, photos: updated };
+    });
+  };
+
+  const handleDeletePhoto = (index) => {
+    setCovidSevaSettings((prev) => ({
+      ...prev,
+      photos: prev.photos.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleAddClipping = () => {
+    setCovidSevaSettings((prev) => ({
+      ...prev,
+      newspaper_clippings: [
+        ...prev.newspaper_clippings,
+        { paper_name: 'ఈనాడు', clipping_date: 'మే 2020', headline: 'వార్తా కథనం ముఖ్యాంశం', image_url: '/images/activity-disaster.png' },
+      ],
+    }));
+  };
+
+  const handleUpdateClipping = (index, field, value) => {
+    setCovidSevaSettings((prev) => {
+      const updated = [...prev.newspaper_clippings];
+      updated[index] = { ...updated[index], [field]: value };
+      return { ...prev, newspaper_clippings: updated };
+    });
+  };
+
+  const handleDeleteClipping = (index) => {
+    setCovidSevaSettings((prev) => ({
+      ...prev,
+      newspaper_clippings: prev.newspaper_clippings.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleAddCertificate = () => {
+    setCovidSevaSettings((prev) => ({
+      ...prev,
+      certificates: [
+        ...prev.certificates,
+        { title: 'సేవా పురస్కారం / Certificate of Honor', issuer: 'అధికారిక సంస్థ పేరు', year: '2020', description: 'పురస్కారం వివరాలు...' },
+      ],
+    }));
+  };
+
+  const handleUpdateCertificate = (index, field, value) => {
+    setCovidSevaSettings((prev) => {
+      const updated = [...prev.certificates];
+      updated[index] = { ...updated[index], [field]: value };
+      return { ...prev, certificates: updated };
+    });
+  };
+
+  const handleDeleteCertificate = (index) => {
+    setCovidSevaSettings((prev) => ({
+      ...prev,
+      certificates: prev.certificates.filter((_, i) => i !== index),
+    }));
+  };
+
   return (
     <div className={styles.masterCmsContainer}>
       {/* Header Banner */}
@@ -239,6 +451,7 @@ export default function MasterPageCMSAdminTab({ token, currentUser }) {
       <div className={styles.subTabsBar}>
         {[
           { id: 'home', label: '🏠 Home Page CMS', icon: '🏠' },
+          { id: 'covid_seva', label: '🍲 50-Day Corona Food Seva CMS', icon: '🍲' },
           { id: 'navaratri', label: '🪔 Navaratri Utsav CMS', icon: '🪔' },
           { id: 'community', label: '📸 Community Feed & Polls', icon: '📸' },
           { id: 'public_transparency', label: '🏛️ Public Transparency Ledger', icon: '🏛️' },
@@ -367,7 +580,421 @@ export default function MasterPageCMSAdminTab({ token, currentUser }) {
         </div>
       )}
 
-      {/* ================= 2. NAVARATRI PORTAL CMS ================= */}
+      {/* ================= 2. 50-DAY CORONA FOOD SEVA CMS ================= */}
+      {activeSubTab === 'covid_seva' && (
+        <div className={styles.tabContentCard}>
+          <div className={styles.cardHeader}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+              <div>
+                <h3 className={styles.cardTitle}>🍲 50-Day Corona Food Seva Memorial CMS (`/covid-seva`)</h3>
+                <span className={styles.cardSubtitle}>Manage YouTube documentary link, live statistics, story texts, historical photos, newspaper clippings, and certificates</span>
+              </div>
+              <a
+                href="/covid-seva"
+                target="_blank"
+                rel="noreferrer"
+                style={{
+                  background: 'rgba(255, 179, 0, 0.15)',
+                  border: '1px solid #ffb300',
+                  color: '#ffd700',
+                  padding: '6px 14px',
+                  borderRadius: '8px',
+                  fontSize: '0.82rem',
+                  fontWeight: '700',
+                  textDecoration: 'none',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                👁️ View Live Page ↗
+              </a>
+            </div>
+          </div>
+
+          <form onSubmit={handleSaveCovidSevaSettings}>
+            {/* Section 1: YouTube Video */}
+            <div className={styles.sectionBlock}>
+              <div className={styles.sectionBlockTitle}>
+                <span>🎥 YouTube Video Documentary &amp; Player</span>
+              </div>
+              <div className={styles.formGrid2}>
+                <div className={styles.inputGroup}>
+                  <label className={styles.inputLabel}>YouTube Video URL or Video ID</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. https://www.youtube.com/watch?v=kYJ3W2F_c2o or short youtu.be URL"
+                    className={styles.inputControl}
+                    value={covidSevaSettings.youtube_url || ''}
+                    onChange={(e) => setCovidSevaSettings({ ...covidSevaSettings, youtube_url: e.target.value })}
+                  />
+                  <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
+                    Paste regular watch link, shorts link, or direct 11-character video ID.
+                  </span>
+                </div>
+
+                <div className={styles.inputGroup}>
+                  <label className={styles.inputLabel}>Video Title / Caption</label>
+                  <input
+                    type="text"
+                    placeholder="Documentary title..."
+                    className={styles.inputControl}
+                    value={covidSevaSettings.video_title || ''}
+                    onChange={(e) => setCovidSevaSettings({ ...covidSevaSettings, video_title: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              {/* Instant YouTube Live Preview */}
+              {covidSevaSettings.youtube_url && getYouTubeEmbedUrl(covidSevaSettings.youtube_url) && (
+                <div style={{ marginTop: '10px' }}>
+                  <label className={styles.inputLabel} style={{ color: '#38bdf8' }}>
+                    📺 Video Live Preview:
+                  </label>
+                  <div style={{ position: 'relative', width: '100%', maxWidth: '520px', aspectRatio: '16/9', borderRadius: '10px', overflow: 'hidden', border: '1px solid rgba(255, 255, 255, 0.2)', marginTop: '6px' }}>
+                    <iframe
+                      src={getYouTubeEmbedUrl(covidSevaSettings.youtube_url)}
+                      title="Preview"
+                      style={{ width: '100%', height: '100%', border: 'none' }}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    ></iframe>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Section 2: 4 Key Seva Impact Stats */}
+            <div className={styles.sectionBlock}>
+              <div className={styles.sectionBlockTitle}>
+                <span>📊 50-Days Key Impact Statistics</span>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px' }}>
+                <div className={styles.inputGroup}>
+                  <label className={styles.inputLabel}>Days of Seva</label>
+                  <input
+                    type="text"
+                    className={styles.inputControl}
+                    value={covidSevaSettings.stat_days || ''}
+                    onChange={(e) => setCovidSevaSettings({ ...covidSevaSettings, stat_days: e.target.value })}
+                  />
+                </div>
+                <div className={styles.inputGroup}>
+                  <label className={styles.inputLabel}>Meals Distributed</label>
+                  <input
+                    type="text"
+                    className={styles.inputControl}
+                    value={covidSevaSettings.stat_meals || ''}
+                    onChange={(e) => setCovidSevaSettings({ ...covidSevaSettings, stat_meals: e.target.value })}
+                  />
+                </div>
+                <div className={styles.inputGroup}>
+                  <label className={styles.inputLabel}>Youth Volunteers</label>
+                  <input
+                    type="text"
+                    className={styles.inputControl}
+                    value={covidSevaSettings.stat_volunteers || ''}
+                    onChange={(e) => setCovidSevaSettings({ ...covidSevaSettings, stat_volunteers: e.target.value })}
+                  />
+                </div>
+                <div className={styles.inputGroup}>
+                  <label className={styles.inputLabel}>Families Supported</label>
+                  <input
+                    type="text"
+                    className={styles.inputControl}
+                    value={covidSevaSettings.stat_families || ''}
+                    onChange={(e) => setCovidSevaSettings({ ...covidSevaSettings, stat_families: e.target.value })}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Section 3: Hero & Story Texts */}
+            <div className={styles.sectionBlock}>
+              <div className={styles.sectionBlockTitle}>
+                <span>📜 Hero Titles &amp; Seva Story Narration</span>
+              </div>
+
+              <div className={styles.formGrid2}>
+                <div className={styles.inputGroup}>
+                  <label className={styles.inputLabel}>Hero Main Heading Title</label>
+                  <input
+                    type="text"
+                    className={styles.inputControl}
+                    value={covidSevaSettings.hero_title || ''}
+                    onChange={(e) => setCovidSevaSettings({ ...covidSevaSettings, hero_title: e.target.value })}
+                  />
+                </div>
+                <div className={styles.inputGroup}>
+                  <label className={styles.inputLabel}>Hero Subtitle</label>
+                  <input
+                    type="text"
+                    className={styles.inputControl}
+                    value={covidSevaSettings.hero_subtitle || ''}
+                    onChange={(e) => setCovidSevaSettings({ ...covidSevaSettings, hero_subtitle: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div className={styles.formGrid2}>
+                <div className={styles.inputGroup}>
+                  <label className={styles.inputLabel}>తెలుగు సేవా చరిత్ర (Telugu Story Narrative)</label>
+                  <textarea
+                    rows={6}
+                    className={styles.inputControl}
+                    value={covidSevaSettings.story_telugu || ''}
+                    onChange={(e) => setCovidSevaSettings({ ...covidSevaSettings, story_telugu: e.target.value })}
+                  ></textarea>
+                </div>
+                <div className={styles.inputGroup}>
+                  <label className={styles.inputLabel}>English Story Narrative</label>
+                  <textarea
+                    rows={6}
+                    className={styles.inputControl}
+                    value={covidSevaSettings.story_english || ''}
+                    onChange={(e) => setCovidSevaSettings({ ...covidSevaSettings, story_english: e.target.value })}
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+
+            {/* Section 4: Photo Archive */}
+            <div className={styles.sectionBlock}>
+              <div className={styles.sectionBlockTitle}>
+                <span>📸 Historical Photo Archive ({covidSevaSettings.photos?.length || 0})</span>
+                <button type="button" className={styles.addBtnSmall} onClick={handleAddPhoto}>
+                  + Add New Photo
+                </button>
+              </div>
+
+              <div className={styles.itemsGrid}>
+                {covidSevaSettings.photos?.map((photo, index) => (
+                  <div key={index} className={styles.itemCard}>
+                    <div className={styles.itemCardTop}>
+                      <span style={{ fontSize: '0.8rem', color: '#ffd700', fontWeight: '800' }}>Photo #{index + 1}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleDeletePhoto(index)}
+                        style={{ background: 'rgba(239,68,68,0.2)', border: '1px solid #ef4444', color: '#fca5a5', padding: '2px 6px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.72rem' }}
+                      >
+                        Delete 🗑️
+                      </button>
+                    </div>
+
+                    <img
+                      src={resolveImgSrc(photo.url)}
+                      alt={photo.title || 'Photo'}
+                      className={styles.itemThumbnail}
+                      onError={(e) => { e.target.src = '/images/activity-disaster.png'; }}
+                    />
+
+                    <div className={styles.uploadRow}>
+                      <label className={styles.uploadFileLabel}>
+                        📁 {uploadingCovidFile ? 'Uploading...' : 'Upload Image'}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className={styles.uploadFileInput}
+                          disabled={uploadingCovidFile}
+                          onChange={(e) => handleUploadCovidMedia(e, 'photo', index)}
+                        />
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Or paste image URL"
+                        className={styles.inputControl}
+                        style={{ padding: '6px 10px', fontSize: '0.8rem', flex: 1 }}
+                        value={photo.url || ''}
+                        onChange={(e) => handleUpdatePhoto(index, 'url', e.target.value)}
+                      />
+                    </div>
+
+                    <input
+                      type="text"
+                      placeholder="Photo title (Telugu / English)..."
+                      className={styles.inputControl}
+                      style={{ padding: '6px 10px', fontSize: '0.82rem' }}
+                      value={photo.title || ''}
+                      onChange={(e) => handleUpdatePhoto(index, 'title', e.target.value)}
+                    />
+
+                    <input
+                      type="text"
+                      placeholder="Photo caption..."
+                      className={styles.inputControl}
+                      style={{ padding: '6px 10px', fontSize: '0.78rem' }}
+                      value={photo.caption || ''}
+                      onChange={(e) => handleUpdatePhoto(index, 'caption', e.target.value)}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Section 5: Newspaper Press Clippings */}
+            <div className={styles.sectionBlock}>
+              <div className={styles.sectionBlockTitle}>
+                <span>📰 Newspaper Press Clippings ({covidSevaSettings.newspaper_clippings?.length || 0})</span>
+                <button type="button" className={styles.addBtnSmall} onClick={handleAddClipping}>
+                  + Add Press Clipping
+                </button>
+              </div>
+
+              <div className={styles.itemsGrid}>
+                {covidSevaSettings.newspaper_clippings?.map((clipping, index) => (
+                  <div key={index} className={styles.itemCard}>
+                    <div className={styles.itemCardTop}>
+                      <span style={{ fontSize: '0.8rem', color: '#38bdf8', fontWeight: '800' }}>Clipping #{index + 1}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteClipping(index)}
+                        style={{ background: 'rgba(239,68,68,0.2)', border: '1px solid #ef4444', color: '#fca5a5', padding: '2px 6px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.72rem' }}
+                      >
+                        Delete 🗑️
+                      </button>
+                    </div>
+
+                    <img
+                      src={resolveImgSrc(clipping.image_url)}
+                      alt={clipping.headline || 'Clipping'}
+                      className={styles.itemThumbnail}
+                      onError={(e) => { e.target.src = '/images/activity-disaster.png'; }}
+                    />
+
+                    <div className={styles.uploadRow}>
+                      <label className={styles.uploadFileLabel}>
+                        📁 {uploadingCovidFile ? 'Uploading...' : 'Upload Clipping'}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className={styles.uploadFileInput}
+                          disabled={uploadingCovidFile}
+                          onChange={(e) => handleUploadCovidMedia(e, 'clipping', index)}
+                        />
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Image URL"
+                        className={styles.inputControl}
+                        style={{ padding: '6px 10px', fontSize: '0.8rem', flex: 1 }}
+                        value={clipping.image_url || ''}
+                        onChange={(e) => handleUpdateClipping(index, 'image_url', e.target.value)}
+                      />
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '6px' }}>
+                      <input
+                        type="text"
+                        placeholder="Paper (e.g. ఈనాడు)"
+                        className={styles.inputControl}
+                        style={{ padding: '6px 8px', fontSize: '0.8rem' }}
+                        value={clipping.paper_name || ''}
+                        onChange={(e) => handleUpdateClipping(index, 'paper_name', e.target.value)}
+                      />
+                      <input
+                        type="text"
+                        placeholder="Date (e.g. మే 2020)"
+                        className={styles.inputControl}
+                        style={{ padding: '6px 8px', fontSize: '0.8rem' }}
+                        value={clipping.clipping_date || ''}
+                        onChange={(e) => handleUpdateClipping(index, 'clipping_date', e.target.value)}
+                      />
+                    </div>
+
+                    <input
+                      type="text"
+                      placeholder="News Headline..."
+                      className={styles.inputControl}
+                      style={{ padding: '6px 10px', fontSize: '0.82rem' }}
+                      value={clipping.headline || ''}
+                      onChange={(e) => handleUpdateClipping(index, 'headline', e.target.value)}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Section 6: Appreciation Certificates */}
+            <div className={styles.sectionBlock}>
+              <div className={styles.sectionBlockTitle}>
+                <span>🏆 Appreciation Certificates &amp; Honors ({covidSevaSettings.certificates?.length || 0})</span>
+                <button type="button" className={styles.addBtnSmall} onClick={handleAddCertificate}>
+                  + Add Certificate
+                </button>
+              </div>
+
+              <div className={styles.itemsGrid}>
+                {covidSevaSettings.certificates?.map((cert, index) => (
+                  <div key={index} className={styles.itemCard}>
+                    <div className={styles.itemCardTop}>
+                      <span style={{ fontSize: '0.8rem', color: '#eab308', fontWeight: '800' }}>Award #{index + 1}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteCertificate(index)}
+                        style={{ background: 'rgba(239,68,68,0.2)', border: '1px solid #ef4444', color: '#fca5a5', padding: '2px 6px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.72rem' }}
+                      >
+                        Delete 🗑️
+                      </button>
+                    </div>
+
+                    <input
+                      type="text"
+                      placeholder="Certificate / Award Title"
+                      className={styles.inputControl}
+                      style={{ padding: '6px 10px', fontSize: '0.85rem', fontWeight: '700' }}
+                      value={cert.title || ''}
+                      onChange={(e) => handleUpdateCertificate(index, 'title', e.target.value)}
+                    />
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 0.8fr', gap: '6px' }}>
+                      <input
+                        type="text"
+                        placeholder="Issuing Authority / Dept."
+                        className={styles.inputControl}
+                        style={{ padding: '6px 8px', fontSize: '0.8rem' }}
+                        value={cert.issuer || ''}
+                        onChange={(e) => handleUpdateCertificate(index, 'issuer', e.target.value)}
+                      />
+                      <input
+                        type="text"
+                        placeholder="Year (e.g. 2020)"
+                        className={styles.inputControl}
+                        style={{ padding: '6px 8px', fontSize: '0.8rem' }}
+                        value={cert.year || ''}
+                        onChange={(e) => handleUpdateCertificate(index, 'year', e.target.value)}
+                      />
+                    </div>
+
+                    <textarea
+                      rows={2}
+                      placeholder="Description & Recognition details..."
+                      className={styles.inputControl}
+                      style={{ padding: '6px 10px', fontSize: '0.8rem' }}
+                      value={cert.description || ''}
+                      onChange={(e) => handleUpdateCertificate(index, 'description', e.target.value)}
+                    ></textarea>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className={styles.savePrimaryBtn}
+              style={{
+                background: 'linear-gradient(135deg, #ff7700 0%, #ea580c 100%)',
+                fontSize: '1rem',
+                padding: '14px 28px',
+                marginTop: '16px'
+              }}
+            >
+              💾 Save All 50-Day Corona Food Seva Memorial Settings
+            </button>
+          </form>
+        </div>
+      )}
+
+      {/* ================= 3. NAVARATRI PORTAL CMS ================= */}
       {activeSubTab === 'navaratri' && (
         <div className={styles.tabContentCard}>
           <div className={styles.cardHeader}>

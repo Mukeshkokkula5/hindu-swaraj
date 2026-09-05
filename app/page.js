@@ -2,6 +2,7 @@ import EmergencyBloodTicker from '@/components/EmergencyBloodTicker';
 import Navbar from '@/components/Navbar';
 import HeroSection from '@/components/HeroSection';
 import AboutSection from '@/components/AboutSection';
+import CovidSevaBanner from '@/components/CovidSevaBanner';
 import ActivitiesEvents from '@/components/ActivitiesEvents';
 import LeadershipSection from '@/components/LeadershipSection';
 import BloodHeroesSection from '@/components/BloodHeroesSection';
@@ -17,6 +18,7 @@ export default function Home() {
       <main>
         <HeroSection />
         <AboutSection />
+        <CovidSevaBanner />
         <ActivitiesEvents />
         <BloodHeroesSection />
         <LeadershipSection />
