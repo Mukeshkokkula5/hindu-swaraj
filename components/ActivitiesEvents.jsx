@@ -9,7 +9,7 @@ const activities = [
     id: "medical-camp",
     image: "/images/medical-camp/photo-1.jpg",
     title: "Free Medical & Health Camps",
-    desc: "Conducting free health checkups, diagnostic tests, BP/sugar screening, and free medicine distribution for rural & needy families in Jagtial.",
+    desc: "Organizing free health checkups, diagnostics, BP/sugar screening, and free medicine distribution.",
     photos: [
       "/images/medical-camp/photo-1.jpg",
       "/images/medical-camp/photo-2.jpg",
@@ -22,25 +22,31 @@ const activities = [
     id: "blood-donation",
     image: "/images/activity-blood.png",
     title: "Blood Donation Camps",
-    desc: "Organizing regular blood donation camps to save lives and support hospitals.",
+    desc: "Organizing regular blood donation camps to save lives and support local hospital blood banks.",
   },
   {
     id: "education-support",
     image: "/images/activity-education.png",
     title: "Education Support",
-    desc: "Helping students with study materials, scholarships and career guidance.",
+    desc: "Empowering underprivileged students with study kits, merit scholarships and career guidance.",
   },
   {
     id: "tree-plantation",
     image: "/images/activity-trees.png",
-    title: "Tree Plantation",
-    desc: "Planting trees for a greener tomorrow and a better environment.",
+    title: "Tree Plantation Drives",
+    desc: "Conducting mass green tree plantation drives for environmental protection and a cleaner tomorrow.",
   },
   {
     id: "youth-leadership",
     image: "/images/activity-leadership.png",
-    title: "Youth Leadership",
-    desc: "Conducting workshops and sessions to build leadership and soft skills.",
+    title: "Youth Leadership & Sanskar",
+    desc: "Conducting workshops and youth camps to build dynamic leadership, sanskar, and social responsibility.",
+  },
+  {
+    id: "disaster-relief",
+    image: "/images/activity-disaster.png",
+    title: "Disaster & Emergency Relief",
+    desc: "Providing swift emergency relief supplies, volunteer aid, and assistance during urgent community crises.",
   },
 ];
 

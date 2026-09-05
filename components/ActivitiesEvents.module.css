@@ -29,26 +29,33 @@
 
 .activitiesGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 20px;
 }
 
 .activityCard {
   background: var(--white);
-  border-radius: var(--radius-md);
+  border-radius: 14px;
   overflow: hidden;
-  box-shadow: var(--shadow-card);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   transition: all var(--transition-base);
 }
 
 .activityCard:hover {
   transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  border-color: rgba(216, 88, 24, 0.25);
 }
 
 .activityImageWrap {
   overflow: hidden;
   height: 160px;
+  position: relative;
+  flex-shrink: 0;
 }
 
 .activityImage {
@@ -59,39 +66,50 @@
 }
 
 .activityCard:hover .activityImage {
-  transform: scale(1.08);
+  transform: scale(1.06);
 }
 
 .activityInfo {
-  padding: 16px;
+  padding: 16px 18px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .activityTitle {
-  font-size: 0.95rem;
+  font-size: 0.98rem;
   font-weight: 700;
   color: var(--navy);
-  margin-bottom: 6px;
+  margin-bottom: 8px;
+  line-height: 1.35;
+  min-height: 2.7em;
+  display: flex;
+  align-items: flex-start;
 }
 
 .activityDesc {
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   color: var(--text-secondary);
-  line-height: 1.5;
-  margin-bottom: 12px;
+  line-height: 1.55;
+  margin-bottom: 14px;
+  flex: 1;
 }
 
 .learnMore {
+  margin-top: auto;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   font-size: 0.82rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--saffron);
-  transition: gap var(--transition-fast);
+  transition: all var(--transition-fast);
+  padding-top: 6px;
 }
 
 .learnMore:hover {
-  gap: 8px;
+  gap: 9px;
+  color: var(--saffron-dark);
 }
 
 /* Events */
@@ -210,8 +228,8 @@
 
 @media (max-width: 540px) {
   .activitiesGrid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    grid-template-columns: 1fr;
+    gap: 16px;
   }
 
   .eventsCol {
