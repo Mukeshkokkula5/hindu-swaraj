@@ -32,7 +32,7 @@ export default function AboutSection() {
               src="/images/about-volunteers.png"
               alt="Hindu Swaraj Youth Volunteers"
               width={560}
-              height={380}
+              height={407}
               className={styles.aboutImage}
             />
             <div className={styles.floatingBadge}>
