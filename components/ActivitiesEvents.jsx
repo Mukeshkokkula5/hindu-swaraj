@@ -1,25 +1,43 @@
 "use client";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import styles from "./ActivitiesEvents.module.css";
 
 const activities = [
   {
+    id: "medical-camp",
+    image: "/images/medical-camp/photo-1.jpg",
+    title: "Free Medical & Health Camps",
+    desc: "Conducting free health checkups, diagnostic tests, BP/sugar screening, and free medicine distribution for rural & needy families in Jagtial.",
+    photos: [
+      "/images/medical-camp/photo-1.jpg",
+      "/images/medical-camp/photo-2.jpg",
+      "/images/medical-camp/photo-3.jpg",
+      "/images/medical-camp/photo-4.jpg",
+      "/images/medical-camp/photo-5.jpg",
+    ],
+  },
+  {
+    id: "blood-donation",
     image: "/images/activity-blood.png",
     title: "Blood Donation Camps",
     desc: "Organizing regular blood donation camps to save lives and support hospitals.",
   },
   {
+    id: "education-support",
     image: "/images/activity-education.png",
     title: "Education Support",
     desc: "Helping students with study materials, scholarships and career guidance.",
   },
   {
+    id: "tree-plantation",
     image: "/images/activity-trees.png",
     title: "Tree Plantation",
     desc: "Planting trees for a greener tomorrow and a better environment.",
   },
   {
+    id: "youth-leadership",
     image: "/images/activity-leadership.png",
     title: "Youth Leadership",
     desc: "Conducting workshops and sessions to build leadership and soft skills.",
@@ -60,6 +78,29 @@ const events = [
 ];
 
 export default function ActivitiesEvents() {
+  const [selectedGallery, setSelectedGallery] = useState(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!selectedGallery) return;
+      if (e.key === "Escape") {
+        setSelectedGallery(null);
+      } else if (e.key === "ArrowLeft") {
+        setSelectedGallery((prev) => ({
+          ...prev,
+          activeIndex: (prev.activeIndex - 1 + prev.photos.length) % prev.photos.length,
+        }));
+      } else if (e.key === "ArrowRight") {
+        setSelectedGallery((prev) => ({
+          ...prev,
+          activeIndex: (prev.activeIndex + 1) % prev.photos.length,
+        }));
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedGallery]);
+
   return (
     <section className={styles.section} id="activities">
       <div className={`container ${styles.grid}`}>
@@ -72,7 +113,20 @@ export default function ActivitiesEvents() {
           </div>
           <div className={styles.activitiesGrid}>
             {activities.map((item, i) => (
-              <div key={i} className={styles.activityCard}>
+              <div
+                key={i}
+                className={styles.activityCard}
+                style={item.photos ? { cursor: "pointer" } : {}}
+                onClick={() => {
+                  if (item.photos && item.photos.length > 0) {
+                    setSelectedGallery({
+                      title: item.title,
+                      photos: item.photos,
+                      activeIndex: 0,
+                    });
+                  }
+                }}
+              >
                 <div className={styles.activityImageWrap}>
                   <Image
                     src={item.image}
@@ -81,21 +135,40 @@ export default function ActivitiesEvents() {
                     height={180}
                     className={styles.activityImage}
                   />
+                  {item.photos && item.photos.length > 0 && (
+                    <span className={styles.photoBadge}>
+                      📸 {item.photos.length} Photos
+                    </span>
+                  )}
                 </div>
                 <div className={styles.activityInfo}>
                   <h3 className={styles.activityTitle}>{item.title}</h3>
                   <p className={styles.activityDesc}>{item.desc}</p>
-                  <a href="#" className={styles.learnMore}>
-                    Learn More
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                    >
-                      <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" />
-                    </svg>
-                  </a>
+                  {item.photos ? (
+                    <span className={styles.learnMore}>
+                      View Gallery ({item.photos.length} Photos)
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                      >
+                        <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" />
+                      </svg>
+                    </span>
+                  ) : (
+                    <a href="#activities" className={styles.learnMore}>
+                      Learn More
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                      >
+                        <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" />
+                      </svg>
+                    </a>
+                  )}
                 </div>
               </div>
             ))}
@@ -179,6 +252,101 @@ export default function ActivitiesEvents() {
           </a>
         </div>
       </div>
+
+      {/* 🖼️ Interactive Photo Gallery Lightbox Modal */}
+      {selectedGallery && (
+        <div
+          className={styles.galleryBackdrop}
+          onClick={() => setSelectedGallery(null)}
+        >
+          <div
+            className={styles.galleryModal}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className={styles.galleryHeader}>
+              <div className={styles.galleryTitle}>
+                <span>📸</span>
+                <span>{selectedGallery.title}</span>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                <span className={styles.galleryCount}>
+                  Photo {selectedGallery.activeIndex + 1} of {selectedGallery.photos.length}
+                </span>
+                <button
+                  type="button"
+                  className={styles.galleryCloseBtn}
+                  onClick={() => setSelectedGallery(null)}
+                  aria-label="Close Gallery"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            <div className={styles.galleryViewWrap}>
+              <button
+                type="button"
+                className={`${styles.galleryNavBtn} ${styles.galleryNavPrev}`}
+                onClick={() =>
+                  setSelectedGallery((prev) => ({
+                    ...prev,
+                    activeIndex:
+                      (prev.activeIndex - 1 + prev.photos.length) % prev.photos.length,
+                  }))
+                }
+                aria-label="Previous photo"
+              >
+                ‹
+              </button>
+
+              <Image
+                src={selectedGallery.photos[selectedGallery.activeIndex]}
+                alt={`${selectedGallery.title} photo ${selectedGallery.activeIndex + 1}`}
+                width={860}
+                height={500}
+                className={styles.galleryActiveImg}
+                priority
+              />
+
+              <button
+                type="button"
+                className={`${styles.galleryNavBtn} ${styles.galleryNavNext}`}
+                onClick={() =>
+                  setSelectedGallery((prev) => ({
+                    ...prev,
+                    activeIndex: (prev.activeIndex + 1) % prev.photos.length,
+                  }))
+                }
+                aria-label="Next photo"
+              >
+                ›
+              </button>
+            </div>
+
+            <div className={styles.galleryThumbsStrip}>
+              {selectedGallery.photos.map((p, idx) => (
+                <div
+                  key={idx}
+                  className={`${styles.galleryThumb} ${
+                    idx === selectedGallery.activeIndex ? styles.galleryThumbActive : ""
+                  }`}
+                  onClick={() =>
+                    setSelectedGallery((prev) => ({ ...prev, activeIndex: idx }))
+                  }
+                >
+                  <Image
+                    src={p}
+                    alt={`Thumbnail ${idx + 1}`}
+                    width={80}
+                    height={55}
+                    className={styles.galleryThumbImg}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
