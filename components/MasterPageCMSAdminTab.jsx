@@ -279,13 +279,53 @@ Hindu Swaraj Youth stepped up to the frontlines. With safety precautions and bur
 
   const resolveImgSrc = (url) => {
     if (!url) return '/images/activity-disaster.png';
+    if (url.startsWith('data:')) return url;
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
     if (url.startsWith('/uploads/')) return `${API_BASE_URL}${url}`;
     return url;
   };
 
+  const compressImageToBase64 = (file) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          try {
+            const canvas = document.createElement('canvas');
+            const maxDim = 1280;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height && width > maxDim) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else if (height > maxDim) {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+            resolve(dataUrl);
+          } catch (err) {
+            resolve(e.target.result);
+          }
+        };
+        img.onerror = () => resolve(e.target.result);
+        img.src = e.target.result;
+      };
+      reader.onerror = () => resolve('');
+      reader.readAsDataURL(file);
+    });
+  };
+
   const handleSaveCovidSevaSettings = async (e) => {
     if (e) e.preventDefault();
-    setSaveStatus('Saving 50-Day Corona Food Seva Memorial Settings...');
+    setSaveStatus('⏳ Saving 50-Day Corona Food Seva Memorial Settings...');
     try {
       const res = await fetch(`${API_BASE_URL}/covid-seva/admin`, {
         method: 'POST',
@@ -298,13 +338,15 @@ Hindu Swaraj Youth stepped up to the frontlines. With safety precautions and bur
       const data = await res.json();
       if (res.ok && data.success) {
         setSaveStatus('✅ 50-Day Corona Seva Memorial Settings updated successfully! 🍲');
+        alert('✅ 50-Day Corona Seva Settings saved successfully in database! 🍲');
       } else {
         throw new Error(data.error || 'Update failed');
       }
     } catch (err) {
       setSaveStatus('❌ Error: ' + err.message);
+      alert('❌ Save Error: ' + err.message);
     }
-    setTimeout(() => setSaveStatus(''), 4000);
+    setTimeout(() => setSaveStatus(''), 5000);
   };
 
   const handleUploadCovidMedia = async (e, type, index) => {
@@ -312,34 +354,58 @@ Hindu Swaraj Youth stepped up to the frontlines. With safety precautions and bur
     if (!file) return;
     setUploadingCovidFile(true);
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      const res = await fetch(`${API_BASE_URL}/covid-seva/admin/upload`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
-      const data = await res.json();
-      if (res.ok && data.success && data.url) {
+      // 1. Instant client-side optimized base64 conversion (permanent & survives serverless restarts)
+      const base64Data = await compressImageToBase64(file);
+      if (base64Data) {
         if (type === 'photo') {
           setCovidSevaSettings((prev) => {
             const updated = [...prev.photos];
-            updated[index] = { ...updated[index], url: data.url };
+            updated[index] = { ...updated[index], url: base64Data };
             return { ...prev, photos: updated };
           });
         } else if (type === 'clipping') {
           setCovidSevaSettings((prev) => {
             const updated = [...prev.newspaper_clippings];
-            updated[index] = { ...updated[index], image_url: data.url };
+            updated[index] = { ...updated[index], image_url: base64Data };
             return { ...prev, newspaper_clippings: updated };
           });
         }
-        alert('✅ File uploaded successfully!');
-      } else {
-        alert(data.error || 'Upload failed');
       }
+
+      // 2. Also send to server upload endpoint
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        const res = await fetch(`${API_BASE_URL}/covid-seva/admin/upload`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        });
+        const data = await res.json();
+        if (res.ok && data.success && data.url) {
+          if (data.url.startsWith('data:') || data.url.startsWith('http')) {
+            if (type === 'photo') {
+              setCovidSevaSettings((prev) => {
+                const updated = [...prev.photos];
+                updated[index] = { ...updated[index], url: data.url };
+                return { ...prev, photos: updated };
+              });
+            } else if (type === 'clipping') {
+              setCovidSevaSettings((prev) => {
+                const updated = [...prev.newspaper_clippings];
+                updated[index] = { ...updated[index], image_url: data.url };
+                return { ...prev, newspaper_clippings: updated };
+              });
+            }
+          }
+        }
+      } catch (uploadErr) {
+        console.warn('Server upload note:', uploadErr.message);
+      }
+
+      alert('✅ Photo loaded & ready! Now click "Save All 50-Day Corona Food Seva Memorial Settings" below.');
     } catch (err) {
       alert('Upload error: ' + err.message);
     } finally {
@@ -978,18 +1044,58 @@ Hindu Swaraj Youth stepped up to the frontlines. With safety precautions and bur
               </div>
             </div>
 
-            <button
-              type="submit"
-              className={styles.savePrimaryBtn}
-              style={{
-                background: 'linear-gradient(135deg, #ff7700 0%, #ea580c 100%)',
-                fontSize: '1rem',
-                padding: '14px 28px',
-                marginTop: '16px'
-              }}
-            >
-              💾 Save All 50-Day Corona Food Seva Memorial Settings
-            </button>
+            {/* Direct Save Alert / Notification */}
+            {saveStatus && (
+              <div
+                className={styles.statusToast}
+                style={{
+                  marginTop: '16px',
+                  background: saveStatus.includes('Error') ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)',
+                  border: saveStatus.includes('Error') ? '1px solid #ef4444' : '1px solid #10b981',
+                  color: saveStatus.includes('Error') ? '#fca5a5' : '#6ee7b7',
+                  fontSize: '0.95rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                }}
+              >
+                {saveStatus}
+              </div>
+            )}
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap', marginTop: '16px' }}>
+              <button
+                type="button"
+                onClick={handleSaveCovidSevaSettings}
+                className={styles.savePrimaryBtn}
+                style={{
+                  background: 'linear-gradient(135deg, #ff7700 0%, #ea580c 100%)',
+                  fontSize: '1rem',
+                  padding: '14px 28px',
+                  margin: 0,
+                  opacity: saveStatus.includes('Saving') ? 0.7 : 1,
+                  cursor: saveStatus.includes('Saving') ? 'not-allowed' : 'pointer',
+                }}
+              >
+                {saveStatus.includes('Saving')
+                  ? '⏳ Saving Settings to Database...'
+                  : '💾 Save All 50-Day Corona Food Seva Memorial Settings'}
+              </button>
+
+              <a
+                href="/covid-seva"
+                target="_blank"
+                rel="noreferrer"
+                style={{
+                  color: '#ffd700',
+                  textDecoration: 'underline',
+                  fontSize: '0.9rem',
+                  fontWeight: '700',
+                }}
+              >
+                Open `/covid-seva` page in new tab ↗
+              </a>
+            </div>
           </form>
         </div>
       )}
