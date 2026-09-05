@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import styles from './MasterPageCMSAdminTab.module.css';
+import AIWriterModal, { AIWriterTriggerButton } from './AIWriterModal';
 
 const API_BASE_URL = (
   process.env.NEXT_PUBLIC_API_BASE_URL ||
@@ -13,6 +14,38 @@ export default function MasterPageCMSAdminTab({ token, currentUser }) {
   const [activeSubTab, setActiveSubTab] = useState('home'); // 'home' | 'navaratri' | 'aapadbandhava' | 'blood' | 'community' | 'public_transparency' | 'volunteers'
   const [loading, setLoading] = useState(false);
   const [saveStatus, setSaveStatus] = useState('');
+
+  // AI Content Writer Modal State
+  const [aiModal, setAiModal] = useState({
+    isOpen: false,
+    targetField: '',
+    initialPrompt: '',
+    contentType: 'STORY',
+  });
+
+  const handleOpenAiWriter = (targetField, initialPrompt = '', contentType = 'STORY') => {
+    setAiModal({
+      isOpen: true,
+      targetField,
+      initialPrompt,
+      contentType,
+    });
+  };
+
+  const handleAiInsert = (generatedText) => {
+    if (!generatedText) return;
+    if (aiModal.targetField === 'covid_story_telugu') {
+      setCovidSevaSettings((prev) => ({ ...prev, story_telugu: generatedText }));
+    } else if (aiModal.targetField === 'covid_story_english') {
+      setCovidSevaSettings((prev) => ({ ...prev, story_english: generatedText }));
+    } else if (aiModal.targetField === 'covid_hero_subtitle') {
+      setCovidSevaSettings((prev) => ({ ...prev, hero_subtitle: generatedText }));
+    } else if (aiModal.targetField === 'home_hero_subtitle') {
+      setHomeSettings((prev) => ({ ...prev, hero_subtitle: generatedText }));
+    } else if (aiModal.targetField === 'navaratri_announcement') {
+      setNavaratriSettings((prev) => ({ ...prev, live_announcement: generatedText }));
+    }
+  };
 
   // 1. Home Page & General Settings State
   const [homeSettings, setHomeSettings] = useState({
@@ -588,7 +621,13 @@ Hindu Swaraj Youth stepped up to the frontlines. With safety precautions and bur
             </div>
 
             <div className={styles.inputGroup}>
-              <label className={styles.inputLabel}>Hero Subtitle Description</label>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                <label className={styles.inputLabel} style={{ margin: 0 }}>Hero Subtitle Description</label>
+                <AIWriterTriggerButton
+                  label="✨ AI తో రాయండి"
+                  onClick={() => handleOpenAiWriter('home_hero_subtitle', homeSettings.hero_subtitle || 'Hindu Swaraj Youth Welfare Association Jagtial', 'CAPTION')}
+                />
+              </div>
               <textarea
                 rows={3}
                 className={styles.inputControl}
@@ -792,7 +831,13 @@ Hindu Swaraj Youth stepped up to the frontlines. With safety precautions and bur
                   />
                 </div>
                 <div className={styles.inputGroup}>
-                  <label className={styles.inputLabel}>Hero Subtitle</label>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                    <label className={styles.inputLabel} style={{ margin: 0 }}>Hero Subtitle</label>
+                    <AIWriterTriggerButton
+                      label="✨ AI Subtitle"
+                      onClick={() => handleOpenAiWriter('covid_hero_subtitle', covidSevaSettings.hero_subtitle || '50 Days Corona Food Seva in Jagtial', 'CAPTION')}
+                    />
+                  </div>
                   <input
                     type="text"
                     className={styles.inputControl}
@@ -804,7 +849,13 @@ Hindu Swaraj Youth stepped up to the frontlines. With safety precautions and bur
 
               <div className={styles.formGrid2}>
                 <div className={styles.inputGroup}>
-                  <label className={styles.inputLabel}>తెలుగు సేవా చరిత్ర (Telugu Story Narrative)</label>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                    <label className={styles.inputLabel} style={{ margin: 0 }}>తెలుగు సేవా చరిత్ర (Telugu Story)</label>
+                    <AIWriterTriggerButton
+                      label="✨ AI తో రాయండి (Telugu)"
+                      onClick={() => handleOpenAiWriter('covid_story_telugu', covidSevaSettings.story_telugu || 'కరోనా సమయంలో 50 రోజుల నిరంతర అన్నదానం జగిత్యాలలో రోడ్లపై వేడి భోజన ప్యాకెట్ల పంపిణీ', 'STORY')}
+                    />
+                  </div>
                   <textarea
                     rows={6}
                     className={styles.inputControl}
@@ -813,7 +864,13 @@ Hindu Swaraj Youth stepped up to the frontlines. With safety precautions and bur
                   ></textarea>
                 </div>
                 <div className={styles.inputGroup}>
-                  <label className={styles.inputLabel}>English Story Narrative</label>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                    <label className={styles.inputLabel} style={{ margin: 0 }}>English Story Narrative</label>
+                    <AIWriterTriggerButton
+                      label="✨ AI Write (English)"
+                      onClick={() => handleOpenAiWriter('covid_story_english', covidSevaSettings.story_english || '50 Days of Relentless Corona Food Donation Seva by Hindu Swaraj Youth Jagtial', 'STORY')}
+                    />
+                  </div>
                   <textarea
                     rows={6}
                     className={styles.inputControl}
@@ -1145,7 +1202,13 @@ Hindu Swaraj Youth stepped up to the frontlines. With safety precautions and bur
             </div>
 
             <div className={styles.inputGroup}>
-              <label className={styles.inputLabel}>Daily Live Announcement Banner Text</label>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                <label className={styles.inputLabel} style={{ margin: 0 }}>Daily Live Announcement Banner Text</label>
+                <AIWriterTriggerButton
+                  label="✨ AI తో రాయండి"
+                  onClick={() => handleOpenAiWriter('navaratri_announcement', navaratriSettings.live_announcement || 'వినాయక నవరాత్రులు రోజువారీ అభిషేకం, అన్నదానం మరియు మహా హారతి సమయాలు', 'ANNOUNCEMENT')}
+                />
+              </div>
               <textarea
                 rows={2}
                 className={styles.inputControl}
@@ -1337,6 +1400,16 @@ Hindu Swaraj Youth stepped up to the frontlines. With safety precautions and bur
           </div>
         </div>
       )}
+
+      {/* AI Bilingual Content Writer Modal */}
+      <AIWriterModal
+        isOpen={aiModal.isOpen}
+        onClose={() => setAiModal((prev) => ({ ...prev, isOpen: false }))}
+        onInsert={handleAiInsert}
+        initialPrompt={aiModal.initialPrompt}
+        contentType={aiModal.contentType}
+        token={token}
+      />
     </div>
   );
 }
