@@ -97,137 +97,150 @@ const getYouTubeEmbedUrl = (urlOrId) => {
 };
 
 // Fallback initial schedule (11 Days - Jagtial)
+// Fallback initial schedule (12 Days - Jagtial Navaratri Mahotsavam 2026)
 const DEFAULT_SCHEDULE = [
   {
     id: 1,
     day_number: 1,
     date_str: "14 Sep 2026 (Mon)",
-    title: "Day 1 - Vinayaka Chavithi Pratishtapana",
-    alankaram: "Swarna Ganapathi Alankaram",
-    morning_puja: "07:00 AM - Ganapathi Homam, Kalasha Sthapana & Prana Pratishta Mahotsavam",
-    evening_aarti: "07:30 PM - Maha Mangala Harathi, 108 Modaka Nivedana & Bhajan Sandhya",
-    annadanam_info: "12:30 PM - Maha Annadanam for 1,500+ devotees",
-    special_events: "Grand Swarna Kavacha Dharana & Vedic Chanting by youth priests",
+    title: "Day 1 - శ్రీ వినాయక విగ్రహ ప్రతిష్టాపన మహోత్సవం",
+    alankaram: "శ్రీ వినాయక ప్రతిష్టాపన దివ్యాలంకారం",
+    morning_puja: "ఉదయం - పందిరి వేదిక అలంకరణ, కలశ స్థాపన & గణపతి హోమం",
+    evening_aarti: "06:16 PM - సాయంత్రం 6:16 ని॥లకు విగ్రహ ప్రతిష్టాపన, మహా మంగళ హారతి",
+    annadanam_info: "తీర్థ & పవిత్ర ప్రసాదం వితరణ",
+    special_events: "🚩 వినాయక నవరాత్రి మహోత్సవాల దివ్య ప్రారంభం, వేద మంత్రోచ్ఛారణ & భజన సంధ్య",
     status: "ACTIVE",
   },
   {
     id: 2,
     day_number: 2,
     date_str: "15 Sep 2026 (Tue)",
-    title: "Day 2 - Panchamrutha Abhishekam",
-    alankaram: "Bala Ganapathi Alankaram",
-    morning_puja: "07:30 AM - Ekadasa Dravya Abhishekam & Bilva Archana",
-    evening_aarti: "07:30 PM - Deeparadhana & Lalitha Sahasranama Parayana",
-    annadanam_info: "01:00 PM - Nithya Annadanam Seva",
-    special_events: "Devotional singing competition for local youth & children",
+    title: "Day 2 - లక్ష దుర్వార్చన & నిత్య పూజ",
+    alankaram: "లక్ష గరిక (దుర్వ) విశేషాలంకారం",
+    morning_puja: "08:15 AM - ఉదయం 8:15 ని॥లకు నిత్య పూజ, తీర్థ ప్రసాదం వితరణ",
+    evening_aarti: "06:45 PM - సాయంత్రం 6:45 ని॥లకు నిత్య పూజ, లక్ష దుర్వార్చన, మంగళ హారతి, తీర్థ ప్రసాదం వితరణ",
+    annadanam_info: "తీర్థ & పవిత్ర ప్రసాదం వితరణ",
+    special_events: "భక్తులచే స్వామివారికి ప్రీతికరమైన లక్ష దుర్వార్చన పూజ & విశేష సంకల్పం",
     status: "UPCOMING",
   },
   {
     id: 3,
     day_number: 3,
     date_str: "16 Sep 2026 (Wed)",
-    title: "Day 3 - Gaja Vahana Seva",
-    alankaram: "Siddhi Buddhi Sametha Ganapathi",
-    morning_puja: "07:30 AM - Ashtothara Shata Kalasabhishekam",
-    evening_aarti: "07:30 PM - Divya Gaja Vahana Harathi & Drum Seva",
-    annadanam_info: "01:00 PM - Maha Prasadam Distribution",
-    special_events: "Spiritual Discourse on Dharma & Youth Values by visiting scholars",
+    title: "Day 3 - విశేష పుష్పార్చన & నిత్య పూజ",
+    alankaram: "సుగంధ పుష్పాలంకరణ",
+    morning_puja: "08:15 AM - ఉదయం 8:15 ని॥లకు నిత్య పూజ, తీర్థ ప్రసాదం వితరణ",
+    evening_aarti: "06:45 PM - సాయంత్రం 6:45 ని॥లకు నిత్య పూజ, పుష్పార్చన, మంగళ హారతి, తీర్థ ప్రసాదం వితరణ",
+    annadanam_info: "తీర్థ & ప్రసాదం వితరణ",
+    special_events: "వివిధ రకాల తాజా పుష్పాలతో స్వామివారికి పుష్పవృష్టి & దివ్య నామావళి",
     status: "UPCOMING",
   },
   {
     id: 4,
     day_number: 4,
     date_str: "17 Sep 2026 (Thu)",
-    title: "Day 4 - Valli Devasena & Ganapathi Puja",
-    alankaram: "Mayura Vahana Alankaram",
-    morning_puja: "07:30 AM - Sugandha Dravya Abhishekam & Ganapathi Atharvasheersha",
-    evening_aarti: "07:30 PM - Akhanda Deeparadhana & Harikatha Gana Seva",
-    annadanam_info: "01:00 PM - Maha Annadanam",
-    special_events: "Harikatha rendition on Ganesha Leelalu by Jagtial artists",
+    title: "Day 4 - శ్రీ శాకాంబరీ అలంకరణ",
+    alankaram: "శాకాంబరీ దేవి దివ్యాలంకారం",
+    morning_puja: "08:15 AM - ఉదయం 8:15 ని॥లకు నిత్య పూజ, తీర్థ ప్రసాదం వితరణ",
+    evening_aarti: "06:45 PM - సాయంత్రం 6:45 ని॥లకు నిత్య పూజ, శాకాంబరీ అలంకరణ దర్శనం, మంగళ హారతి, తీర్థ ప్రసాదం వితరణ",
+    annadanam_info: "తీర్థ & ప్రసాదం వితరణ",
+    special_events: "కూరగాయలు, పండ్లు, ఆకుకూరలతో ప్రకృతి మాత స్వరూపంగా అలంకారం",
     status: "UPCOMING",
   },
   {
     id: 5,
     day_number: 5,
     date_str: "18 Sep 2026 (Fri)",
-    title: "Day 5 - Lalitha Devi Sametha Ganapathi",
-    alankaram: "Sri Chakra Alankaram",
-    morning_puja: "07:00 AM - Kumkumarchana & Sri Suktha / Chandi Parayana",
-    evening_aarti: "07:30 PM - Suvasini Puja & Maha Deepothsavam",
-    annadanam_info: "01:00 PM - Annadanam Seva",
-    special_events: "Classical devotional dance (Kuchipudi & Bharatanatyam) by youth team",
+    title: "Day 5 - మాతలచే సామూహిక కుంకుమార్చన",
+    alankaram: "కుంకుమార్చన విశేషాలంకారం",
+    morning_puja: "08:15 AM - ఉదయం 8:15 ని॥లకు నిత్య పూజ, తీర్థ ప్రసాదం వితరణ",
+    evening_aarti: "06:45 PM - సాయంత్రం 6:45 ని॥లకు నిత్య పూజ, మాతలచే సామూహిక కుంకుమార్చన, మంగళ హారతి, తీర్థ ప్రసాదం వితరణ",
+    annadanam_info: "తీర్థ & పవిత్ర కుంకుమ ప్రసాదం వితరణ",
+    special_events: "సువాసినులచే సామూహిక లలితా సహస్రనామ పారాయణం & సౌభాగ్య కుంకుమార్చన",
     status: "UPCOMING",
   },
   {
     id: 6,
     day_number: 6,
     date_str: "19 Sep 2026 (Sat)",
-    title: "Day 6 - Sahasra Modaka Maha Yagnam",
-    alankaram: "Maha Ganapathi Alankaram",
-    morning_puja: "08:00 AM - 1008 Modaka Maha Homam & Purnahuti",
-    evening_aarti: "07:30 PM - Gaja Vahana Aarti & Bhajans",
-    annadanam_info: "01:00 PM - Vishesha Modaka Prasadam & Annadanam",
-    special_events: "Kolatam & folk devotional dance by youth groups",
+    title: "Day 6 - శ్రీ భూ నీల సమేత వేంకటేశ్వర స్వామి కళ్యాణం & మహా అన్నప్రసాదం",
+    alankaram: "శ్రీ వేంకటేశ్వర కళ్యాణోత్సవ అలంకారం",
+    morning_puja: "08:15 AM - ఉదయం 8:15 ని॥లకు నిత్య పూజ, శ్రీ భూ నీల సమేత వేంకటేశ్వర స్వామి వారి దివ్య కళ్యాణ మహోత్సవం",
+    evening_aarti: "06:45 PM - సాయంత్రం 6:45 ని॥లకు నిత్య పూజ, దివ్య మంగళ హారతి, తీర్థ ప్రసాదం వితరణ",
+    annadanam_info: "🍲 12:30 PM - తీర్థ & మహా అన్న ప్రసాదం వితరణ (అందరికీ మహా అన్నదానం)",
+    special_events: "స్వామివారి కల్యాణోత్సవం, వేద మంత్రోచ్ఛారణ & మహా అన్నదాన సేవ",
     status: "UPCOMING",
   },
   {
     id: 7,
     day_number: 7,
     date_str: "20 Sep 2026 (Sun)",
-    title: "Day 7 - Pushpa Yagam & Pushpalankaram",
-    alankaram: "Vana Durga Sahitha Ganapathi",
-    morning_puja: "07:30 AM - Ashtottara Pushpanjali & Rudra Parayana",
-    evening_aarti: "07:30 PM - Grand Pushpa Vrishti Aarti (1 Quintal fresh flowers)",
-    annadanam_info: "01:00 PM - Maha Annadanam for 2,500+ devotees",
-    special_events: "Mega Blood Donation Camp at Jagtial Pandal premises by volunteers",
+    title: "Day 7 - పవిత్ర సహస్ర మోదక హోమం",
+    alankaram: "సహస్ర మోదక ప్రియ గణపతి అలంకారం",
+    morning_puja: "08:15 AM - ఉదయం 8:15 ని॥లకు నిత్య పూజ, సహస్ర మోదక హోమం, పూర్ణాహుతి, తీర్థ ప్రసాదం వితరణ",
+    evening_aarti: "06:45 PM - సాయంత్రం 6:45 ని॥లకు నిత్య పూజ, మంగళ హారతి, తీర్థ ప్రసాదం వితరణ",
+    annadanam_info: "తీర్థ & హోమ మోదక ప్రసాదం వితరణ",
+    special_events: "1008 పవిత్ర మోదకాలతో గణపతికి విశేష మహా హోమం & ఆశీర్వచనం",
     status: "UPCOMING",
   },
   {
     id: 8,
     day_number: 8,
     date_str: "21 Sep 2026 (Mon)",
-    title: "Day 8 - Simha Vahana Utsavam",
-    alankaram: "Raja Ganapathi Royal Alankaram",
-    morning_puja: "07:30 AM - Ekadasa Dravya Abhishekam",
-    evening_aarti: "07:30 PM - Rajadhi Raja Maha Aarti & Chhatrapati Shivaji tribute",
-    annadanam_info: "01:00 PM - Nithya Annaprasadam",
-    special_events: "Youth leadership felicitation & seva awards",
+    title: "Day 8 - నిత్య పూజ & భజన సంధ్య",
+    alankaram: "రాజ గణపతి దివ్యాలంకారం",
+    morning_puja: "08:15 AM - ఉదయం 8:15 ని॥లకు నిత్య పూజ, తీర్థ ప్రసాదం వితరణ",
+    evening_aarti: "06:45 PM - సాయంత్రం 6:45 ని॥లకు నిత్య పూజ, మంగళ హారతి, తీర్థ ప్రసాదం వితరణ",
+    annadanam_info: "తీర్థ & ప్రసాదం వితరణ",
+    special_events: "భక్త బృందాలచే సంకీర్తనలు, భజన సంధ్య & యువజన సేవా కార్యక్రమాలు",
     status: "UPCOMING",
   },
   {
     id: 9,
     day_number: 9,
     date_str: "22 Sep 2026 (Tue)",
-    title: "Day 9 - Maha Purnahuti & Laddu Auction",
-    alankaram: "Vishwa Roopa Ganapathi Alankaram",
-    morning_puja: "08:30 AM - Maha Ganapathi Yagnam & Maha Purnahuti",
-    evening_aarti: "06:00 PM - Jagtial Maha Ganapathi Laddu Auction & Divya Harathi",
-    annadanam_info: "01:00 PM - Grand Maha Annadanam (3,000+ devotees)",
-    special_events: "Acrobatic Dhol Tasha performance by Hindu Swaraj Team",
+    title: "Day 9 - ఫల పంచామృత అభిషేకం & విశేష పూజ",
+    alankaram: "పంచామృతాభిషేక దివ్య స్వరూప అలంకారం",
+    morning_puja: "08:15 AM - ఉదయం 8:15 ని॥లకు నిత్య పూజ, తీర్థ ప్రసాదం వితరణ",
+    evening_aarti: "06:45 PM - సాయంత్రం 6:45 ని॥లకు నిత్య పూజ, ఫల పంచామృత అభిషేకం, మంగళ హారతి, తీర్థ ప్రసాదం వితరణ",
+    annadanam_info: "తీర్థ & అభిషేక తీర్థ ప్రసాదం వితరణ",
+    special_events: "పాలు, పెరుగు, తేనె, నెయ్యి, చక్కెర & వివిధ పండ్ల రసాలతో ఏకాదశ ద్రవ్య అభిషేకం",
     status: "UPCOMING",
   },
   {
     id: 10,
     day_number: 10,
     date_str: "23 Sep 2026 (Wed)",
-    title: "Day 10 - Shobha Yatra (Grand Procession)",
-    alankaram: "Digvijaya Alankaram",
-    morning_puja: "09:00 AM - Visarjan Special Archana & Send-off Aarti",
-    evening_aarti: "04:00 PM - Grand Shobha Yatra across Jagtial Main Roads",
-    annadanam_info: "All Day - Continuous water & buttermilk seva to yatris",
-    special_events: "Cultural tableaux, Dhol Tasha, Lezim & Saffron rally",
+    title: "Day 10 - శ్రీ సరస్వతీ పూజ & పుస్తక పూజ",
+    alankaram: "సరస్వతీ రూప విద్యా గణపతి అలంకారం",
+    morning_puja: "08:15 AM - ఉదయం 8:15 ని॥లకు నిత్య పూజ, తీర్థ ప్రసాదం వితరణ",
+    evening_aarti: "06:45 PM - సాయంత్రం 6:45 ని॥లకు నిత్య పూజ, సరస్వతీ పూజ, మంగళ హారతి, తీర్థ ప్రసాదం వితరణ",
+    annadanam_info: "తీర్థ & ప్రసాదం వితరణ",
+    special_events: "విద్యార్థులచే పుస్తక పూజ, విద్యా గణపతి విశేష ఆశీస్సులు & మేధా సూక్త పారాయణం",
     status: "UPCOMING",
   },
   {
     id: 11,
     day_number: 11,
     date_str: "24 Sep 2026 (Thu)",
-    title: "Day 11 - Jaladhivasa Nimajjana Seva",
-    alankaram: "Nirmalya Seva & Nimajjanam",
-    morning_puja: "08:00 AM - Nimajjana Prarthana at Jagtial Temple Lake",
-    evening_aarti: "12:00 PM - Sacred Nimajjanam with full Vedic honors",
-    annadanam_info: "01:00 PM - Shanti Puja & Prasad Distribution",
-    special_events: "Conclusion of Navaratri Seva Mahotsavam 2026",
+    title: "Day 11 - దీపోత్సవం & 108 భోగాలు మహా నైవేద్యం",
+    alankaram: "అఖండ దీపాలంకరణ & 108 భోగ దర్శనం",
+    morning_puja: "08:15 AM - ఉదయం 8:15 ని॥లకు నిత్య పూజ, తీర్థ ప్రసాదం వితరణ",
+    evening_aarti: "06:45 PM - సాయంత్రం 6:45 ని॥లకు నిత్య పూజ, దీపోత్సవం, 108 భోగాలు నైవేద్యం, మంగళ హారతి, తీర్థ ప్రసాదం వితరణ",
+    annadanam_info: "తీర్థ & 108 భోగ నైవేద్య ప్రసాదం వితరణ",
+    special_events: "పందిరి ప్రాంగణమంతా నేతి దీపాల శోభ, స్వామివారికి 108 రకాల ప్రసాదాల సమర్పణ",
+    status: "UPCOMING",
+  },
+  {
+    id: 12,
+    day_number: 12,
+    date_str: "25 Sep 2026 (Fri)",
+    title: "Day 12 - మహా కుంభ ఉద్వాసన & అంగరంగ వైభవ శోభాయాత్ర",
+    alankaram: "శోభాయాత్ర రాజస రథాలంకరణ",
+    morning_puja: "08:15 AM - ఉదయం 8:15 ని॥లకు నిత్య పూజ, మహా కుంభ ఉద్వాసన, వేద పండితులచే మహా ఆశీర్వచనం",
+    evening_aarti: "06:15 PM - సాయంత్రం 6:15 ని॥లకు జగిత్యాల పురవీధుల్లో అంగరంగ వైభవంగా శోభాయాత్ర & నిమజ్జనం",
+    annadanam_info: "తీర్థ ప్రసాదం & శోభాయాత్రలో భక్తులకు నిరంతర మంచినీరు, మజ్జిగ & అల్పాహార వితరణ",
+    special_events: "🚩 డోల్ తాషా, తీన్మార్ బాజా, లేజిమ్ నృత్యాలు, కాషాయ జెండాలు & కన్నులపండుగగా బాణసంచా",
     status: "UPCOMING",
   },
 ];
@@ -311,12 +324,15 @@ const DEFAULT_SETTINGS = {
   youtube_url: "",
   youtube_embed_id: "",
   stream_title: "Vinayaka Navaratri Seva 2026 - Jagtial Live Darshan & Maha Aarti",
-  live_announcement: "Daily Morning Abhishekam at 7:00 AM, Sahasranamarchana at 10:00 AM, Maha Annadanam at 1:00 PM, and Divya Maha Aarti at 7:30 PM live from Jagtial Pandal.",
+  live_announcement: "Daily Morning Abhishekam at 8:15 AM, Sahasranamarchana, Evening Divya Maha Aarti at 6:45 PM, and Grand Maha Annadanam on Sep 19 live from Hindu Swaraj Youth Welfare Association, Jagtial.",
   banner_image: "/images/navaratri-ganesha.jpg",
   location: "Jagtial, Telangana",
   start_date: "2026-09-14",
-  end_date: "2026-09-24",
-  ticker_text: "🔴 LIVE: Vinayaka Navaratri Seva Mahotsavam 2026 in Jagtial • Daily Sahasranamarchana, Maha Annadanam & Divya Mangala Aarti • Book your Gotra Namavali Seva online",
+  end_date: "2026-09-25",
+  morning_timings: "08:15 AM - 09:30 AM",
+  annadanam_timings: "Sep 19 (12:30 PM Onwards)",
+  evening_timings: "06:45 PM - 09:00 PM",
+  ticker_text: "🔴 LIVE: Vinayaka Navaratri Seva Mahotsavam 2026 in Jagtial • Daily Sahasranamarchana, Divya Mangala Aarti & Sep 19 Maha Annadanam • Book your Gotra Namavali Seva online",
   ticker_active: true,
   ad_banner_url: "/images/navaratri-aarti.jpg",
   ad_banner_link: "#seva-booking",
@@ -328,57 +344,18 @@ const DEFAULT_SETTINGS = {
   pandal_map_url: "https://maps.google.com/?q=Jagtial+Telangana",
   bg_audio_url: "https://assets.mixkit.co/music/preview/mixkit-meditation-flute-and-bells-ambient-sound-581.mp3",
   bg_audio_title: "Om Gam Ganapataye Namaha • 108 Divine Dhun",
-  bg_audio_artist: "Sacred Jagtial Pandal Vedic Chants",
+  bg_audio_artist: "Hindu Swaraj Youth Welfare Association, Jagtial",
   bg_audio_active: true,
   bg_audio_autoplay: true,
 };
 
 export default function NavaratriPage() {
-  // ⚡ Instant Cache Hydration (Eliminates Content & Image Flicker on Refresh)
-  const [settings, setSettings] = useState(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const cached = localStorage.getItem("hsy_navaratri_settings");
-        if (cached) return JSON.parse(cached);
-      } catch (_) {}
-    }
-    return DEFAULT_SETTINGS;
-  });
-
-  const [schedule, setSchedule] = useState(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const cached = localStorage.getItem("hsy_navaratri_schedule");
-        if (cached) return JSON.parse(cached);
-      } catch (_) {}
-    }
-    return DEFAULT_SCHEDULE;
-  });
-
+  // Deterministic state matching between SSR and initial Client render (prevents hydration mismatch)
+  const [settings, setSettings] = useState(DEFAULT_SETTINGS);
+  const [schedule, setSchedule] = useState(DEFAULT_SCHEDULE);
   const [selectedDay, setSelectedDay] = useState(1);
-
-  const [posts, setPosts] = useState(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const cached = localStorage.getItem("hsy_navaratri_posts");
-        if (cached) {
-          const parsed = JSON.parse(cached);
-          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-        }
-      } catch (_) {}
-    }
-    return DEFAULT_POSTS;
-  });
-
-  const [sponsors, setSponsors] = useState(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const cached = localStorage.getItem("hsy_navaratri_sponsors");
-        if (cached) return JSON.parse(cached);
-      } catch (_) {}
-    }
-    return DEFAULT_SPONSORS;
-  });
+  const [posts, setPosts] = useState(DEFAULT_POSTS);
+  const [sponsors, setSponsors] = useState(DEFAULT_SPONSORS);
 
   const [activeCategory, setActiveCategory] = useState("ALL");
   const [wishes, setWishes] = useState([]);
@@ -782,8 +759,39 @@ export default function NavaratriPage() {
     }
   };
 
-  // Load Data from Backend
+  // Load Data from Backend & Safely Hydrate Client Cache (Zero hydration mismatch)
   useEffect(() => {
+    try {
+      const cachedSettings = localStorage.getItem("hsy_navaratri_settings");
+      if (cachedSettings) {
+        const parsed = JSON.parse(cachedSettings);
+        if (parsed && typeof parsed === "object") {
+          setSettings((prev) => ({ ...prev, ...parsed }));
+        }
+      }
+      const cachedSchedule = localStorage.getItem("hsy_navaratri_schedule_v2");
+      if (cachedSchedule) {
+        const parsed = JSON.parse(cachedSchedule);
+        if (Array.isArray(parsed) && parsed.length >= 12) {
+          setSchedule(parsed);
+        }
+      }
+      const cachedPosts = localStorage.getItem("hsy_navaratri_posts");
+      if (cachedPosts) {
+        const parsed = JSON.parse(cachedPosts);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setPosts(parsed);
+        }
+      }
+      const cachedSponsors = localStorage.getItem("hsy_navaratri_sponsors");
+      if (cachedSponsors) {
+        const parsed = JSON.parse(cachedSponsors);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setSponsors(parsed);
+        }
+      }
+    } catch (_) {}
+
     async function loadNavaratriData() {
       try {
         const resInfo = await fetch(`${API_BASE}/navaratri/info`);
@@ -804,10 +812,10 @@ export default function NavaratriPage() {
         const resSchedule = await fetch(`${API_BASE}/navaratri/schedule`);
         if (resSchedule.ok) {
           const scheduleJson = await resSchedule.json();
-          if (scheduleJson.success && scheduleJson.data && scheduleJson.data.length > 0) {
+          if (scheduleJson.success && scheduleJson.data && scheduleJson.data.length >= 12) {
             setSchedule(scheduleJson.data);
             try {
-              localStorage.setItem("hsy_navaratri_schedule", JSON.stringify(scheduleJson.data));
+              localStorage.setItem("hsy_navaratri_schedule_v2", JSON.stringify(scheduleJson.data));
             } catch (_) {}
           }
         }
@@ -1318,7 +1326,7 @@ export default function NavaratriPage() {
             />
             <div>
               <div className={styles.headerBrandTitle}>VINAYAKA NAVARATRI SEVA</div>
-              <div className={styles.headerBrandSub}>Jagtial Pandal • Sep 14 to Sep 24, 2026</div>
+              <div className={styles.headerBrandSub}>Hindu Swaraj Youth Welfare Association, Jagtial • Sep 14 to Sep 25, 2026</div>
             </div>
           </div>
 
@@ -1337,7 +1345,7 @@ export default function NavaratriPage() {
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
               </svg>
-              Book Seva
+              🪔 సేవ స్పాన్సర్ (Sponsor Seva)
             </button>
           </div>
         </div>
@@ -1358,8 +1366,8 @@ export default function NavaratriPage() {
           <a href="#devotee-prayers" className={styles.quickNavPill}>
             🙏 Virtual Puja
           </a>
-          <a href="#seva-booking" className={styles.quickNavPill}>
-            🤝 Seva Booking
+          <a href="#seva-booking" className={styles.quickNavPill} style={{ background: "rgba(245, 158, 11, 0.22)", borderColor: "#f59e0b", color: "#fef08a", fontWeight: 700 }}>
+            🪔 సేవ స్పాన్సర్‌షిప్ (Seva Sponsor)
           </a>
           <a href="#puja-schedule" className={styles.quickNavPill}>
             📅 Puja Schedule
@@ -1400,7 +1408,7 @@ export default function NavaratriPage() {
             </div>
 
             <div className={styles.eventBadge}>
-              <span>✨ 11 Days Grand Festival • {settings.location || "Jagtial, Telangana"}</span>
+              <span>✨ 12 Days Grand Festival • {settings.location || "Jagtial, Telangana"}</span>
             </div>
 
             <h1 className={styles.heroTitle}>
@@ -1409,8 +1417,8 @@ export default function NavaratriPage() {
 
             <p className={styles.heroSubtitle}>
               Experience the divine grace of Lord Ganesha live from {settings.location || "Jagtial"}. Join us for daily
-              Vedic Abhishekam, Alankarams, Maha Annadanam, and Evening Divya Mangala Aarti organized
-              by {settings.pandal_name || "Hindu Swaraj Youth Pandal, Jagtial"}.
+              Vedic Abhishekam, Alankarams, Evening Divya Mangala Aarti, and Grand Maha Annadanam on Sep 19 organized
+              by {settings.pandal_name || "Hindu Swaraj Youth Welfare Association, Jagtial (Regd. No: 784/2025)"}.
             </p>
 
             <div className={styles.heroHighlights}>
@@ -1419,17 +1427,30 @@ export default function NavaratriPage() {
                 <span className={styles.highlightLabel}>Pratishtapana</span>
               </div>
               <div className={styles.highlightCard}>
-                <span className={styles.highlightNumber}>11 Days</span>
+                <span className={styles.highlightNumber}>12 Days</span>
                 <span className={styles.highlightLabel}>Puja & Seva</span>
               </div>
               <div className={styles.highlightCard}>
                 <span className={styles.highlightNumber}>3,000+</span>
-                <span className={styles.highlightLabel}>Daily Annadanam</span>
+                <span className={styles.highlightLabel}>Sep 19 Maha Annadanam</span>
               </div>
             </div>
 
             <div className={styles.heroButtons}>
-              <a href="#live-stream" className={styles.btnPrimary}>
+              <a
+                href="#seva-booking"
+                className={styles.btnPrimary}
+                style={{
+                  background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+                  color: "#1a0800",
+                  fontWeight: 800,
+                  border: "1px solid #ffd700",
+                  boxShadow: "0 4px 16px rgba(245, 158, 11, 0.4)",
+                }}
+              >
+                🪔 సేవ స్పాన్సర్ చేయండి (Sponsor Seva)
+              </a>
+              <a href="#live-stream" className={styles.btnSecondary}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z" />
                 </svg>
@@ -1466,7 +1487,7 @@ export default function NavaratriPage() {
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="#f59e0b">
                   <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
                 </svg>
-                {settings.pandal_name || "Hindu Swaraj Youth Pandal, Jagtial"}
+                {settings.pandal_name || "Hindu Swaraj Youth Welfare Association, Jagtial"}
               </div>
               <div className={styles.darshanTitle}>
                 Maha Ganapathi Darshanam
@@ -1557,21 +1578,21 @@ export default function NavaratriPage() {
                 <span className={styles.timingDot}>🌅</span>
                 <div>
                   <div className={styles.timingTitle}>Morning Abhishekam</div>
-                  <div className={styles.timingHour}>{settings.morning_timings || "07:00 AM - 09:30 AM"}</div>
+                  <div className={styles.timingHour}>{settings.morning_timings || "08:15 AM - 09:30 AM"}</div>
                 </div>
               </div>
               <div className={styles.timingItem}>
                 <span className={styles.timingDot}>🍲</span>
                 <div>
                   <div className={styles.timingTitle}>Maha Annadanam</div>
-                  <div className={styles.timingHour}>{settings.annadanam_timings || "01:00 PM - 03:00 PM"}</div>
+                  <div className={styles.timingHour}>{settings.annadanam_timings || "Sep 19 (12:30 PM Onwards)"}</div>
                 </div>
               </div>
               <div className={styles.timingItem}>
                 <span className={styles.timingDot}>🪔</span>
                 <div>
                   <div className={styles.timingTitle}>Evening Maha Aarti</div>
-                  <div className={styles.timingHour}>{settings.evening_timings || "07:30 PM - 09:00 PM"}</div>
+                  <div className={styles.timingHour}>{settings.evening_timings || "06:45 PM - 09:00 PM"}</div>
                 </div>
               </div>
             </div>
@@ -2012,16 +2033,16 @@ export default function NavaratriPage() {
       </section>
 
       {/* =====================================================
-          ROW 2: 11-DAY SCHEDULE (LEFT) + SEVA & ANNADANAM (RIGHT)
+          ROW 2: 12-DAY SCHEDULE (LEFT) + SEVA & ANNADANAM (RIGHT)
       ===================================================== */}
       <div className={styles.dualSectionGrid}>
-        {/* LEFT COLUMN: 11-DAY PUJA SCHEDULE */}
+        {/* LEFT COLUMN: 12-DAY PUJA SCHEDULE */}
         <section className={styles.dualColCard} id="puja-schedule">
           <div className={styles.colCardHeader}>
-            <div className={styles.colCardBadge}>📅 11 Days Sacred Program</div>
-            <h2 className={styles.colCardHeading}>Daily Puja &amp; Alankaram Schedule</h2>
+            <div className={styles.colCardBadge}>📅 12 Days Sacred Program • సెప్టెంబర్ 14 - 25, 2026</div>
+            <h2 className={styles.colCardHeading}>నవరాత్రి నిత్య పూజా &amp; అలంకార మహోత్సవ షెడ్యూల్</h2>
             <p className={styles.colCardSub}>
-              Sacred Vedic rituals, unique daily Alankarams, and cultural events planned for each day in Jagtial.
+              శ్రీ వినాయక చవితి ప్రతిష్టాపన మొదలుకొని అంగరంగ వైభవ శోభాయాత్ర వరకు ప్రతిరోజూ వేదవిహిత పూజలు &amp; దివ్యాలంకారాలు.
             </p>
           </div>
 
@@ -2036,8 +2057,12 @@ export default function NavaratriPage() {
                 }`}
                 onClick={() => setSelectedDay(item.day_number)}
               >
-                <div className={styles.tabDayNumber}>Day {item.day_number}</div>
-                <div className={styles.tabDayDate}>{item.date_str ? item.date_str.split("(")[0] : `Sep ${13 + item.day_number}`}</div>
+                <div className={styles.tabDayNumber}>
+                  {selectedDay === item.day_number ? "🪔 " : ""}Day {item.day_number}
+                </div>
+                <div className={styles.tabDayDate}>
+                  {item.date_str ? item.date_str.replace(" 2026", "") : `Sep ${13 + item.day_number}`}
+                </div>
               </button>
             ))}
           </div>
@@ -2047,8 +2072,20 @@ export default function NavaratriPage() {
             <div className={styles.scheduleCardHeader}>
               <div>
                 <h3 className={styles.scheduleDayTitle}>{currentScheduleItem.title}</h3>
-                <div style={{ color: "#94a3b8", marginTop: 2, fontSize: "0.82rem" }}>
-                  🗓 {currentScheduleItem.date_str} &bull; Jagtial Pandal
+                <div style={{ color: "#fcd34d", marginTop: 4, fontSize: "0.84rem", display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                  <span>🗓 {currentScheduleItem.date_str}</span>
+                  <span>&bull;</span>
+                  <span>🚩 హిందూ స్వరాజ్ యూత్ వేదిక, జగిత్యాల</span>
+                  {currentScheduleItem.day_number === 6 && (
+                    <span style={{ background: "rgba(245, 158, 11, 0.25)", border: "1px solid #f59e0b", color: "#fef08a", padding: "1px 8px", borderRadius: 4, fontSize: "0.72rem", fontWeight: 700 }}>
+                      🍲 మహా అన్న ప్రసాదం
+                    </span>
+                  )}
+                  {currentScheduleItem.day_number === 12 && (
+                    <span style={{ background: "rgba(239, 68, 68, 0.25)", border: "1px solid #ef4444", color: "#fecaca", padding: "1px 8px", borderRadius: 4, fontSize: "0.72rem", fontWeight: 700 }}>
+                      🚩 అంగరంగ వైభవ శోభాయాత్ర
+                    </span>
+                  )}
                 </div>
               </div>
               <div className={styles.scheduleAlankaramBadge}>
@@ -2061,7 +2098,7 @@ export default function NavaratriPage() {
               <div className={styles.scheduleItemBox}>
                 <div className={styles.itemHeader}>
                   <span className={styles.itemIcon}>🌅</span>
-                  <span className={styles.itemTitle}>Morning Vedic Puja</span>
+                  <span className={styles.itemTitle}>ఉదయకాల నిత్య పూజ (Morning Puja)</span>
                 </div>
                 <p className={styles.itemContent}>{currentScheduleItem.morning_puja}</p>
               </div>
@@ -2069,23 +2106,23 @@ export default function NavaratriPage() {
               <div className={styles.scheduleItemBox}>
                 <div className={styles.itemHeader}>
                   <span className={styles.itemIcon}>🪔</span>
-                  <span className={styles.itemTitle}>Evening Divya Aarti</span>
+                  <span className={styles.itemTitle}>సాయంకాల హారతి &amp; అర్చన (Evening Aarti)</span>
                 </div>
                 <p className={styles.itemContent}>{currentScheduleItem.evening_aarti}</p>
               </div>
 
-              <div className={styles.scheduleItemBox}>
+              <div className={styles.scheduleItemBox} style={{ background: currentScheduleItem.day_number === 6 ? "rgba(245, 158, 11, 0.12)" : undefined, borderColor: currentScheduleItem.day_number === 6 ? "rgba(245, 158, 11, 0.4)" : undefined }}>
                 <div className={styles.itemHeader}>
                   <span className={styles.itemIcon}>🍲</span>
-                  <span className={styles.itemTitle}>Maha Annadanam Seva</span>
+                  <span className={styles.itemTitle}>తీర్థ ప్రసాదం &amp; అన్నదానం (Prasadam)</span>
                 </div>
                 <p className={styles.itemContent}>{currentScheduleItem.annadanam_info}</p>
               </div>
 
               <div className={styles.scheduleItemBox}>
                 <div className={styles.itemHeader}>
-                  <span className={styles.itemIcon}>🎭</span>
-                  <span className={styles.itemTitle}>Cultural Events &amp; Youth Seva</span>
+                  <span className={styles.itemIcon}>🚩</span>
+                  <span className={styles.itemTitle}>విశేష ఆధ్యాత్మిక విశేషాలు (Special Highlights)</span>
                 </div>
                 <p className={styles.itemContent}>{currentScheduleItem.special_events}</p>
               </div>
@@ -2093,33 +2130,47 @@ export default function NavaratriPage() {
 
             <div style={{ marginTop: 14, paddingTop: 12, borderTop: "1px solid rgba(255, 255, 255, 0.08)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
               <div style={{ fontSize: "0.82rem", color: "#fed7aa" }}>
-                🙏 Sponsor Abhishekam for <b>Day {currentScheduleItem.day_number}</b>
+                🙏 Day {currentScheduleItem.day_number} పూజకు గోత్ర నామావళి &amp; సంకల్పం సమర్పించండి
               </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setSevaForm((prev) => ({
-                    ...prev,
-                    sevaDate: `Day ${currentScheduleItem.day_number} - ${currentScheduleItem.date_str || "Sep 2026"}`,
-                  }));
-                  openSevaBooking("Panchamrutha Abhishekam", 501);
-                }}
-                className={styles.btnPrimary}
-                style={{ padding: "6px 14px", fontSize: "0.8rem", border: "none", cursor: "pointer" }}
-              >
-                🪔 Sponsor Day {currentScheduleItem.day_number}
-              </button>
+              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSevaForm((prev) => ({
+                      ...prev,
+                      sevaDate: `Day ${currentScheduleItem.day_number} - ${currentScheduleItem.date_str || "Sep 2026"}`,
+                    }));
+                    openSevaBooking("Panchamrutha Abhishekam", 501);
+                  }}
+                  className={styles.btnPrimary}
+                  style={{ padding: "6px 14px", fontSize: "0.8rem", border: "none", cursor: "pointer" }}
+                >
+                  🪔 Day {currentScheduleItem.day_number} సంకల్పం / సేవ
+                </button>
+                <a
+                  href="#seva-booking"
+                  className={styles.btnSecondary}
+                  style={{ padding: "6px 12px", fontSize: "0.78rem", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 }}
+                >
+                  👉 పక్కన ఉన్న సేవ స్పాన్సర్ చేయండి ↗
+                </a>
+              </div>
             </div>
           </div>
         </section>
 
         {/* RIGHT COLUMN: SEVA & ANNADANAM SPONSORSHIP */}
-        <section className={styles.dualColCard} id="seva-booking">
+        <section className={`${styles.dualColCard} ${styles.sevaSponsorCard}`} id="seva-booking">
+          <div className={styles.sevaSponsorRibbon}></div>
           <div className={styles.colCardHeader}>
-            <div className={styles.colCardBadge}>🤝 Seva Sponsorship</div>
-            <h2 className={styles.colCardHeading}>Sponsor Navaratri Seva &amp; Annadanam</h2>
-            <p className={styles.colCardSub}>
-              Support the 11-day Mahotsavam. Your contribution funds Maha Annadanam, Vedic rituals &amp; floral alankarams.
+            <div className={styles.sevaHighlightBadge}>
+              <span>🪔 పవిత్ర పూజా సేవ &amp; సమర్పణ (Seva Sponsorship)</span>
+            </div>
+            <h2 className={styles.sevaSponsorHeading}>
+              శ్రీ వినాయక విశేష పూజా సేవలు &amp; స్పాన్సర్‌షిప్
+            </h2>
+            <p className={styles.sevaSponsorSub}>
+              12 రోజుల నవరాత్రి మహోత్సవాలలో వేదవిహిత నిత్య పూజలు, అలంకారాలు &amp; సెప్టెంబర్ 19 మహా అన్నదానానికి మీ వంతు భక్తిపూర్వక సేవను సమర్పించండి / స్పాన్సర్ చేయండి.
             </p>
           </div>
 
@@ -2129,51 +2180,96 @@ export default function NavaratriPage() {
                 className={`${styles.sevaOptionCard} ${styles.sevaOptionCardInteractive}`}
                 onClick={() => openSevaBooking("Modaka Seva", 251)}
               >
-                <div className={styles.sevaOptionName}>Modaka Seva</div>
+                <div style={{ fontSize: "1.3rem", marginBottom: 2 }}>🥟</div>
+                <div className={styles.sevaOptionName}>మోదక సేవ (Modaka Seva)</div>
                 <div className={styles.sevaOptionPrice}>₹ 251</div>
-                <span style={{ fontSize: "0.72rem", color: "#f59e0b", marginTop: 2, display: "block" }}>👉 Tap to Sponsor</span>
+                <span style={{ fontSize: "0.72rem", color: "#f59e0b", marginTop: 4, fontWeight: 700, display: "block" }}>
+                  👉 🪔 సేవ స్పాన్సర్ చేయండి
+                </span>
               </div>
+
               <div
                 className={`${styles.sevaOptionCard} ${styles.sevaOptionCardInteractive}`}
                 onClick={() => openSevaBooking("Panchamrutha Abhishekam", 501)}
               >
-                <div className={styles.sevaOptionName}>Panchamrutha Abhishekam</div>
+                <div style={{ fontSize: "1.3rem", marginBottom: 2 }}>🥛</div>
+                <div className={styles.sevaOptionName}>పంచామృత అభిషేకం</div>
+                <div style={{ fontSize: "0.72rem", color: "#fed7aa" }}>Panchamrutha Abhishekam</div>
                 <div className={styles.sevaOptionPrice}>₹ 501</div>
-                <span style={{ fontSize: "0.72rem", color: "#f59e0b", marginTop: 2, display: "block" }}>👉 Tap to Sponsor</span>
+                <span style={{ fontSize: "0.72rem", color: "#f59e0b", marginTop: 4, fontWeight: 700, display: "block" }}>
+                  👉 🪔 సేవ స్పాన్సర్ చేయండి
+                </span>
               </div>
+
               <div
                 className={`${styles.sevaOptionCard} ${styles.sevaOptionCardInteractive}`}
-                onClick={() => openSevaBooking("Nithya Annadanam Seva", 1116)}
+                onClick={() => openSevaBooking("Sep 19 Maha Annadanam Seva", 1116)}
+                style={{ borderColor: "rgba(245, 158, 11, 0.5)", background: "rgba(245, 158, 11, 0.08)", position: "relative" }}
               >
-                <div className={styles.sevaOptionName}>Nithya Annadanam Seva</div>
+                <span style={{ position: "absolute", top: 4, right: 6, background: "#f59e0b", color: "#1a0800", fontSize: "0.62rem", fontWeight: 900, padding: "1px 6px", borderRadius: 999 }}>
+                  🔥 మహా ప్రసాదం
+                </span>
+                <div style={{ fontSize: "1.3rem", marginBottom: 2 }}>🍲</div>
+                <div className={styles.sevaOptionName}>సెప్టెంబర్ 19 మహా అన్నదానం</div>
+                <div style={{ fontSize: "0.72rem", color: "#fed7aa" }}>Sep 19 Maha Annadanam</div>
                 <div className={styles.sevaOptionPrice}>₹ 1,116</div>
-                <span style={{ fontSize: "0.72rem", color: "#f59e0b", marginTop: 2, display: "block" }}>👉 Tap to Sponsor</span>
+                <span style={{ fontSize: "0.72rem", color: "#f59e0b", marginTop: 4, fontWeight: 700, display: "block" }}>
+                  👉 🍲 అన్నదానం స్పాన్సర్ చేయండి
+                </span>
               </div>
+
               <div
                 className={`${styles.sevaOptionCard} ${styles.sevaOptionCardInteractive}`}
                 onClick={() => openSevaBooking("Pushpalankara Seva", 2500)}
               >
-                <div className={styles.sevaOptionName}>Pushpalankara Seva</div>
+                <div style={{ fontSize: "1.3rem", marginBottom: 2 }}>🌸</div>
+                <div className={styles.sevaOptionName}>పుష్పాలంకార సేవ</div>
+                <div style={{ fontSize: "0.72rem", color: "#fed7aa" }}>Pushpalankara Seva</div>
                 <div className={styles.sevaOptionPrice}>₹ 2,500</div>
-                <span style={{ fontSize: "0.72rem", color: "#f59e0b", marginTop: 2, display: "block" }}>👉 Tap to Sponsor</span>
+                <span style={{ fontSize: "0.72rem", color: "#f59e0b", marginTop: 4, fontWeight: 700, display: "block" }}>
+                  👉 🌺 సేవ స్పాన్సర్ చేయండి
+                </span>
               </div>
             </div>
 
-            <div style={{ marginTop: "16px", display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
+            <div style={{ marginTop: "14px", display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
               <button
                 type="button"
-                onClick={() => openSevaBooking("Nithya Annadanam Seva", 1116)}
+                onClick={() => openSevaBooking("Sep 19 Maha Annadanam Seva", 1116)}
                 className={styles.btnPrimary}
-                style={{ flex: 1, justifyContent: "center", cursor: "pointer", border: "none", padding: "10px 16px", fontSize: "0.85rem" }}
+                style={{
+                  flex: 1,
+                  justifyContent: "center",
+                  cursor: "pointer",
+                  border: "none",
+                  padding: "12px 18px",
+                  fontSize: "0.92rem",
+                  fontWeight: 800,
+                  background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+                  boxShadow: "0 4px 16px rgba(245, 158, 11, 0.4)",
+                }}
               >
-                💳 Donate Online &amp; Get Instant Receipt
+                🪔 ఆన్‌లైన్‌లో సేవను స్పాన్సర్ చేయండి (Sponsor Seva Online) 💳
               </button>
             </div>
 
-            <div style={{ marginTop: 14, padding: "10px 14px", background: "rgba(255,255,255,0.03)", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.08)", fontSize: "0.78rem", color: "#fed7aa", display: "flex", alignItems: "center", gap: "10px" }}>
-              <span style={{ fontSize: "1.2rem" }}>📜</span>
+            <div
+              style={{
+                marginTop: 14,
+                padding: "10px 14px",
+                background: "rgba(255, 255, 255, 0.04)",
+                borderRadius: "10px",
+                border: "1px solid rgba(245, 158, 11, 0.25)",
+                fontSize: "0.78rem",
+                color: "#fed7aa",
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+              }}
+            >
+              <span style={{ fontSize: "1.3rem" }}>📜</span>
               <span>
-                <b>Official Computerized Association Receipt:</b> Instantly generated with Regd No. 784/2025 and sent to your email &amp; WhatsApp.
+                <b>హిందూ స్వరాజ్ యూత్ వెల్ఫేర్ అసోసియేషన్ (Regd No. 784/2025):</b> అధికారిక కంప్యూటరైజ్డ్ ఆశీర్వచన రసీదు తక్షణమే మీ వాట్సాప్ &amp; ఈమెయిల్‌కు పంపబడును.
               </span>
             </div>
           </div>
@@ -2237,7 +2333,7 @@ export default function NavaratriPage() {
                   <p className={styles.photoCardDesc}>{post.description}</p>
                 </div>
                 <div className={styles.photoCardFooter}>
-                  <span>📍 Jagtial Pandal</span>
+                  <span>📍 Hindu Swaraj Youth, Jagtial</span>
                   <span>🔍 View HD</span>
                 </div>
               </div>
@@ -2344,32 +2440,32 @@ export default function NavaratriPage() {
               className={styles.btnPrimary}
               style={{ padding: "6px 12px", fontSize: "0.78rem", border: "none", cursor: "pointer" }}
             >
-              🌟 Sponsor Pandal Banner
+              🌟 Sponsor Association Banner
             </button>
           </div>
         </section>
 
-        {/* RIGHT COLUMN: PANDAL LOCATION & HELPLINE */}
+        {/* RIGHT COLUMN: ASSOCIATION VENUE & HELPLINE */}
         <section className={styles.dualColCard} id="pandal-location">
           <div className={styles.colCardHeader}>
-            <div className={styles.colCardBadge}>📍 Pandal Location &amp; Helpline</div>
-            <h2 className={styles.colCardHeading}>Jagtial Pandal &amp; Directions</h2>
+            <div className={styles.colCardBadge}>📍 Association Venue &amp; Helpline</div>
+            <h2 className={styles.colCardHeading}>Association Venue &amp; Directions</h2>
             <p className={styles.colCardSub}>
-              {settings.pandal_name || "Hindu Swaraj Youth Pandal, Jagtial"}. Join in person for Abhishekam, Annadanam &amp; Aarti.
+              {settings.pandal_name || "Hindu Swaraj Youth Welfare Association, Jagtial (Regd. No: 784/2025)"}. Join in person for Abhishekam, Annadanam &amp; Aarti.
             </p>
           </div>
 
           <div className={styles.pandalLocationCompact}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "14px" }}>
               <div className={styles.liveCounterBox}>
-                <span className={styles.liveCounterNum}>11 Days</span>
+                <span className={styles.liveCounterNum}>12 Days</span>
                 <span className={styles.liveCounterLabel}>Grand Festivities</span>
               </div>
               <div className={styles.liveCounterBox}>
                 <span className={styles.liveCounterNum}>
                   {settings.annadanam_count_today ? `${Number(settings.annadanam_count_today).toLocaleString("en-IN")}+` : "3,000+"}
                 </span>
-                <span className={styles.liveCounterLabel}>Daily Annadanam</span>
+                <span className={styles.liveCounterLabel}>Sep 19 Maha Annadanam</span>
               </div>
             </div>
 
@@ -2432,7 +2528,7 @@ export default function NavaratriPage() {
               {[
                 { name: "Modaka Seva", price: 251 },
                 { name: "Panchamrutha Abhishekam", price: 501 },
-                { name: "Nithya Annadanam Seva", price: 1116 },
+                { name: "Sep 19 Maha Annadanam", price: 1116 },
                 { name: "Pushpalankara Seva", price: 2500 },
               ].map((tier) => (
                 <div
@@ -2802,7 +2898,7 @@ export default function NavaratriPage() {
                       {settings.cert_priest_name || "ప్రధాన అర్చకులు (Chief Archaka)"}
                     </div>
                     <div className={styles.certSignRole}>
-                      {settings.cert_priest_role || "Pandal Puja Committee"}
+                      {settings.cert_priest_role || "Association Puja Committee"}
                     </div>
                   </div>
 
