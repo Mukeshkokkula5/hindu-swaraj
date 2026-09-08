@@ -1658,6 +1658,9 @@ export default function AdminPage() {
   const [resendingLoginId, setResendingLoginId] = useState(null);
   const [memberLoginFilter, setMemberLoginFilter] = useState("ALL"); // "ALL" | "LOGGED_IN" | "NEVER_LOGGED_IN"
   const [memberTableSearch, setMemberTableSearch] = useState("");
+  const [showLoginActivityModal, setShowLoginActivityModal] = useState(false);
+  const [loginActivityLogs, setLoginActivityLogs] = useState([]);
+  const [loginActivityLoading, setLoginActivityLoading] = useState(false);
 
   // Digital Member ID Card States
   const [idCardProfile, setIdCardProfile] = useState(null);
@@ -1954,6 +1957,10 @@ export default function AdminPage() {
             member_id: m.member_id,
             association_id: m.association_id,
             is_first_login: m.is_first_login,
+            first_login_at: m.first_login_at,
+            last_login_at: m.last_login_at,
+            last_logout_at: m.last_logout_at,
+            login_count: Number(m.login_count || 0),
             last_active_at: m.last_active_at,
           })),
         );
@@ -4156,6 +4163,19 @@ export default function AdminPage() {
     window.open(waUrl, "_blank");
   };
 
+  const handleOpenLoginActivityModal = async () => {
+    setShowLoginActivityModal(true);
+    setLoginActivityLoading(true);
+    try {
+      const logs = await fetchAPI("/auth/login-activity");
+      setLoginActivityLogs(Array.isArray(logs) ? logs : []);
+    } catch (err) {
+      console.warn("Failed to fetch login activity:", err.message);
+    } finally {
+      setLoginActivityLoading(false);
+    }
+  };
+
   // Complaint Management Functions & Handlers
   const loadComplaintsData = async () => {
     setComplaintsLoading(true);
@@ -5160,6 +5180,9 @@ export default function AdminPage() {
       localStorage.setItem("admin_token", data.token);
       localStorage.setItem("admin_auth", "true");
       localStorage.setItem("admin_role", data.role || "");
+      if (data.sessionId) {
+        localStorage.setItem("admin_session_id", String(data.sessionId));
+      }
 
       // 1. Immediately fetch user profile and fresh role permissions in parallel
       let userProfile = data.user || null;
@@ -5408,6 +5431,13 @@ export default function AdminPage() {
   };
 
   const handleLogout = (customMsg = "") => {
+    try {
+      const sessId = typeof window !== "undefined" ? localStorage.getItem("admin_session_id") : null;
+      fetchAPI("/auth/logout", {
+        method: "POST",
+        body: JSON.stringify({ sessionId: sessId }),
+      }).catch(() => {});
+    } catch (_) {}
     setIsAuthenticated(false);
     setUserRole("");
     setCurrentUser(null);
@@ -5418,6 +5448,7 @@ export default function AdminPage() {
       localStorage.removeItem("admin_token");
       localStorage.removeItem("admin_role");
       localStorage.removeItem("admin_user");
+      localStorage.removeItem("admin_session_id");
       localStorage.removeItem("hsy_active_tab");
     } catch (_) {}
     if (customMsg && typeof customMsg === "string") {
@@ -9455,11 +9486,11 @@ _This is an official computer-generated receipt._`;
 
         {activeTab === "members" && (() => {
           const totalCount = members.length;
-          const loggedInCount = members.filter((m) => !m.is_first_login || !!m.last_active_at).length;
-          const neverLoggedInCount = members.filter((m) => m.is_first_login && !m.last_active_at).length;
+          const loggedInCount = members.filter((m) => !!m.first_login_at || (Number(m.login_count) > 0)).length;
+          const neverLoggedInCount = members.filter((m) => !m.first_login_at && (!m.login_count || Number(m.login_count) === 0)).length;
 
           const filteredMembers = members.filter((m) => {
-            const hasLoggedIn = !m.is_first_login || !!m.last_active_at;
+            const hasLoggedIn = !!m.first_login_at || (Number(m.login_count) > 0);
             if (memberLoginFilter === "LOGGED_IN" && !hasLoggedIn) return false;
             if (memberLoginFilter === "NEVER_LOGGED_IN" && hasLoggedIn) return false;
 
@@ -9481,27 +9512,50 @@ _This is an official computer-generated receipt._`;
                 <div>
                   <h2 className="pageTitle" style={{ margin: 0 }}>Committee Members & Login Activity</h2>
                   <p style={{ margin: "4px 0 0 0", fontSize: "0.88rem", color: "#64748b" }}>
-                    Track portal adoption, monitor who has logged in, and follow up with pending members.
+                    Genuine portal adoption: monitor who has logged in, view logout sessions, and follow up with pending members.
                   </p>
                 </div>
-                {isFullAdmin && (
+                <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
                   <button
-                    className="addBtn"
-                    onClick={() => {
-                      setEditingMember(null);
-                      setNewMember({
-                        name: "",
-                        email: "",
-                        role: "MEMBER",
-                        phone: "",
-                        status: "ACTIVE",
-                      });
-                      setShowMemberModal(true);
+                    type="button"
+                    onClick={handleOpenLoginActivityModal}
+                    style={{
+                      background: "#f0fdf4",
+                      border: "1.5px solid #86efac",
+                      color: "#166534",
+                      padding: "8px 16px",
+                      borderRadius: "8px",
+                      fontWeight: "700",
+                      fontSize: "0.85rem",
+                      cursor: "pointer",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
                     }}
+                    title="View real-time login & logout timestamps of all members"
                   >
-                    + Register Member
+                    📊 Login & Logout Sessions
                   </button>
-                )}
+                  {isFullAdmin && (
+                    <button
+                      className="addBtn"
+                      onClick={() => {
+                        setEditingMember(null);
+                        setNewMember({
+                          name: "",
+                          email: "",
+                          role: "MEMBER",
+                          phone: "",
+                          status: "ACTIVE",
+                        });
+                        setShowMemberModal(true);
+                      }}
+                    >
+                      + Register Member
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* 📊 KPI Activity Summary Cards */}
@@ -9728,11 +9782,16 @@ _This is an official computer-generated receipt._`;
                                         gap: "4px",
                                       }}
                                     >
-                                      🟢 Logged In
+                                      🟢 Logged In {item.login_count > 0 ? `(${item.login_count}x)` : ""}
                                     </span>
-                                    {item.last_active_at && (
-                                      <div style={{ fontSize: "0.7rem", color: "#64748b", marginTop: "3px" }}>
-                                        Active: {new Date(item.last_active_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+                                    {item.first_login_at && (
+                                      <div style={{ fontSize: "0.72rem", color: "#166534", marginTop: "3px", fontWeight: "600" }} title="1st Time Login Timestamp">
+                                        🗓️ 1st: {new Date(item.first_login_at).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+                                      </div>
+                                    )}
+                                    {item.last_logout_at && (
+                                      <div style={{ fontSize: "0.7rem", color: "#64748b", marginTop: "1px" }} title="Last Logout Timestamp">
+                                        🚪 Out: {new Date(item.last_logout_at).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
                                       </div>
                                     )}
                                   </div>
@@ -9740,9 +9799,9 @@ _This is an official computer-generated receipt._`;
                                   <div>
                                     <span
                                       style={{
-                                        background: "#ffedd5",
-                                        color: "#c2410c",
-                                        border: "1px solid #fed7aa",
+                                        background: "#fee2e2",
+                                        color: "#b91c1c",
+                                        border: "1px solid #fca5a5",
                                         padding: "3px 9px",
                                         borderRadius: "14px",
                                         fontSize: "0.75rem",
@@ -9752,10 +9811,10 @@ _This is an official computer-generated receipt._`;
                                         gap: "4px",
                                       }}
                                     >
-                                      🟠 Never Logged In
+                                      🔴 Never Logged In
                                     </span>
-                                    <div style={{ fontSize: "0.7rem", color: "#9a3412", marginTop: "3px" }}>
-                                      Pending First Login
+                                    <div style={{ fontSize: "0.72rem", color: "#b91c1c", marginTop: "3px", fontWeight: "700" }}>
+                                      0 Logins • 1st Login Pending
                                     </div>
                                   </div>
                                 )}
@@ -25737,6 +25796,142 @@ _This is an official computer-generated receipt._`;
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {/* =====================================================
+          📊 MODAL: GENUINE LOGIN & LOGOUT SESSIONS AUDIT LOGS
+      ===================================================== */}
+      {showLoginActivityModal && (
+        <div className="modalBackdrop" style={{ zIndex: 10000 }}>
+          <div className="modalContent" style={{ maxWidth: "920px", width: "95%", maxHeight: "88vh", display: "flex", flexDirection: "column" }}>
+            <div className="modalHeader" style={{ paddingBottom: "14px", borderBottom: "1px solid #e2e8f0" }}>
+              <div>
+                <h3 className="modalTitle" style={{ fontSize: "1.2rem", fontWeight: "800", color: "#1e293b", margin: 0 }}>
+                  📊 Genuine Member Login & Logout Sessions
+                </h3>
+                <span style={{ fontSize: "0.82rem", color: "#64748b" }}>
+                  Audited real-time session tracking: login timestamp, logout timestamp, duration & device status
+                </span>
+              </div>
+              <button
+                type="button"
+                className="closeBtn"
+                onClick={() => setShowLoginActivityModal(false)}
+              >
+                ×
+              </button>
+            </div>
+
+            <div style={{ flex: 1, overflowY: "auto", padding: "16px 0" }}>
+              {loginActivityLoading ? (
+                <div style={{ textAlign: "center", padding: "40px", color: "#64748b" }}>
+                  ⏳ Loading login & logout sessions...
+                </div>
+              ) : loginActivityLogs.length === 0 ? (
+                <div style={{ textAlign: "center", padding: "40px", color: "#64748b" }}>
+                  No session logs recorded yet. Logins and logouts will appear here automatically.
+                </div>
+              ) : (
+                <div className="tableContainer">
+                  <table className="adminTable" style={{ fontSize: "0.82rem" }}>
+                    <thead>
+                      <tr>
+                        <th>Member</th>
+                        <th>Association ID</th>
+                        <th>Role</th>
+                        <th>Login Time</th>
+                        <th>Logout Time</th>
+                        <th>Duration</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {loginActivityLogs.map((log) => (
+                        <tr key={log.id}>
+                          <td style={{ fontWeight: "700" }}>
+                            <div>{log.member_name || "Unknown"}</div>
+                            {log.member_id && (
+                              <div style={{ fontSize: "0.72rem", color: "#64748b" }}>{log.member_id}</div>
+                            )}
+                          </td>
+                          <td style={{ fontFamily: "monospace", color: "#0f172a" }}>
+                            {log.username}
+                          </td>
+                          <td style={{ fontWeight: "600", color: "var(--maroon)" }}>
+                            {log.role}
+                          </td>
+                          <td style={{ color: "#166534", fontWeight: "600" }}>
+                            {log.login_at
+                              ? new Date(log.login_at).toLocaleString("en-IN", {
+                                  day: "numeric",
+                                  month: "short",
+                                  year: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                  second: "2-digit",
+                                })
+                              : "N/A"}
+                          </td>
+                          <td style={{ color: log.logout_at ? "#475569" : "#16a34a", fontWeight: "600" }}>
+                            {log.logout_at ? (
+                              new Date(log.logout_at).toLocaleString("en-IN", {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                second: "2-digit",
+                              })
+                            ) : (
+                              <span style={{ background: "#dcfce7", color: "#166534", padding: "2px 8px", borderRadius: "10px", fontSize: "0.72rem" }}>
+                                🟢 Active Now
+                              </span>
+                            )}
+                          </td>
+                          <td style={{ fontWeight: "600" }}>
+                            {log.duration_minutes ? `${log.duration_minutes} min${log.duration_minutes > 1 ? "s" : ""}` : (log.logout_at ? "< 1 min" : "In Progress")}
+                          </td>
+                          <td>
+                            <span
+                              style={{
+                                padding: "2px 8px",
+                                borderRadius: "10px",
+                                fontSize: "0.72rem",
+                                fontWeight: "700",
+                                background: log.status === "ACTIVE" ? "#dcfce7" : "#f1f5f9",
+                                color: log.status === "ACTIVE" ? "#166534" : "#475569",
+                              }}
+                            >
+                              {log.status === "ACTIVE" ? "ACTIVE" : "LOGGED OUT"}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+            <div className="modalFooter" style={{ paddingTop: "12px", borderTop: "1px solid #e2e8f0" }}>
+              <button
+                type="button"
+                className="btnCancel"
+                onClick={() => setShowLoginActivityModal(false)}
+              >
+                Close
+              </button>
+              <button
+                type="button"
+                className="btnSubmit"
+                style={{ background: "#166534" }}
+                onClick={handleOpenLoginActivityModal}
+              >
+                🔄 Refresh Logs
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
