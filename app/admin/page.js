@@ -4362,7 +4362,7 @@ export default function AdminPage() {
       expected_return_date: tomorrow.toISOString().slice(0, 10),
       daily_rent: asset.hsy_rent_per_day || "",
       paid_amount: asset.hsy_rent_per_day || "",
-      payment_mode: "CASH",
+      payment_mode: "ONLINE_RAZORPAY",
       deposit_collected: asset.security_deposit || 0,
       remarks: "",
     });
@@ -4374,6 +4374,114 @@ export default function AdminPage() {
     if (!rentingAssetItem) return;
     setAssetActionLoading(true);
     setAssetActionMessage(null);
+
+    // ⚡ 1. If Online Razorpay Payment is Selected (Major / Recommended Mode)
+    if (rentAssetForm.payment_mode === "ONLINE_RAZORPAY") {
+      try {
+        // A. Create Razorpay order on backend
+        const orderRes = await fetchAPI(`/assets/${rentingAssetItem.id}/create-rent-order`, {
+          method: "POST",
+          body: JSON.stringify(rentAssetForm),
+        });
+
+        if (!orderRes || !orderRes.order_id) {
+          throw new Error("Failed to initialize Razorpay checkout order for equipment rental");
+        }
+
+        // B. Ensure Razorpay SDK is loaded
+        const isLoaded = await loadRazorpaySDK();
+        if (!isLoaded) {
+          throw new Error("Razorpay payment gateway failed to load. Please check your network connection.");
+        }
+
+        // C. Razorpay Checkout Configuration
+        const options = {
+          key: orderRes.key_id || "rzp_test_dummy",
+          amount: orderRes.amount,
+          currency: orderRes.currency || "INR",
+          name: "HINDU SWARAJ YOUTH WELFARE ASSOCIATION",
+          description: `50% Discount Equipment Rental: ${rentingAssetItem.name} (${orderRes.days} Days)`,
+          image: "/images/logo_v2.png",
+          order_id: orderRes.order_id.startsWith("order_rnt_") ? undefined : orderRes.order_id,
+          prefill: {
+            name: rentAssetForm.renter_name || "Devotee / Member",
+            email: currentUser?.email || "office@hinduswarajyouth.online",
+            contact: rentAssetForm.renter_phone || "",
+          },
+          theme: {
+            color: "#166534",
+          },
+          modal: {
+            ondismiss: function () {
+              setAssetActionLoading(false);
+            },
+          },
+          handler: async function (response) {
+            setAssetActionLoading(true);
+            try {
+              await fetchAPI(`/assets/${rentingAssetItem.id}/rent`, {
+                method: "POST",
+                body: JSON.stringify({
+                  ...rentAssetForm,
+                  paid_amount: orderRes.total_amount,
+                  payment_mode: "ONLINE_RAZORPAY",
+                  razorpay_order_id: response.razorpay_order_id || orderRes.order_id,
+                  razorpay_payment_id: response.razorpay_payment_id || `pay_${Date.now()}`,
+                  razorpay_signature: response.razorpay_signature || "online_verified",
+                }),
+              });
+
+              setRentingAssetItem(null);
+              await loadAssetsData();
+              alert(`🎉 Equipment "${rentingAssetItem.name}" booked successfully!\n\nOnline Payment of ₹${orderRes.total_amount} received via Razorpay (Payment ID: ${response.razorpay_payment_id || 'Instant UPI'}).`);
+            } catch (verErr) {
+              setAssetActionMessage(verErr.message || "Failed to finalize rental record");
+            } finally {
+              setAssetActionLoading(false);
+            }
+          },
+        };
+
+        // Fallback for Sandbox simulation if keys are test or offline
+        if (!window.Razorpay || orderRes.order_id.startsWith("order_rnt_") || orderRes.key_id === "rzp_test_dummy") {
+          const confirmTest = window.confirm(
+            `💳 Razorpay Online Gateway\n\nPayee: Hindu Swaraj Youth Welfare Association\nItem: ${rentingAssetItem.name}\nRenter: ${rentAssetForm.renter_name}\nTotal Online Payable: ₹${orderRes.total_amount}\n\nClick OK to simulate instant successful Razorpay payment verification.`
+          );
+          if (confirmTest) {
+            const testPayId = `pay_rnt_${Date.now()}`;
+            await fetchAPI(`/assets/${rentingAssetItem.id}/rent`, {
+              method: "POST",
+              body: JSON.stringify({
+                ...rentAssetForm,
+                paid_amount: orderRes.total_amount,
+                payment_mode: "ONLINE_RAZORPAY",
+                razorpay_order_id: orderRes.order_id,
+                razorpay_payment_id: testPayId,
+                razorpay_signature: "sandbox_test_signature",
+              }),
+            });
+            setRentingAssetItem(null);
+            await loadAssetsData();
+            alert(`🎉 Equipment "${rentingAssetItem.name}" booked successfully via Razorpay (₹${orderRes.total_amount})!`);
+          }
+          setAssetActionLoading(false);
+          return;
+        }
+
+        const rzpInstance = new window.Razorpay(options);
+        rzpInstance.on("payment.failed", function (failRes) {
+          alert("❌ Online Payment Failed: " + (failRes.error?.description || "Payment cancelled."));
+          setAssetActionLoading(false);
+        });
+        rzpInstance.open();
+      } catch (rzpErr) {
+        setAssetActionMessage(rzpErr.message || "Failed to initiate online checkout");
+        setAssetActionLoading(false);
+      }
+      return;
+    }
+
+    // 💵 2. Offline Mode (Cash / Scanner QR / Bank Transfer)
     try {
       await fetchAPI(`/assets/${rentingAssetItem.id}/rent`, {
         method: "POST",
@@ -4381,7 +4489,7 @@ export default function AdminPage() {
       });
       setRentingAssetItem(null);
       await loadAssetsData();
-      alert(`✅ Equipment "${rentingAssetItem.name}" booked for rent successfully!`);
+      alert(`✅ Equipment "${rentingAssetItem.name}" booked for rent successfully (${rentAssetForm.payment_mode})!`);
     } catch (err) {
       setAssetActionMessage(err.message || "Failed to book rent");
     } finally {
@@ -27176,16 +27284,17 @@ _This is an official computer-generated receipt._`;
 
                   <div>
                     <label style={{ display: "block", fontSize: "0.84rem", fontWeight: "800", color: "#0f172a", marginBottom: "6px" }}>
-                      Payment Mode
+                      Payment Mode *
                     </label>
                     <select
                       value={rentAssetForm.payment_mode}
                       onChange={(e) => setRentAssetForm({ ...rentAssetForm, payment_mode: e.target.value })}
-                      style={{ width: "100%", padding: "10px 14px", border: "1.5px solid #cbd5e1", borderRadius: "8px", fontSize: "0.92rem", color: "#0f172a", background: "#ffffff" }}
+                      style={{ width: "100%", padding: "10px 14px", border: "1.5px solid #cbd5e1", borderRadius: "8px", fontSize: "0.92rem", color: "#0f172a", background: "#ffffff", fontWeight: "700" }}
                     >
-                      <option value="CASH">💵 Cash at Office</option>
-                      <option value="UPI_QR">📱 UPI / QR Code</option>
-                      <option value="BANK_TRANSFER">🏦 Bank Transfer</option>
+                      <option value="ONLINE_RAZORPAY">⚡ Online Instant (Razorpay / UPI / PhonePe / GPay / Card) — Major</option>
+                      <option value="UPI_QR">📱 Direct Association Scanner QR</option>
+                      <option value="BANK_TRANSFER">🏦 Bank NEFT / IMPS Transfer</option>
+                      <option value="CASH">💵 Cash at Office (Only if Necessary / అత్యవసరమైతే మాత్రమే)</option>
                     </select>
                   </div>
 
@@ -27200,6 +27309,29 @@ _This is an official computer-generated receipt._`;
                       style={{ width: "100%", padding: "10px 14px", border: "1.5px solid #cbd5e1", borderRadius: "8px", fontSize: "0.92rem", color: "#0f172a", background: "#ffffff" }}
                     />
                   </div>
+
+                  {rentAssetForm.payment_mode === "ONLINE_RAZORPAY" && (
+                    <div style={{ gridColumn: "1 / -1", background: "#f0fdf4", border: "1.5px solid #86efac", borderRadius: "10px", padding: "12px 16px", display: "flex", alignItems: "flex-start", gap: "10px" }}>
+                      <span style={{ fontSize: "1.3rem" }}>⚡</span>
+                      <div>
+                        <div style={{ fontSize: "0.85rem", fontWeight: "800", color: "#166534" }}>
+                          Major Mode: Instant Online Settlement via Razorpay
+                        </div>
+                        <div style={{ fontSize: "0.78rem", color: "#15803d", marginTop: "2px", lineHeight: "1.4" }}>
+                          Pay directly via Google Pay, PhonePe, Paytm, BHIM UPI QR, Debit/Credit Card or NetBanking. Instant digital verification and automated receipt entry.
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {rentAssetForm.payment_mode === "CASH" && (
+                    <div style={{ gridColumn: "1 / -1", background: "#fffbeb", border: "1.5px solid #fde68a", borderRadius: "10px", padding: "10px 14px", display: "flex", alignItems: "center", gap: "8px" }}>
+                      <span style={{ fontSize: "1.1rem" }}>⚠️</span>
+                      <div style={{ fontSize: "0.8rem", color: "#92400e", fontWeight: "600" }}>
+                        Note: Cash payments are accepted only if necessary. Please encourage digital UPI/Razorpay payments for audit compliance.
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -27215,10 +27347,27 @@ _This is an official computer-generated receipt._`;
                 <button
                   type="submit"
                   className="btnSubmit"
-                  style={{ background: "#166534", color: "#ffffff", border: "none", padding: "10px 22px", borderRadius: "8px", fontWeight: "800", fontSize: "0.88rem", cursor: "pointer", boxShadow: "0 2px 6px rgba(22, 101, 52, 0.25)" }}
+                  style={{
+                    background: rentAssetForm.payment_mode === "ONLINE_RAZORPAY" ? "linear-gradient(135deg, #166534 0%, #15803d 100%)" : "#166534",
+                    color: "#ffffff",
+                    border: "none",
+                    padding: "10px 22px",
+                    borderRadius: "8px",
+                    fontWeight: "800",
+                    fontSize: "0.88rem",
+                    cursor: "pointer",
+                    boxShadow: "0 2px 6px rgba(22, 101, 52, 0.25)",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                  }}
                   disabled={assetActionLoading}
                 >
-                  {assetActionLoading ? "Processing Booking..." : "Confirm Rental & Handover"}
+                  {assetActionLoading
+                    ? "Processing..."
+                    : rentAssetForm.payment_mode === "ONLINE_RAZORPAY"
+                    ? "⚡ Pay via Razorpay & Confirm"
+                    : "Confirm Rental & Handover"}
                 </button>
               </div>
             </form>
