@@ -25896,7 +25896,7 @@ _This is an official computer-generated receipt._`;
                                 })
                               : "N/A"}
                           </td>
-                          <td style={{ color: log.logout_at ? "#475569" : "#16a34a", fontWeight: "600" }}>
+                          <td style={{ color: log.logout_at ? "#475569" : (log.status === "ACTIVE" ? "#16a34a" : "#64748b"), fontWeight: "600" }}>
                             {log.logout_at ? (
                               new Date(log.logout_at).toLocaleString("en-IN", {
                                 day: "numeric",
@@ -25904,16 +25904,25 @@ _This is an official computer-generated receipt._`;
                                 year: "numeric",
                                 hour: "2-digit",
                                 minute: "2-digit",
-                                second: "2-digit",
                               })
-                            ) : (
+                            ) : log.status === "ACTIVE" ? (
                               <span style={{ background: "#dcfce7", color: "#166534", padding: "2px 8px", borderRadius: "10px", fontSize: "0.72rem" }}>
                                 🟢 Active Now
+                              </span>
+                            ) : (
+                              <span style={{ color: "#94a3b8", fontSize: "0.76rem" }}>
+                                — (Session Expired)
                               </span>
                             )}
                           </td>
                           <td style={{ fontWeight: "600" }}>
-                            {log.duration_minutes ? `${log.duration_minutes} min${log.duration_minutes > 1 ? "s" : ""}` : (log.logout_at ? "< 1 min" : "In Progress")}
+                            {log.duration_minutes
+                              ? `${log.duration_minutes} min${log.duration_minutes > 1 ? "s" : ""}`
+                              : log.logout_at
+                              ? "< 1 min"
+                              : log.status === "ACTIVE"
+                              ? "Live"
+                              : "—"}
                           </td>
                           <td>
                             <span
@@ -25922,11 +25931,11 @@ _This is an official computer-generated receipt._`;
                                 borderRadius: "10px",
                                 fontSize: "0.72rem",
                                 fontWeight: "700",
-                                background: log.status === "ACTIVE" ? "#dcfce7" : "#f1f5f9",
-                                color: log.status === "ACTIVE" ? "#166534" : "#475569",
+                                background: log.status === "ACTIVE" ? "#dcfce7" : (log.logout_at ? "#f1f5f9" : "#fff1f2"),
+                                color: log.status === "ACTIVE" ? "#166534" : (log.logout_at ? "#475569" : "#be123c"),
                               }}
                             >
-                              {log.status === "ACTIVE" ? "ACTIVE" : "LOGGED OUT"}
+                              {log.status === "ACTIVE" ? "ACTIVE" : (log.logout_at ? "LOGGED OUT" : "EXPIRED")}
                             </span>
                           </td>
                         </tr>
