@@ -3358,6 +3358,7 @@ export default function AdminPage() {
         monthly: `Hindu_Swaraj_Monthly_Report_${reportMonth}_${reportYear}.pdf`,
         "fund-wise": "Hindu_Swaraj_Fundwise_Report.pdf",
         "member-wise": "Hindu_Swaraj_Memberwise_Report.pdf",
+        "member-login-activity": `HSY_Member_Login_Audit_Report_${new Date().toISOString().slice(0, 10)}.pdf`,
       };
       a.download = filenameMap[reportType] || `Hindu_Swaraj_${reportType}_Report.pdf`;
       document.body.appendChild(a);
@@ -9516,6 +9517,28 @@ _This is an official computer-generated receipt._`;
                   </p>
                 </div>
                 <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
+                  <button
+                    type="button"
+                    onClick={() => handleDownloadReportPDF("member-login-activity")}
+                    disabled={downloadingReport === "member-login-activity"}
+                    style={{
+                      background: "#eff6ff",
+                      border: "1.5px solid #93c5fd",
+                      color: "#1d4ed8",
+                      padding: "8px 16px",
+                      borderRadius: "8px",
+                      fontWeight: "700",
+                      fontSize: "0.85rem",
+                      cursor: "pointer",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+                    }}
+                    title="Download Official PDF Report with Logged In Members, Inactive Members & Login Sessions"
+                  >
+                    {downloadingReport === "member-login-activity" ? "⏳ Generating PDF..." : "📥 Download PDF Report"}
+                  </button>
                   <button
                     type="button"
                     onClick={handleOpenLoginActivityModal}
@@ -25929,6 +25952,15 @@ _This is an official computer-generated receipt._`;
                 onClick={handleOpenLoginActivityModal}
               >
                 🔄 Refresh Logs
+              </button>
+              <button
+                type="button"
+                className="btnSubmit"
+                style={{ background: "#1d4ed8" }}
+                disabled={downloadingReport === "member-login-activity"}
+                onClick={() => handleDownloadReportPDF("member-login-activity")}
+              >
+                {downloadingReport === "member-login-activity" ? "⏳ Generating PDF..." : "📥 Download Official PDF"}
               </button>
             </div>
           </div>
