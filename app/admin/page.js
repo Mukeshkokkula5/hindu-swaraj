@@ -1144,6 +1144,7 @@ export default function AdminPage() {
   const [savingSubSettings, setSavingSubSettings] = useState(false);
   const [recordingOfflineSub, setRecordingOfflineSub] = useState(null);
   const [offlineSubAmount, setOfflineSubAmount] = useState(216);
+  const [offlineSubNotes, setOfflineSubNotes] = useState("");
   const [subReceiptData, setSubReceiptData] = useState(null);
   const [sendingSubReminder, setSendingSubReminder] = useState(null); // stores active user_id or 'BULK'
   const [concessionRequests, setConcessionRequests] = useState([]);
