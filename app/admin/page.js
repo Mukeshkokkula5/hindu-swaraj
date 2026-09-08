@@ -26748,9 +26748,24 @@ _This is an official computer-generated receipt._`;
       ===================================================== */}
       {showAddAssetModal && (
         <div className="modalBackdrop" style={{ zIndex: 10000 }}>
-          <div className="modalCard" style={{ maxWidth: "680px", width: "95%" }}>
-            <div className="modalHeader" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <h3 style={{ margin: 0, fontSize: "1.25rem", color: "#1e293b", fontWeight: "800" }}>
+          <div
+            className="modalCard"
+            style={{
+              background: "#ffffff",
+              color: "#0f172a",
+              borderRadius: "16px",
+              padding: "24px 28px",
+              boxShadow: "0 25px 60px rgba(0, 0, 0, 0.35)",
+              border: "1px solid #e2e8f0",
+              maxWidth: "680px",
+              width: "95%",
+              maxHeight: "90vh",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <div className="modalHeader" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+              <h3 style={{ margin: 0, fontSize: "1.25rem", color: "#0f172a", fontWeight: "800" }}>
                 {editingAssetItem ? "✏️ Edit Equipment Details & Pricing" : "➕ Add New Community Equipment"}
               </h3>
               <button
@@ -26760,22 +26775,23 @@ _This is an official computer-generated receipt._`;
                   setShowAddAssetModal(false);
                   setEditingAssetItem(null);
                 }}
+                style={{ background: "transparent", border: "none", fontSize: "1.3rem", color: "#64748b", cursor: "pointer", padding: "4px 8px" }}
               >
                 ✕
               </button>
             </div>
 
             {assetActionMessage && (
-              <div style={{ margin: "10px 0", padding: "10px 14px", background: "#fef2f2", color: "#991b1b", borderRadius: "8px", fontSize: "0.85rem", fontWeight: "600" }}>
+              <div style={{ margin: "0 0 14px 0", padding: "10px 14px", background: "#fef2f2", color: "#991b1b", borderRadius: "8px", fontSize: "0.85rem", fontWeight: "600", border: "1px solid #fecdd3" }}>
                 ⚠️ {assetActionMessage}
               </div>
             )}
 
-            <form onSubmit={handleSaveAsset}>
-              <div className="modalBody" style={{ maxHeight: "70vh", overflowY: "auto", padding: "16px 4px" }}>
+            <form onSubmit={handleSaveAsset} style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
+              <div className="modalBody" style={{ flex: 1, overflowY: "auto", padding: "4px 8px 16px 2px" }}>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "14px" }}>
                   <div style={{ gridColumn: "1 / -1" }}>
-                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                    <label style={{ display: "block", fontSize: "0.84rem", fontWeight: "800", color: "#0f172a", marginBottom: "6px" }}>
                       Equipment Name *
                     </label>
                     <input
@@ -26784,18 +26800,18 @@ _This is an official computer-generated receipt._`;
                       placeholder="e.g. Ahuja 500W Sound Box + Mixer / Wireless Mics"
                       value={newAssetForm.name}
                       onChange={(e) => setNewAssetForm({ ...newAssetForm, name: e.target.value })}
-                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem" }}
+                      style={{ width: "100%", padding: "10px 14px", border: "1.5px solid #cbd5e1", borderRadius: "8px", fontSize: "0.92rem", color: "#0f172a", background: "#ffffff" }}
                     />
                   </div>
 
                   <div>
-                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                    <label style={{ display: "block", fontSize: "0.84rem", fontWeight: "800", color: "#0f172a", marginBottom: "6px" }}>
                       Category *
                     </label>
                     <select
                       value={newAssetForm.category}
                       onChange={(e) => setNewAssetForm({ ...newAssetForm, category: e.target.value })}
-                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem", background: "#fff" }}
+                      style={{ width: "100%", padding: "10px 14px", border: "1.5px solid #cbd5e1", borderRadius: "8px", fontSize: "0.92rem", color: "#0f172a", background: "#ffffff" }}
                     >
                       <option value="AUDIO_SOUND">🔊 Audio &amp; Sound Systems</option>
                       <option value="LIGHTING_ELECTRICAL">💡 Lighting &amp; Electricals</option>
@@ -26807,7 +26823,7 @@ _This is an official computer-generated receipt._`;
                   </div>
 
                   <div>
-                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                    <label style={{ display: "block", fontSize: "0.84rem", fontWeight: "800", color: "#0f172a", marginBottom: "6px" }}>
                       Quantity
                     </label>
                     <input
@@ -26815,12 +26831,12 @@ _This is an official computer-generated receipt._`;
                       min="1"
                       value={newAssetForm.quantity}
                       onChange={(e) => setNewAssetForm({ ...newAssetForm, quantity: e.target.value })}
-                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem" }}
+                      style={{ width: "100%", padding: "10px 14px", border: "1.5px solid #cbd5e1", borderRadius: "8px", fontSize: "0.92rem", color: "#0f172a", background: "#ffffff" }}
                     />
                   </div>
 
                   <div style={{ background: "#f8fafc", padding: "12px", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
-                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#64748b", marginBottom: "4px" }}>
+                    <label style={{ display: "block", fontSize: "0.84rem", fontWeight: "700", color: "#475569", marginBottom: "4px" }}>
                       Market Rental Price (Rs/Day)
                     </label>
                     <input
@@ -26836,13 +26852,13 @@ _This is an official computer-generated receipt._`;
                           hsy_rent_per_day: newAssetForm.hsy_rent_per_day ? newAssetForm.hsy_rent_per_day : half,
                         });
                       }}
-                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem" }}
+                      style={{ width: "100%", padding: "10px 14px", border: "1.5px solid #cbd5e1", borderRadius: "8px", fontSize: "0.92rem", color: "#0f172a", background: "#ffffff" }}
                     />
                     <div style={{ fontSize: "0.72rem", color: "#64748b", marginTop: "3px" }}>Outside vendor rate</div>
                   </div>
 
                   <div style={{ background: "#f0fdf4", padding: "12px", borderRadius: "8px", border: "1px solid #86efac" }}>
-                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "800", color: "#166534", marginBottom: "4px" }}>
+                    <label style={{ display: "block", fontSize: "0.84rem", fontWeight: "800", color: "#166534", marginBottom: "4px" }}>
                       HSY 50% Rent Price (Rs/Day) *
                     </label>
                     <input
@@ -26851,13 +26867,13 @@ _This is an official computer-generated receipt._`;
                       placeholder="e.g. 500"
                       value={newAssetForm.hsy_rent_per_day}
                       onChange={(e) => setNewAssetForm({ ...newAssetForm, hsy_rent_per_day: e.target.value })}
-                      style={{ width: "100%", padding: "9px 12px", border: "1.5px solid #22c55e", borderRadius: "8px", fontSize: "0.95rem", fontWeight: "700", color: "#166534" }}
+                      style={{ width: "100%", padding: "10px 14px", border: "1.5px solid #22c55e", borderRadius: "8px", fontSize: "0.95rem", fontWeight: "700", color: "#166534", background: "#ffffff" }}
                     />
                     <div style={{ fontSize: "0.72rem", color: "#15803d", marginTop: "3px", fontWeight: "600" }}>Affordable community rate</div>
                   </div>
 
                   <div>
-                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                    <label style={{ display: "block", fontSize: "0.84rem", fontWeight: "800", color: "#0f172a", marginBottom: "6px" }}>
                       Security Deposit (Rs)
                     </label>
                     <input
@@ -26865,12 +26881,12 @@ _This is an official computer-generated receipt._`;
                       placeholder="e.g. 500 (Refundable)"
                       value={newAssetForm.security_deposit}
                       onChange={(e) => setNewAssetForm({ ...newAssetForm, security_deposit: e.target.value })}
-                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem" }}
+                      style={{ width: "100%", padding: "10px 14px", border: "1.5px solid #cbd5e1", borderRadius: "8px", fontSize: "0.92rem", color: "#0f172a", background: "#ffffff" }}
                     />
                   </div>
 
                   <div>
-                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                    <label style={{ display: "block", fontSize: "0.84rem", fontWeight: "800", color: "#0f172a", marginBottom: "6px" }}>
                       Purchase Cost / Asset Value (Rs)
                     </label>
                     <input
@@ -26878,18 +26894,18 @@ _This is an official computer-generated receipt._`;
                       placeholder="e.g. 25000"
                       value={newAssetForm.purchase_cost}
                       onChange={(e) => setNewAssetForm({ ...newAssetForm, purchase_cost: e.target.value })}
-                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem" }}
+                      style={{ width: "100%", padding: "10px 14px", border: "1.5px solid #cbd5e1", borderRadius: "8px", fontSize: "0.92rem", color: "#0f172a", background: "#ffffff" }}
                     />
                   </div>
 
                   <div>
-                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                    <label style={{ display: "block", fontSize: "0.84rem", fontWeight: "800", color: "#0f172a", marginBottom: "6px" }}>
                       Condition
                     </label>
                     <select
                       value={newAssetForm.condition}
                       onChange={(e) => setNewAssetForm({ ...newAssetForm, condition: e.target.value })}
-                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem", background: "#fff" }}
+                      style={{ width: "100%", padding: "10px 14px", border: "1.5px solid #cbd5e1", borderRadius: "8px", fontSize: "0.92rem", color: "#0f172a", background: "#ffffff" }}
                     >
                       <option value="EXCELLENT">✨ Excellent (Brand New / Perfect)</option>
                       <option value="GOOD">🟢 Good (Working Smoothly)</option>
@@ -26899,7 +26915,7 @@ _This is an official computer-generated receipt._`;
                   </div>
 
                   <div>
-                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                    <label style={{ display: "block", fontSize: "0.84rem", fontWeight: "800", color: "#0f172a", marginBottom: "6px" }}>
                       Storage Location
                     </label>
                     <input
@@ -26907,12 +26923,12 @@ _This is an official computer-generated receipt._`;
                       placeholder="e.g. HSY Store Room, Vani Nagar"
                       value={newAssetForm.location_stored}
                       onChange={(e) => setNewAssetForm({ ...newAssetForm, location_stored: e.target.value })}
-                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem" }}
+                      style={{ width: "100%", padding: "10px 14px", border: "1.5px solid #cbd5e1", borderRadius: "8px", fontSize: "0.92rem", color: "#0f172a", background: "#ffffff" }}
                     />
                   </div>
 
                   <div style={{ gridColumn: "1 / -1" }}>
-                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                    <label style={{ display: "block", fontSize: "0.84rem", fontWeight: "800", color: "#0f172a", marginBottom: "6px" }}>
                       Notes / Specifications
                     </label>
                     <textarea
@@ -26920,13 +26936,13 @@ _This is an official computer-generated receipt._`;
                       placeholder="e.g. Accessories included, cables, special handling instructions..."
                       value={newAssetForm.notes}
                       onChange={(e) => setNewAssetForm({ ...newAssetForm, notes: e.target.value })}
-                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem" }}
+                      style={{ width: "100%", padding: "10px 14px", border: "1.5px solid #cbd5e1", borderRadius: "8px", fontSize: "0.92rem", color: "#0f172a", background: "#ffffff" }}
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="modalFooter" style={{ paddingTop: "14px", borderTop: "1px solid #e2e8f0" }}>
+              <div className="modalFooter" style={{ paddingTop: "14px", borderTop: "1px solid #e2e8f0", display: "flex", justifyContent: "flex-end", gap: "10px" }}>
                 <button
                   type="button"
                   className="btnCancel"
@@ -26934,13 +26950,14 @@ _This is an official computer-generated receipt._`;
                     setShowAddAssetModal(false);
                     setEditingAssetItem(null);
                   }}
+                  style={{ padding: "10px 18px", borderRadius: "8px", border: "1.5px solid #cbd5e1", background: "#f8fafc", color: "#334155", fontWeight: "700", fontSize: "0.88rem", cursor: "pointer" }}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   className="btnSubmit"
-                  style={{ background: "#166534" }}
+                  style={{ background: "#166534", color: "#ffffff", border: "none", padding: "10px 22px", borderRadius: "8px", fontWeight: "800", fontSize: "0.88rem", cursor: "pointer", boxShadow: "0 2px 6px rgba(22, 101, 52, 0.25)" }}
                   disabled={assetActionLoading}
                 >
                   {assetActionLoading ? "Saving..." : editingAssetItem ? "Update Equipment" : "+ Save Equipment"}
@@ -26956,56 +26973,76 @@ _This is an official computer-generated receipt._`;
       ===================================================== */}
       {rentingAssetItem && (
         <div className="modalBackdrop" style={{ zIndex: 10000 }}>
-          <div className="modalCard" style={{ maxWidth: "650px", width: "95%" }}>
-            <div className="modalHeader" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div
+            className="modalCard"
+            style={{
+              background: "#ffffff",
+              color: "#0f172a",
+              borderRadius: "16px",
+              padding: "24px 28px",
+              boxShadow: "0 25px 60px rgba(0, 0, 0, 0.4)",
+              border: "1px solid #e2e8f0",
+              maxWidth: "680px",
+              width: "95%",
+              maxHeight: "90vh",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <div className="modalHeader" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "14px" }}>
               <div>
-                <h3 style={{ margin: 0, fontSize: "1.25rem", color: "#1e293b", fontWeight: "800" }}>
+                <h3 style={{ margin: 0, fontSize: "1.25rem", color: "#0f172a", fontWeight: "800", lineHeight: "1.3" }}>
                   📤 Rent Out: {rentingAssetItem.name}
                 </h3>
-                <div style={{ fontSize: "0.82rem", color: "#166534", marginTop: "3px", fontWeight: "700" }}>
-                  HSY 50% Rent Rate: Rs. {rentingAssetItem.hsy_rent_per_day} / Day &bull; Tag: {rentingAssetItem.asset_tag}
+                <div style={{ marginTop: "6px", display: "inline-flex", alignItems: "center", gap: "6px", background: "#f0fdf4", border: "1px solid #86efac", color: "#166534", padding: "3px 10px", borderRadius: "6px", fontSize: "0.82rem", fontWeight: "700" }}>
+                  <span>HSY 50% Rent Rate: ₹{rentingAssetItem.hsy_rent_per_day} / Day</span>
+                  <span>&bull;</span>
+                  <span>Tag: {rentingAssetItem.asset_tag}</span>
                 </div>
               </div>
               <button
                 type="button"
                 className="closeBtn"
                 onClick={() => setRentingAssetItem(null)}
+                style={{ background: "transparent", border: "none", fontSize: "1.3rem", color: "#64748b", cursor: "pointer", padding: "4px 8px" }}
               >
                 ✕
               </button>
             </div>
 
             {assetActionMessage && (
-              <div style={{ margin: "10px 0", padding: "10px 14px", background: "#fef2f2", color: "#991b1b", borderRadius: "8px", fontSize: "0.85rem", fontWeight: "600" }}>
+              <div style={{ margin: "0 0 14px 0", padding: "10px 14px", background: "#fef2f2", color: "#991b1b", borderRadius: "8px", fontSize: "0.85rem", fontWeight: "600", border: "1px solid #fecdd3" }}>
                 ⚠️ {assetActionMessage}
               </div>
             )}
 
-            <form onSubmit={handleRentAssetSubmit}>
-              <div className="modalBody" style={{ maxHeight: "70vh", overflowY: "auto", padding: "16px 4px" }}>
+            <form onSubmit={handleRentAssetSubmit} style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
+              <div className="modalBody" style={{ flex: 1, overflowY: "auto", padding: "4px 8px 16px 2px" }}>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "14px" }}>
-                  <div style={{ gridColumn: "1 / -1" }}>
-                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                  <div style={{ gridColumn: "1 / -1", background: "#f8fafc", padding: "12px 14px", borderRadius: "10px", border: "1.5px solid #e2e8f0" }}>
+                    <label style={{ display: "block", fontSize: "0.84rem", fontWeight: "800", color: "#0f172a", marginBottom: "8px" }}>
                       Who is Renting? *
                     </label>
-                    <div style={{ display: "flex", gap: "16px", marginTop: "4px" }}>
-                      <label style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "0.88rem", fontWeight: "700", cursor: "pointer" }}>
+                    <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
+                      <label style={{ display: "inline-flex", alignItems: "center", gap: "8px", fontSize: "0.9rem", fontWeight: "700", color: "#0f172a", cursor: "pointer" }}>
                         <input
                           type="radio"
                           name="renter_type"
                           value="MEMBER"
                           checked={rentAssetForm.renter_type === "MEMBER"}
                           onChange={() => setRentAssetForm({ ...rentAssetForm, renter_type: "MEMBER", renter_name: "", renter_phone: "" })}
+                          style={{ width: "16px", height: "16px", accentColor: "#166534" }}
                         />
                         👥 Committee Member (29 Members)
                       </label>
-                      <label style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "0.88rem", fontWeight: "700", cursor: "pointer" }}>
+                      <label style={{ display: "inline-flex", alignItems: "center", gap: "8px", fontSize: "0.9rem", fontWeight: "700", color: "#0f172a", cursor: "pointer" }}>
                         <input
                           type="radio"
                           name="renter_type"
                           value="CITIZEN"
                           checked={rentAssetForm.renter_type === "CITIZEN"}
                           onChange={() => setRentAssetForm({ ...rentAssetForm, renter_type: "CITIZEN", user_id: "", renter_name: "", renter_phone: "" })}
+                          style={{ width: "16px", height: "16px", accentColor: "#166534" }}
                         />
                         👤 Local Citizen / Devotee
                       </label>
@@ -27014,7 +27051,7 @@ _This is an official computer-generated receipt._`;
 
                   {rentAssetForm.renter_type === "MEMBER" && (
                     <div style={{ gridColumn: "1 / -1" }}>
-                      <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                      <label style={{ display: "block", fontSize: "0.84rem", fontWeight: "800", color: "#0f172a", marginBottom: "6px" }}>
                         Select Committee Member *
                       </label>
                       <select
@@ -27030,7 +27067,7 @@ _This is an official computer-generated receipt._`;
                             renter_phone: m ? m.phone || "" : "",
                           });
                         }}
-                        style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem", background: "#fff" }}
+                        style={{ width: "100%", padding: "10px 14px", border: "1.5px solid #cbd5e1", borderRadius: "8px", fontSize: "0.92rem", color: "#0f172a", background: "#ffffff" }}
                       >
                         <option value="">-- Choose from 29 Committee Members --</option>
                         {(members || [])
@@ -27045,7 +27082,7 @@ _This is an official computer-generated receipt._`;
                   )}
 
                   <div>
-                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                    <label style={{ display: "block", fontSize: "0.84rem", fontWeight: "800", color: "#0f172a", marginBottom: "6px" }}>
                       Renter Name *
                     </label>
                     <input
@@ -27054,12 +27091,12 @@ _This is an official computer-generated receipt._`;
                       placeholder="e.g. Ramesh Reddy"
                       value={rentAssetForm.renter_name}
                       onChange={(e) => setRentAssetForm({ ...rentAssetForm, renter_name: e.target.value })}
-                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem" }}
+                      style={{ width: "100%", padding: "10px 14px", border: "1.5px solid #cbd5e1", borderRadius: "8px", fontSize: "0.92rem", color: "#0f172a", background: "#ffffff" }}
                     />
                   </div>
 
                   <div>
-                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                    <label style={{ display: "block", fontSize: "0.84rem", fontWeight: "800", color: "#0f172a", marginBottom: "6px" }}>
                       Mobile Phone Number *
                     </label>
                     <input
@@ -27068,12 +27105,12 @@ _This is an official computer-generated receipt._`;
                       placeholder="10-digit mobile number"
                       value={rentAssetForm.renter_phone}
                       onChange={(e) => setRentAssetForm({ ...rentAssetForm, renter_phone: e.target.value })}
-                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem" }}
+                      style={{ width: "100%", padding: "10px 14px", border: "1.5px solid #cbd5e1", borderRadius: "8px", fontSize: "0.92rem", color: "#0f172a", background: "#ffffff" }}
                     />
                   </div>
 
                   <div style={{ gridColumn: "1 / -1" }}>
-                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                    <label style={{ display: "block", fontSize: "0.84rem", fontWeight: "800", color: "#0f172a", marginBottom: "6px" }}>
                       Purpose / Event Details *
                     </label>
                     <input
@@ -27082,12 +27119,12 @@ _This is an official computer-generated receipt._`;
                       placeholder="e.g. Ward-4 Ganesh Mandapam Stage / Free Annadanam Camp / Home Pooja"
                       value={rentAssetForm.purpose}
                       onChange={(e) => setRentAssetForm({ ...rentAssetForm, purpose: e.target.value })}
-                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem" }}
+                      style={{ width: "100%", padding: "10px 14px", border: "1.5px solid #cbd5e1", borderRadius: "8px", fontSize: "0.92rem", color: "#0f172a", background: "#ffffff" }}
                     />
                   </div>
 
                   <div>
-                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                    <label style={{ display: "block", fontSize: "0.84rem", fontWeight: "800", color: "#0f172a", marginBottom: "6px" }}>
                       Rent Start Date *
                     </label>
                     <input
@@ -27095,12 +27132,12 @@ _This is an official computer-generated receipt._`;
                       required
                       value={rentAssetForm.rent_start_date}
                       onChange={(e) => setRentAssetForm({ ...rentAssetForm, rent_start_date: e.target.value })}
-                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem" }}
+                      style={{ width: "100%", padding: "10px 14px", border: "1.5px solid #cbd5e1", borderRadius: "8px", fontSize: "0.92rem", color: "#0f172a", background: "#ffffff" }}
                     />
                   </div>
 
                   <div>
-                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                    <label style={{ display: "block", fontSize: "0.84rem", fontWeight: "800", color: "#0f172a", marginBottom: "6px" }}>
                       Expected Return Date *
                     </label>
                     <input
@@ -27108,43 +27145,43 @@ _This is an official computer-generated receipt._`;
                       required
                       value={rentAssetForm.expected_return_date}
                       onChange={(e) => setRentAssetForm({ ...rentAssetForm, expected_return_date: e.target.value })}
-                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem" }}
+                      style={{ width: "100%", padding: "10px 14px", border: "1.5px solid #cbd5e1", borderRadius: "8px", fontSize: "0.92rem", color: "#0f172a", background: "#ffffff" }}
                     />
                   </div>
 
                   <div>
-                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
-                      Daily Rent (Rs)
+                    <label style={{ display: "block", fontSize: "0.84rem", fontWeight: "800", color: "#0f172a", marginBottom: "6px" }}>
+                      Daily Rent (₹)
                     </label>
                     <input
                       type="number"
                       required
                       value={rentAssetForm.daily_rent}
                       onChange={(e) => setRentAssetForm({ ...rentAssetForm, daily_rent: e.target.value })}
-                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem" }}
+                      style={{ width: "100%", padding: "10px 14px", border: "1.5px solid #cbd5e1", borderRadius: "8px", fontSize: "0.92rem", color: "#0f172a", background: "#ffffff" }}
                     />
                   </div>
 
                   <div>
-                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
-                      Advance Amount Paid (Rs)
+                    <label style={{ display: "block", fontSize: "0.84rem", fontWeight: "800", color: "#0f172a", marginBottom: "6px" }}>
+                      Advance Amount Paid (₹)
                     </label>
                     <input
                       type="number"
                       value={rentAssetForm.paid_amount}
                       onChange={(e) => setRentAssetForm({ ...rentAssetForm, paid_amount: e.target.value })}
-                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem" }}
+                      style={{ width: "100%", padding: "10px 14px", border: "1.5px solid #cbd5e1", borderRadius: "8px", fontSize: "0.92rem", color: "#0f172a", background: "#ffffff" }}
                     />
                   </div>
 
                   <div>
-                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                    <label style={{ display: "block", fontSize: "0.84rem", fontWeight: "800", color: "#0f172a", marginBottom: "6px" }}>
                       Payment Mode
                     </label>
                     <select
                       value={rentAssetForm.payment_mode}
                       onChange={(e) => setRentAssetForm({ ...rentAssetForm, payment_mode: e.target.value })}
-                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem", background: "#fff" }}
+                      style={{ width: "100%", padding: "10px 14px", border: "1.5px solid #cbd5e1", borderRadius: "8px", fontSize: "0.92rem", color: "#0f172a", background: "#ffffff" }}
                     >
                       <option value="CASH">💵 Cash at Office</option>
                       <option value="UPI_QR">📱 UPI / QR Code</option>
@@ -27153,31 +27190,32 @@ _This is an official computer-generated receipt._`;
                   </div>
 
                   <div>
-                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
-                      Security Deposit Collected (Rs)
+                    <label style={{ display: "block", fontSize: "0.84rem", fontWeight: "800", color: "#0f172a", marginBottom: "6px" }}>
+                      Security Deposit Collected (₹)
                     </label>
                     <input
                       type="number"
                       value={rentAssetForm.deposit_collected}
                       onChange={(e) => setRentAssetForm({ ...rentAssetForm, deposit_collected: e.target.value })}
-                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem" }}
+                      style={{ width: "100%", padding: "10px 14px", border: "1.5px solid #cbd5e1", borderRadius: "8px", fontSize: "0.92rem", color: "#0f172a", background: "#ffffff" }}
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="modalFooter" style={{ paddingTop: "14px", borderTop: "1px solid #e2e8f0" }}>
+              <div className="modalFooter" style={{ paddingTop: "14px", borderTop: "1px solid #e2e8f0", display: "flex", justifyContent: "flex-end", gap: "10px" }}>
                 <button
                   type="button"
                   className="btnCancel"
                   onClick={() => setRentingAssetItem(null)}
+                  style={{ padding: "10px 18px", borderRadius: "8px", border: "1.5px solid #cbd5e1", background: "#f8fafc", color: "#334155", fontWeight: "700", fontSize: "0.88rem", cursor: "pointer" }}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   className="btnSubmit"
-                  style={{ background: "#166534" }}
+                  style={{ background: "#166534", color: "#ffffff", border: "none", padding: "10px 22px", borderRadius: "8px", fontWeight: "800", fontSize: "0.88rem", cursor: "pointer", boxShadow: "0 2px 6px rgba(22, 101, 52, 0.25)" }}
                   disabled={assetActionLoading}
                 >
                   {assetActionLoading ? "Processing Booking..." : "Confirm Rental & Handover"}
@@ -27193,57 +27231,73 @@ _This is an official computer-generated receipt._`;
       ===================================================== */}
       {returningRentalItem && (
         <div className="modalBackdrop" style={{ zIndex: 10000 }}>
-          <div className="modalCard" style={{ maxWidth: "560px", width: "95%" }}>
-            <div className="modalHeader" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div
+            className="modalCard"
+            style={{
+              background: "#ffffff",
+              color: "#0f172a",
+              borderRadius: "16px",
+              padding: "24px 28px",
+              boxShadow: "0 25px 60px rgba(0, 0, 0, 0.4)",
+              border: "1px solid #e2e8f0",
+              maxWidth: "580px",
+              width: "95%",
+              maxHeight: "90vh",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <div className="modalHeader" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "14px" }}>
               <div>
-                <h3 style={{ margin: 0, fontSize: "1.25rem", color: "#1e293b", fontWeight: "800" }}>
+                <h3 style={{ margin: 0, fontSize: "1.25rem", color: "#0f172a", fontWeight: "800", lineHeight: "1.3" }}>
                   📥 Return Item: {returningRentalItem.asset_name}
                 </h3>
-                <div style={{ fontSize: "0.82rem", color: "#64748b", marginTop: "3px" }}>
-                  Rented by: <strong>{returningRentalItem.renter_name}</strong> &bull; Code: {returningRentalItem.rental_code}
+                <div style={{ marginTop: "4px", fontSize: "0.84rem", color: "#475569" }}>
+                  Rented by: <strong style={{ color: "#0f172a" }}>{returningRentalItem.renter_name}</strong> &bull; Code: <span style={{ fontWeight: "700", color: "#1e40af" }}>{returningRentalItem.rental_code}</span>
                 </div>
               </div>
               <button
                 type="button"
                 className="closeBtn"
                 onClick={() => setReturningRentalItem(null)}
+                style={{ background: "transparent", border: "none", fontSize: "1.3rem", color: "#64748b", cursor: "pointer", padding: "4px 8px" }}
               >
                 ✕
               </button>
             </div>
 
             {assetActionMessage && (
-              <div style={{ margin: "10px 0", padding: "10px 14px", background: "#fef2f2", color: "#991b1b", borderRadius: "8px", fontSize: "0.85rem", fontWeight: "600" }}>
+              <div style={{ margin: "0 0 14px 0", padding: "10px 14px", background: "#fef2f2", color: "#991b1b", borderRadius: "8px", fontSize: "0.85rem", fontWeight: "600", border: "1px solid #fecdd3" }}>
                 ⚠️ {assetActionMessage}
               </div>
             )}
 
-            <form onSubmit={handleReturnAssetSubmit}>
-              <div className="modalBody" style={{ maxHeight: "70vh", overflowY: "auto", padding: "16px 4px" }}>
-                <div style={{ background: "#f8fafc", padding: "12px 14px", borderRadius: "8px", marginBottom: "14px", border: "1px solid #e2e8f0", fontSize: "0.85rem" }}>
+            <form onSubmit={handleReturnAssetSubmit} style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
+              <div className="modalBody" style={{ flex: 1, overflowY: "auto", padding: "4px 8px 16px 2px" }}>
+                <div style={{ background: "#f8fafc", padding: "14px 16px", borderRadius: "10px", marginBottom: "14px", border: "1.5px solid #e2e8f0", fontSize: "0.88rem" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
+                    <span style={{ color: "#475569", fontWeight: "600" }}>Total Rent Due:</span>
+                    <strong style={{ color: "#0f172a" }}>₹{returningRentalItem.total_rent_amount}</strong>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
+                    <span style={{ color: "#475569", fontWeight: "600" }}>Advance Already Paid:</span>
+                    <strong style={{ color: "#16a34a" }}>₹{returningRentalItem.paid_amount}</strong>
+                  </div>
                   <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <span style={{ color: "#64748b" }}>Total Rent Due:</span>
-                    <strong style={{ color: "#0f172a" }}>Rs. {returningRentalItem.total_rent_amount}</strong>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: "4px" }}>
-                    <span style={{ color: "#64748b" }}>Advance Already Paid:</span>
-                    <strong style={{ color: "#16a34a" }}>Rs. {returningRentalItem.paid_amount}</strong>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: "4px" }}>
-                    <span style={{ color: "#64748b" }}>Security Deposit Held:</span>
-                    <strong style={{ color: "#0284c7" }}>Rs. {returningRentalItem.deposit_collected || 0}</strong>
+                    <span style={{ color: "#475569", fontWeight: "600" }}>Security Deposit Held:</span>
+                    <strong style={{ color: "#0284c7" }}>₹{returningRentalItem.deposit_collected || 0}</strong>
                   </div>
                 </div>
 
                 <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
                   <div>
-                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                    <label style={{ display: "block", fontSize: "0.84rem", fontWeight: "800", color: "#0f172a", marginBottom: "6px" }}>
                       Physical Condition upon Return *
                     </label>
                     <select
                       value={returnAssetForm.return_condition}
                       onChange={(e) => setReturnAssetForm({ ...returnAssetForm, return_condition: e.target.value })}
-                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem", background: "#fff" }}
+                      style={{ width: "100%", padding: "10px 14px", border: "1.5px solid #cbd5e1", borderRadius: "8px", fontSize: "0.92rem", color: "#0f172a", background: "#ffffff" }}
                     >
                       <option value="GOOD">🟢 Good (All parts intact &amp; working)</option>
                       <option value="EXCELLENT">✨ Excellent (Clean &amp; pristine)</option>
@@ -27253,45 +27307,45 @@ _This is an official computer-generated receipt._`;
                   </div>
 
                   <div>
-                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
-                      Final Balance Collected (Rs)
+                    <label style={{ display: "block", fontSize: "0.84rem", fontWeight: "800", color: "#0f172a", marginBottom: "6px" }}>
+                      Final Balance Collected (₹)
                     </label>
                     <input
                       type="number"
                       placeholder="0"
                       value={returnAssetForm.final_paid_amount}
                       onChange={(e) => setReturnAssetForm({ ...returnAssetForm, final_paid_amount: e.target.value })}
-                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem" }}
+                      style={{ width: "100%", padding: "10px 14px", border: "1.5px solid #cbd5e1", borderRadius: "8px", fontSize: "0.92rem", color: "#0f172a", background: "#ffffff" }}
                     />
                   </div>
 
                   <div>
-                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
-                      Security Deposit Refunded (Rs)
+                    <label style={{ display: "block", fontSize: "0.84rem", fontWeight: "800", color: "#0f172a", marginBottom: "6px" }}>
+                      Security Deposit Refunded (₹)
                     </label>
                     <input
                       type="number"
                       value={returnAssetForm.deposit_refunded}
                       onChange={(e) => setReturnAssetForm({ ...returnAssetForm, deposit_refunded: e.target.value })}
-                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem" }}
+                      style={{ width: "100%", padding: "10px 14px", border: "1.5px solid #cbd5e1", borderRadius: "8px", fontSize: "0.92rem", color: "#0f172a", background: "#ffffff" }}
                     />
                   </div>
 
                   <div>
-                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
-                      Damage Penalty / Extra Charge (if any, Rs)
+                    <label style={{ display: "block", fontSize: "0.84rem", fontWeight: "800", color: "#0f172a", marginBottom: "6px" }}>
+                      Damage Penalty / Extra Charge (if any, ₹)
                     </label>
                     <input
                       type="number"
                       placeholder="0"
                       value={returnAssetForm.damage_charge}
                       onChange={(e) => setReturnAssetForm({ ...returnAssetForm, damage_charge: e.target.value })}
-                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem" }}
+                      style={{ width: "100%", padding: "10px 14px", border: "1.5px solid #cbd5e1", borderRadius: "8px", fontSize: "0.92rem", color: "#0f172a", background: "#ffffff" }}
                     />
                   </div>
 
                   <div>
-                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                    <label style={{ display: "block", fontSize: "0.84rem", fontWeight: "800", color: "#0f172a", marginBottom: "6px" }}>
                       Return Remarks / Inspection Notes
                     </label>
                     <textarea
@@ -27299,24 +27353,25 @@ _This is an official computer-generated receipt._`;
                       placeholder="e.g. Returned on time, inspected and verified in good working condition."
                       value={returnAssetForm.remarks}
                       onChange={(e) => setReturnAssetForm({ ...returnAssetForm, remarks: e.target.value })}
-                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem" }}
+                      style={{ width: "100%", padding: "10px 14px", border: "1.5px solid #cbd5e1", borderRadius: "8px", fontSize: "0.92rem", color: "#0f172a", background: "#ffffff" }}
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="modalFooter" style={{ paddingTop: "14px", borderTop: "1px solid #e2e8f0" }}>
+              <div className="modalFooter" style={{ paddingTop: "14px", borderTop: "1px solid #e2e8f0", display: "flex", justifyContent: "flex-end", gap: "10px" }}>
                 <button
                   type="button"
                   className="btnCancel"
                   onClick={() => setReturningRentalItem(null)}
+                  style={{ padding: "10px 18px", borderRadius: "8px", border: "1.5px solid #cbd5e1", background: "#f8fafc", color: "#334155", fontWeight: "700", fontSize: "0.88rem", cursor: "pointer" }}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   className="btnSubmit"
-                  style={{ background: "#166534" }}
+                  style={{ background: "#166534", color: "#ffffff", border: "none", padding: "10px 22px", borderRadius: "8px", fontWeight: "800", fontSize: "0.88rem", cursor: "pointer", boxShadow: "0 2px 6px rgba(22, 101, 52, 0.25)" }}
                   disabled={assetActionLoading}
                 >
                   {assetActionLoading ? "Completing Return..." : "Complete Return & Record Revenue"}
