@@ -1711,8 +1711,63 @@ export default function AdminPage() {
   const [recordingEmiLoan, setRecordingEmiLoan] = useState(null);
   const [emiAmountPaid, setEmiAmountPaid] = useState("");
   const [emiPaymentMode, setEmiPaymentMode] = useState("UPI");
-  const [emiTxnRef, setEmiTxnRef] = useState("");
   const [viewingGrantBallots, setViewingGrantBallots] = useState(null);
+
+  // 🎛️ Community Asset Rentals & Governance States
+  const [assetsList, setAssetsList] = useState([]);
+  const [assetKpis, setAssetKpis] = useState({
+    total_assets: 0,
+    available_assets: 0,
+    rented_assets: 0,
+    overdue_rentals: 0,
+    total_valuation: 0,
+    total_rent_revenue: 0,
+  });
+  const [assetsLoading, setAssetsLoading] = useState(false);
+  const [assetRentalsList, setAssetRentalsList] = useState([]);
+  const [assetSubTab, setAssetSubTab] = useState("CATALOG"); // 'CATALOG' | 'RENTALS'
+  const [assetCategoryFilter, setAssetCategoryFilter] = useState("ALL");
+  const [assetSearchTerm, setAssetSearchTerm] = useState("");
+  const [showAddAssetModal, setShowAddAssetModal] = useState(false);
+  const [editingAssetItem, setEditingAssetItem] = useState(null);
+  const [rentingAssetItem, setRentingAssetItem] = useState(null);
+  const [returningRentalItem, setReturningRentalItem] = useState(null);
+  const [assetActionLoading, setAssetActionLoading] = useState(false);
+  const [assetActionMessage, setAssetActionMessage] = useState(null);
+  const [newAssetForm, setNewAssetForm] = useState({
+    name: "",
+    category: "AUDIO_SOUND",
+    quantity: 1,
+    market_rent_per_day: "",
+    hsy_rent_per_day: "",
+    security_deposit: "",
+    purchase_cost: "",
+    condition: "GOOD",
+    location_stored: "HSY Office Store Room, Jagtial",
+    notes: "",
+  });
+  const [rentAssetForm, setRentAssetForm] = useState({
+    renter_type: "MEMBER",
+    user_id: "",
+    renter_name: "",
+    renter_phone: "",
+    renter_address: "",
+    purpose: "",
+    rent_start_date: new Date().toISOString().slice(0, 10),
+    expected_return_date: "",
+    daily_rent: "",
+    paid_amount: "",
+    payment_mode: "CASH",
+    deposit_collected: "",
+    remarks: "",
+  });
+  const [returnAssetForm, setReturnAssetForm] = useState({
+    return_condition: "GOOD",
+    final_paid_amount: 0,
+    deposit_refunded: 0,
+    damage_charge: 0,
+    remarks: "",
+  });
 
   const [loanApplyForm, setLoanApplyForm] = useState({
     loan_amount: 3000,
@@ -2098,6 +2153,8 @@ export default function AdminPage() {
     } catch (err) {
       console.warn("Failed to fetch suggestions from backend:", err.message);
     }
+
+    loadAssetsData();
 
     try {
       const fetchedMyOnline = await fetchAPI("/payment/my-transactions");
@@ -3336,7 +3393,9 @@ export default function AdminPage() {
   const handleDownloadReportPDF = async (reportType) => {
     setDownloadingReport(reportType);
     try {
-      let url = `${API_BASE_URL}/reports/pdf/${reportType}`;
+      let url = reportType === "asset-rentals"
+        ? `${API_BASE_URL}/assets/pdf`
+        : `${API_BASE_URL}/reports/pdf/${reportType}`;
       if (reportType === "monthly") {
         url += `?month=${encodeURIComponent(reportMonth)}&year=${encodeURIComponent(reportYear)}`;
       }
@@ -3359,6 +3418,7 @@ export default function AdminPage() {
         "fund-wise": "Hindu_Swaraj_Fundwise_Report.pdf",
         "member-wise": "Hindu_Swaraj_Memberwise_Report.pdf",
         "member-login-activity": `HSY_Member_Login_Audit_Report_${new Date().toISOString().slice(0, 10)}.pdf`,
+        "asset-rentals": `HSY_Asset_Rental_Register_${new Date().toISOString().slice(0, 10)}.pdf`,
       };
       a.download = filenameMap[reportType] || `Hindu_Swaraj_${reportType}_Report.pdf`;
       document.body.appendChild(a);
@@ -4177,6 +4237,192 @@ export default function AdminPage() {
     }
   };
 
+  // 🎛️ Community Asset Rentals & Governance Handlers
+  const loadAssetsData = async () => {
+    setAssetsLoading(true);
+    try {
+      const [assetsData, rentalsData] = await Promise.allSettled([
+        fetchAPI("/assets"),
+        fetchAPI("/assets/rentals"),
+      ]);
+
+      if (assetsData.status === "fulfilled" && assetsData.value?.success) {
+        setAssetsList(Array.isArray(assetsData.value.assets) ? assetsData.value.assets : []);
+        if (assetsData.value.kpis) {
+          setAssetKpis(assetsData.value.kpis);
+        }
+      }
+      if (rentalsData.status === "fulfilled" && Array.isArray(rentalsData.value)) {
+        setAssetRentalsList(rentalsData.value);
+      }
+    } catch (err) {
+      console.warn("Failed to load assets data:", err.message);
+    } finally {
+      setAssetsLoading(false);
+    }
+  };
+
+  const handleOpenAddAssetModal = (asset = null) => {
+    if (asset) {
+      setEditingAssetItem(asset);
+      setNewAssetForm({
+        name: asset.name || "",
+        category: asset.category || "AUDIO_SOUND",
+        quantity: asset.quantity || 1,
+        market_rent_per_day: asset.market_rent_per_day || "",
+        hsy_rent_per_day: asset.hsy_rent_per_day || "",
+        security_deposit: asset.security_deposit || "",
+        purchase_cost: asset.purchase_cost || "",
+        condition: asset.condition || "GOOD",
+        location_stored: asset.location_stored || "HSY Office Store Room, Jagtial",
+        notes: asset.notes || "",
+      });
+    } else {
+      setEditingAssetItem(null);
+      setNewAssetForm({
+        name: "",
+        category: "AUDIO_SOUND",
+        quantity: 1,
+        market_rent_per_day: "",
+        hsy_rent_per_day: "",
+        security_deposit: "",
+        purchase_cost: "",
+        condition: "GOOD",
+        location_stored: "HSY Office Store Room, Jagtial",
+        notes: "",
+      });
+    }
+    setAssetActionMessage(null);
+    setShowAddAssetModal(true);
+  };
+
+  const handleSaveAsset = async (e) => {
+    e.preventDefault();
+    setAssetActionLoading(true);
+    setAssetActionMessage(null);
+    try {
+      if (editingAssetItem) {
+        await fetchAPI(`/assets/${editingAssetItem.id}`, {
+          method: "PUT",
+          body: JSON.stringify(newAssetForm),
+        });
+      } else {
+        await fetchAPI("/assets", {
+          method: "POST",
+          body: JSON.stringify(newAssetForm),
+        });
+      }
+      setShowAddAssetModal(false);
+      setEditingAssetItem(null);
+      await loadAssetsData();
+      alert(editingAssetItem ? "✅ Asset updated successfully!" : "✅ Asset added successfully!");
+    } catch (err) {
+      setAssetActionMessage(err.message || "Failed to save asset");
+    } finally {
+      setAssetActionLoading(false);
+    }
+  };
+
+  const handleDeleteAsset = async (assetId, assetName) => {
+    if (!window.confirm(`Are you sure you want to delete "${assetName}" from inventory?`)) return;
+    try {
+      await fetchAPI(`/assets/${assetId}`, { method: "DELETE" });
+      await loadAssetsData();
+      alert("✅ Asset deleted from inventory.");
+    } catch (err) {
+      alert("❌ " + (err.message || "Failed to delete asset"));
+    }
+  };
+
+  const handleOpenRentModal = (asset) => {
+    setRentingAssetItem(asset);
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    setRentAssetForm({
+      renter_type: "MEMBER",
+      user_id: "",
+      renter_name: "",
+      renter_phone: "",
+      renter_address: "",
+      purpose: "Ganesh / Festival & Community Function",
+      rent_start_date: new Date().toISOString().slice(0, 10),
+      expected_return_date: tomorrow.toISOString().slice(0, 10),
+      daily_rent: asset.hsy_rent_per_day || "",
+      paid_amount: asset.hsy_rent_per_day || "",
+      payment_mode: "CASH",
+      deposit_collected: asset.security_deposit || 0,
+      remarks: "",
+    });
+    setAssetActionMessage(null);
+  };
+
+  const handleRentAssetSubmit = async (e) => {
+    e.preventDefault();
+    if (!rentingAssetItem) return;
+    setAssetActionLoading(true);
+    setAssetActionMessage(null);
+    try {
+      await fetchAPI(`/assets/${rentingAssetItem.id}/rent`, {
+        method: "POST",
+        body: JSON.stringify(rentAssetForm),
+      });
+      setRentingAssetItem(null);
+      await loadAssetsData();
+      alert(`✅ Equipment "${rentingAssetItem.name}" booked for rent successfully!`);
+    } catch (err) {
+      setAssetActionMessage(err.message || "Failed to book rent");
+    } finally {
+      setAssetActionLoading(false);
+    }
+  };
+
+  const handleOpenReturnModal = (rental) => {
+    setReturningRentalItem(rental);
+    setReturnAssetForm({
+      return_condition: "GOOD",
+      final_paid_amount: 0,
+      deposit_refunded: rental.deposit_collected || 0,
+      damage_charge: 0,
+      remarks: "",
+    });
+    setAssetActionMessage(null);
+  };
+
+  const handleReturnAssetSubmit = async (e) => {
+    e.preventDefault();
+    if (!returningRentalItem) return;
+    setAssetActionLoading(true);
+    setAssetActionMessage(null);
+    try {
+      await fetchAPI(`/assets/rentals/${returningRentalItem.id}/return`, {
+        method: "POST",
+        body: JSON.stringify(returnAssetForm),
+      });
+      setReturningRentalItem(null);
+      await loadAssetsData();
+      alert("✅ Item returned and rental revenue recorded successfully!");
+    } catch (err) {
+      setAssetActionMessage(err.message || "Failed to return asset");
+    } finally {
+      setAssetActionLoading(false);
+    }
+  };
+
+  const handleSendWhatsAppRentReminder = (rental) => {
+    const rawPhone = (rental.renter_phone || "").replace(/\D/g, "");
+    if (!rawPhone || rawPhone.length < 10) {
+      alert(`⚠️ Cannot send WhatsApp message: Renter "${rental.renter_name}" does not have a valid 10-digit phone number.`);
+      return;
+    }
+    const cleanPhone = rawPhone.length === 10 ? `91${rawPhone}` : rawPhone;
+    const dueStr = rental.expected_return_date ? new Date(rental.expected_return_date).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }) : "నిర్దిష్ట తేదీ";
+
+    const message = `🚩 *హిందూ స్వరాజ్ యూత్ వెల్ఫేర్ అసోసియేషన్ (HSYWA), జగిత్యాల* 🚩\n\nనమస్తే ${rental.renter_name} గారు,\nమీరు మా అసోసియేషన్ నుండి 50% రాయితీతో అద్దెకు తీసుకున్న సామగ్రి వివరాలు:\n\n📦 *సామగ్రి:* ${rental.asset_name}\n🆔 *బుకింగ్ కోడ్:* ${rental.rental_code}\n📅 *తిరిగి ఇవ్వవలసిన గడువు తేదీ:* ${dueStr}\n💰 *అద్దె మొత్తం:* Rs. ${rental.total_rent_amount} (${rental.payment_status})\n\nదయచేసి గడువు తేదీ నాటికి సామగ్రిని వాణి నగర్ అసోసియేషన్ కార్యాలయంలో అప్పగించవలసిందిగా కోరుచున్నాము. ఇతర సభ్యులు లేదా కార్యక్రమాలకు ఈ సామగ్రి అవసరం కావచ్చు.\n\nఏమైనా సందేహాలు లేదా సమయం పొడిగింపు కోసం మా ఆఫీస్ నంబర్ +91 84998 78425 ను సంప్రదించగలరు.\n\nధన్యవాదాలు! 🇮🇳\n- కార్యవర్గం, హిందూ స్వరాజ్ యూత్ వెల్ఫేర్ అసోసియేషన్, జగిత్యాల`;
+
+    const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+    window.open(waUrl, "_blank");
+  };
+
   // Complaint Management Functions & Handlers
   const loadComplaintsData = async () => {
     setComplaintsLoading(true);
@@ -4385,7 +4631,7 @@ export default function AdminPage() {
   const hasTabAccess = (tabKey) => {
     const currentRole = (userRole || "").toUpperCase().trim().replace(/[\s-]+/g, "_");
     if (userRole === "SUPER_ADMIN" || currentRole === "SUPER_ADMIN") return true;
-    if (tabKey === "elections" || tabKey === "id_card" || tabKey === "change_password") return true;
+    if (tabKey === "elections" || tabKey === "id_card" || tabKey === "change_password" || tabKey === "asset_rentals") return true;
     if (!currentRole) return false;
     const map = (rolePermissionsMap && Object.keys(rolePermissionsMap).length > 0)
       ? rolePermissionsMap
@@ -7808,6 +8054,35 @@ _This is an official computer-generated receipt._`;
                   onClick={() => setActiveTab("reports")}
                 >
                   📈 Reports &amp; PDF Audit
+                </button>
+              )}
+
+              {hasTabAccess("asset_rentals") && (
+                <button
+                  className={`navItem ${activeTab === "asset_rentals" ? "navItemActive" : ""}`}
+                  onClick={() => {
+                    setActiveTab("asset_rentals");
+                    loadAssetsData();
+                  }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <span>🎛️ Asset Rentals &amp; Inventory</span>
+                  <span
+                    style={{
+                      background: "#166534",
+                      color: "#ffffff",
+                      fontSize: "0.68rem",
+                      fontWeight: "800",
+                      padding: "1px 6px",
+                      borderRadius: "10px",
+                    }}
+                  >
+                    50% OFF
+                  </span>
                 </button>
               )}
             </>
@@ -14950,6 +15225,484 @@ _This is an official computer-generated receipt._`;
                 </table>
               </div>
             </div>
+          </>
+        )}
+
+        {activeTab === "asset_rentals" && (
+          <>
+            <div className="contentHeader" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
+              <div>
+                <h2 className="pageTitle" style={{ margin: 0 }}>
+                  🎛️ Community Equipment &amp; 50% Rental Management
+                </h2>
+                <p style={{ margin: "4px 0 0 0", fontSize: "0.88rem", color: "#64748b" }}>
+                  Offer association sound, lighting &amp; event assets to members &amp; citizens at 50% market discount. Generate sustainable funds &amp; ensure careful custody.
+                </p>
+              </div>
+              <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
+                {(isFullAdmin || isTreasurer || isEC) && (
+                  <button
+                    type="button"
+                    className="addBtn"
+                    style={{ background: "#166534" }}
+                    onClick={() => handleOpenAddAssetModal()}
+                  >
+                    + Add New Equipment
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => handleDownloadReportPDF("asset-rentals")}
+                  disabled={downloadingReport === "asset-rentals"}
+                  style={{
+                    background: "#eff6ff",
+                    border: "1.5px solid #93c5fd",
+                    color: "#1d4ed8",
+                    padding: "8px 16px",
+                    borderRadius: "8px",
+                    fontWeight: "700",
+                    fontSize: "0.85rem",
+                    cursor: "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+                  }}
+                  title="Download Official Asset Inventory & Rental Ledger PDF"
+                >
+                  {downloadingReport === "asset-rentals" ? "⏳ Generating PDF..." : "📥 Download Asset Register PDF"}
+                </button>
+              </div>
+            </div>
+
+            {/* 📊 Executive KPI Cards */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+                gap: "16px",
+                margin: "20px 0",
+              }}
+            >
+              <div style={{ background: "#ffffff", padding: "18px 20px", borderRadius: "12px", border: "1px solid #e2e8f0", boxShadow: "0 2px 4px rgba(0,0,0,0.04)" }}>
+                <div style={{ fontSize: "0.8rem", fontWeight: "700", color: "#64748b", textTransform: "uppercase" }}>📦 Total Inventory Items</div>
+                <div style={{ fontSize: "1.8rem", fontWeight: "800", color: "#0f172a", marginTop: "4px" }}>{assetKpis.total_assets}</div>
+                <div style={{ fontSize: "0.75rem", color: "#64748b", marginTop: "4px" }}>Valuation: Rs. {Number(assetKpis.total_valuation || 0).toLocaleString("en-IN")}</div>
+              </div>
+
+              <div style={{ background: "#f0fdf4", padding: "18px 20px", borderRadius: "12px", border: "1px solid #86efac", boxShadow: "0 2px 4px rgba(0,0,0,0.04)" }}>
+                <div style={{ fontSize: "0.8rem", fontWeight: "700", color: "#166534", textTransform: "uppercase" }}>🟢 Available For Rent</div>
+                <div style={{ fontSize: "1.8rem", fontWeight: "800", color: "#15803d", marginTop: "4px" }}>{assetKpis.available_assets}</div>
+                <div style={{ fontSize: "0.75rem", color: "#166534", marginTop: "4px" }}>Ready in Store Room</div>
+              </div>
+
+              <div style={{ background: "#fff7ed", padding: "18px 20px", borderRadius: "12px", border: "1px solid #fed7aa", boxShadow: "0 2px 4px rgba(0,0,0,0.04)" }}>
+                <div style={{ fontSize: "0.8rem", fontWeight: "700", color: "#c2410c", textTransform: "uppercase" }}>🚚 Currently Rented Out</div>
+                <div style={{ fontSize: "1.8rem", fontWeight: "800", color: "#ea580c", marginTop: "4px" }}>{assetKpis.rented_assets}</div>
+                <div style={{ fontSize: "0.75rem", color: "#c2410c", marginTop: "4px" }}>In Active Custody</div>
+              </div>
+
+              <div style={{ background: "#fef2f2", padding: "18px 20px", borderRadius: "12px", border: "1px solid #fca5a5", boxShadow: "0 2px 4px rgba(0,0,0,0.04)" }}>
+                <div style={{ fontSize: "0.8rem", fontWeight: "700", color: "#991b1b", textTransform: "uppercase" }}>🔴 Overdue for Return</div>
+                <div style={{ fontSize: "1.8rem", fontWeight: "800", color: "#dc2626", marginTop: "4px" }}>{assetKpis.overdue_rentals}</div>
+                <div style={{ fontSize: "0.75rem", color: "#991b1b", marginTop: "4px" }}>Action / Reminder Required</div>
+              </div>
+
+              <div style={{ background: "#eff6ff", padding: "18px 20px", borderRadius: "12px", border: "1px solid #93c5fd", boxShadow: "0 2px 4px rgba(0,0,0,0.04)" }}>
+                <div style={{ fontSize: "0.8rem", fontWeight: "700", color: "#1d4ed8", textTransform: "uppercase" }}>💰 Total Rental Revenue</div>
+                <div style={{ fontSize: "1.8rem", fontWeight: "800", color: "#1e40af", marginTop: "4px" }}>Rs. {Number(assetKpis.total_rent_revenue || 0).toLocaleString("en-IN")}</div>
+                <div style={{ fontSize: "0.75rem", color: "#1e40af", marginTop: "4px" }}>Self-Sustaining Fund</div>
+              </div>
+            </div>
+
+            {/* 🔘 Sub-Tab Switcher */}
+            <div style={{ display: "flex", gap: "8px", margin: "16px 0 20px 0", borderBottom: "2px solid #e2e8f0", paddingBottom: "8px" }}>
+              <button
+                type="button"
+                onClick={() => setAssetSubTab("CATALOG")}
+                style={{
+                  background: assetSubTab === "CATALOG" ? "#166534" : "#f1f5f9",
+                  color: assetSubTab === "CATALOG" ? "#ffffff" : "#475569",
+                  border: "none",
+                  padding: "8px 20px",
+                  borderRadius: "20px",
+                  fontWeight: "700",
+                  fontSize: "0.88rem",
+                  cursor: "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  transition: "all 0.2s",
+                }}
+              >
+                📦 Equipment Catalog ({assetsList.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setAssetSubTab("RENTALS")}
+                style={{
+                  background: assetSubTab === "RENTALS" ? "#166534" : "#f1f5f9",
+                  color: assetSubTab === "RENTALS" ? "#ffffff" : "#475569",
+                  border: "none",
+                  padding: "8px 20px",
+                  borderRadius: "20px",
+                  fontWeight: "700",
+                  fontSize: "0.88rem",
+                  cursor: "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  transition: "all 0.2s",
+                }}
+              >
+                📋 Rental Records &amp; Custody Tracking ({assetRentalsList.length})
+              </button>
+            </div>
+
+            {/* ========================================================
+                TAB 1: EQUIPMENT CATALOG
+            ======================================================== */}
+            {assetSubTab === "CATALOG" && (
+              <div style={{ background: "#ffffff", borderRadius: "12px", border: "1px solid #e2e8f0", overflow: "hidden", padding: "16px" }}>
+                {/* Search & Filter Bar */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", marginBottom: "16px", flexWrap: "wrap" }}>
+                  <div style={{ display: "flex", gap: "10px", alignItems: "center", flex: 1, minWidth: "260px" }}>
+                    <input
+                      type="text"
+                      placeholder="🔍 Search equipment by name, tag, or storage room..."
+                      value={assetSearchTerm}
+                      onChange={(e) => setAssetSearchTerm(e.target.value)}
+                      style={{
+                        width: "100%",
+                        padding: "9px 14px",
+                        border: "1px solid #cbd5e1",
+                        borderRadius: "8px",
+                        fontSize: "0.88rem",
+                      }}
+                    />
+                  </div>
+                  <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                    <select
+                      value={assetCategoryFilter}
+                      onChange={(e) => setAssetCategoryFilter(e.target.value)}
+                      style={{
+                        padding: "9px 14px",
+                        border: "1px solid #cbd5e1",
+                        borderRadius: "8px",
+                        fontSize: "0.88rem",
+                        background: "#fff",
+                        fontWeight: "600",
+                        color: "#334155",
+                      }}
+                    >
+                      <option value="ALL">All Categories</option>
+                      <option value="AUDIO_SOUND">🔊 Audio &amp; Sound Systems</option>
+                      <option value="LIGHTING_ELECTRICAL">💡 Lighting &amp; Electricals</option>
+                      <option value="UTENSILS_COOKING">🍲 Cooking &amp; Annadanam Vessels</option>
+                      <option value="EVENT_TENT_FURNITURE">🎪 Tents, Tarpaulins &amp; Stage</option>
+                      <option value="RELIGIOUS_POOJA">🪔 Religious &amp; Pooja Items</option>
+                      <option value="OTHER">📦 Other Equipment</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Table */}
+                <div style={{ overflowX: "auto" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
+                    <thead>
+                      <tr style={{ background: "#f8fafc", borderBottom: "2px solid #e2e8f0" }}>
+                        <th style={{ padding: "12px 14px", fontSize: "0.78rem", fontWeight: "700", color: "#475569" }}>TAG / ID</th>
+                        <th style={{ padding: "12px 14px", fontSize: "0.78rem", fontWeight: "700", color: "#475569" }}>EQUIPMENT NAME &amp; STORAGE</th>
+                        <th style={{ padding: "12px 14px", fontSize: "0.78rem", fontWeight: "700", color: "#475569" }}>CATEGORY</th>
+                        <th style={{ padding: "12px 14px", fontSize: "0.78rem", fontWeight: "700", color: "#475569" }}>MARKET RENT</th>
+                        <th style={{ padding: "12px 14px", fontSize: "0.78rem", fontWeight: "700", color: "#475569" }}>HSY RENT (50% OFF)</th>
+                        <th style={{ padding: "12px 14px", fontSize: "0.78rem", fontWeight: "700", color: "#475569" }}>STATUS &amp; CUSTODY</th>
+                        <th style={{ padding: "12px 14px", fontSize: "0.78rem", fontWeight: "700", color: "#475569" }}>EARNED (RS.)</th>
+                        <th style={{ padding: "12px 14px", fontSize: "0.78rem", fontWeight: "700", color: "#475569", textAlign: "center" }}>ACTIONS</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {assetsLoading ? (
+                        <tr>
+                          <td colSpan={8} style={{ padding: "30px", textAlign: "center", color: "#64748b" }}>
+                            ⏳ Loading equipment inventory...
+                          </td>
+                        </tr>
+                      ) : assetsList.filter(a => {
+                          const matchCat = assetCategoryFilter === "ALL" || a.category === assetCategoryFilter;
+                          const matchSearch = !assetSearchTerm.trim() || 
+                            (a.name || "").toLowerCase().includes(assetSearchTerm.toLowerCase()) ||
+                            (a.asset_tag || "").toLowerCase().includes(assetSearchTerm.toLowerCase()) ||
+                            (a.location_stored || "").toLowerCase().includes(assetSearchTerm.toLowerCase());
+                          return matchCat && matchSearch;
+                        }).length === 0 ? (
+                        <tr>
+                          <td colSpan={8} style={{ padding: "30px", textAlign: "center", color: "#94a3b8" }}>
+                            No equipment found matching criteria.
+                          </td>
+                        </tr>
+                      ) : (
+                        assetsList
+                          .filter(a => {
+                            const matchCat = assetCategoryFilter === "ALL" || a.category === assetCategoryFilter;
+                            const matchSearch = !assetSearchTerm.trim() || 
+                              (a.name || "").toLowerCase().includes(assetSearchTerm.toLowerCase()) ||
+                              (a.asset_tag || "").toLowerCase().includes(assetSearchTerm.toLowerCase()) ||
+                              (a.location_stored || "").toLowerCase().includes(assetSearchTerm.toLowerCase());
+                            return matchCat && matchSearch;
+                          })
+                          .map((a, idx) => (
+                            <tr key={a.id} style={{ borderBottom: "1px solid #f1f5f9", background: idx % 2 === 1 ? "#fafafa" : "#ffffff" }}>
+                              <td style={{ padding: "12px 14px", fontFamily: "monospace", fontWeight: "700", color: "#0f172a", fontSize: "0.82rem" }}>
+                                {a.asset_tag}
+                              </td>
+                              <td style={{ padding: "12px 14px" }}>
+                                <div style={{ fontWeight: "700", color: "#0f172a", fontSize: "0.9rem" }}>{a.name}</div>
+                                <div style={{ fontSize: "0.75rem", color: "#64748b", marginTop: "2px" }}>
+                                  📍 {a.location_stored || "Central Store"} &bull; Qty: {a.quantity} &bull; Condition: <span style={{ fontWeight: "600", color: a.condition === "EXCELLENT" ? "#16a34a" : "#ca8a04" }}>{a.condition}</span>
+                                </div>
+                              </td>
+                              <td style={{ padding: "12px 14px" }}>
+                                <span style={{ background: "#f1f5f9", color: "#334155", padding: "3px 8px", borderRadius: "6px", fontSize: "0.72rem", fontWeight: "700" }}>
+                                  {a.category}
+                                </span>
+                              </td>
+                              <td style={{ padding: "12px 14px", color: "#64748b", fontSize: "0.85rem", textDecoration: "line-through" }}>
+                                Rs. {Number(a.market_rent_per_day || 0).toLocaleString("en-IN")}/day
+                              </td>
+                              <td style={{ padding: "12px 14px" }}>
+                                <span style={{ fontSize: "0.95rem", fontWeight: "800", color: "#166534" }}>
+                                  Rs. {Number(a.hsy_rent_per_day || 0).toLocaleString("en-IN")}
+                                </span>
+                                <span style={{ fontSize: "0.7rem", color: "#64748b" }}>/day</span>
+                                <span style={{ marginLeft: "6px", background: "#dcfce7", color: "#15803d", padding: "1px 6px", borderRadius: "10px", fontSize: "0.68rem", fontWeight: "800" }}>
+                                  50% OFF
+                                </span>
+                              </td>
+                              <td style={{ padding: "12px 14px" }}>
+                                {a.status === "RENTED_OUT" ? (
+                                  <div>
+                                    <span style={{ background: "#fff7ed", color: "#c2410c", border: "1px solid #fed7aa", padding: "3px 8px", borderRadius: "12px", fontSize: "0.75rem", fontWeight: "800" }}>
+                                      🚚 Rented Out
+                                    </span>
+                                    <div style={{ fontSize: "0.75rem", color: "#0f172a", marginTop: "4px", fontWeight: "600" }}>
+                                      {a.current_renter_name} ({a.current_renter_phone || "No phone"})
+                                    </div>
+                                    <div style={{ fontSize: "0.7rem", color: "#dc2626", fontWeight: "600" }}>
+                                      Due: {a.expected_return_date ? new Date(a.expected_return_date).toLocaleDateString("en-IN", { day: "2-digit", month: "short" }) : "N/A"}
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <span style={{ background: "#f0fdf4", color: "#166534", border: "1px solid #86efac", padding: "3px 8px", borderRadius: "12px", fontSize: "0.75rem", fontWeight: "800" }}>
+                                    🟢 Available in Store
+                                  </span>
+                                )}
+                              </td>
+                              <td style={{ padding: "12px 14px", fontWeight: "700", color: "#1e40af", fontSize: "0.85rem" }}>
+                                Rs. {Number(a.total_revenue_earned || 0).toLocaleString("en-IN")}
+                              </td>
+                              <td style={{ padding: "12px 14px", textAlign: "center" }}>
+                                <div style={{ display: "inline-flex", gap: "6px", alignItems: "center" }}>
+                                  {a.status === "AVAILABLE" && (isFullAdmin || isTreasurer || isEC) && (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleOpenRentModal(a)}
+                                      style={{
+                                        background: "#166534",
+                                        color: "#ffffff",
+                                        border: "none",
+                                        padding: "6px 12px",
+                                        borderRadius: "6px",
+                                        fontSize: "0.78rem",
+                                        fontWeight: "700",
+                                        cursor: "pointer",
+                                      }}
+                                      title="Rent item out at 50% discount"
+                                    >
+                                      📤 Rent Out
+                                    </button>
+                                  )}
+                                  {(isFullAdmin || isTreasurer) && (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleOpenAddAssetModal(a)}
+                                      style={{
+                                        background: "#f1f5f9",
+                                        color: "#334155",
+                                        border: "1px solid #cbd5e1",
+                                        padding: "6px 10px",
+                                        borderRadius: "6px",
+                                        fontSize: "0.78rem",
+                                        fontWeight: "600",
+                                        cursor: "pointer",
+                                      }}
+                                      title="Edit asset details & rent price"
+                                    >
+                                      ✏️ Edit
+                                    </button>
+                                  )}
+                                  {isFullAdmin && a.status === "AVAILABLE" && (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleDeleteAsset(a.id, a.name)}
+                                      style={{
+                                        background: "#fff1f2",
+                                        color: "#be123c",
+                                        border: "1px solid #fecdd3",
+                                        padding: "6px 8px",
+                                        borderRadius: "6px",
+                                        fontSize: "0.78rem",
+                                        cursor: "pointer",
+                                      }}
+                                      title="Delete item from inventory"
+                                    >
+                                      🗑️
+                                    </button>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* ========================================================
+                TAB 2: RENTAL RECORDS & CUSTODY TRACKING
+            ======================================================== */}
+            {assetSubTab === "RENTALS" && (
+              <div style={{ background: "#ffffff", borderRadius: "12px", border: "1px solid #e2e8f0", overflow: "hidden", padding: "16px" }}>
+                <div style={{ overflowX: "auto" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
+                    <thead>
+                      <tr style={{ background: "#f8fafc", borderBottom: "2px solid #e2e8f0" }}>
+                        <th style={{ padding: "12px 14px", fontSize: "0.78rem", fontWeight: "700", color: "#475569" }}>CODE</th>
+                        <th style={{ padding: "12px 14px", fontSize: "0.78rem", fontWeight: "700", color: "#475569" }}>EQUIPMENT NAME</th>
+                        <th style={{ padding: "12px 14px", fontSize: "0.78rem", fontWeight: "700", color: "#475569" }}>RENTER DETAILS</th>
+                        <th style={{ padding: "12px 14px", fontSize: "0.78rem", fontWeight: "700", color: "#475569" }}>RENT PERIOD &amp; DAYS</th>
+                        <th style={{ padding: "12px 14px", fontSize: "0.78rem", fontWeight: "700", color: "#475569" }}>RENT AMOUNT</th>
+                        <th style={{ padding: "12px 14px", fontSize: "0.78rem", fontWeight: "700", color: "#475569" }}>PAYMENT</th>
+                        <th style={{ padding: "12px 14px", fontSize: "0.78rem", fontWeight: "700", color: "#475569" }}>STATUS</th>
+                        <th style={{ padding: "12px 14px", fontSize: "0.78rem", fontWeight: "700", color: "#475569", textAlign: "center" }}>ACTIONS</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {assetRentalsList.length === 0 ? (
+                        <tr>
+                          <td colSpan={8} style={{ padding: "30px", textAlign: "center", color: "#94a3b8" }}>
+                            No rental bookings recorded yet.
+                          </td>
+                        </tr>
+                      ) : (
+                        assetRentalsList.map((r, idx) => {
+                          const todayStr = new Date().toISOString().slice(0, 10);
+                          const isOverdue = r.status === "ACTIVE" && r.expected_return_date && new Date(r.expected_return_date).toISOString().slice(0, 10) < todayStr;
+                          return (
+                            <tr key={r.id} style={{ borderBottom: "1px solid #f1f5f9", background: idx % 2 === 1 ? "#fafafa" : "#ffffff" }}>
+                              <td style={{ padding: "12px 14px", fontFamily: "monospace", fontWeight: "700", color: "#0f172a", fontSize: "0.82rem" }}>
+                                {r.rental_code}
+                              </td>
+                              <td style={{ padding: "12px 14px" }}>
+                                <div style={{ fontWeight: "700", color: "#0f172a", fontSize: "0.88rem" }}>{r.asset_name}</div>
+                                <div style={{ fontSize: "0.72rem", color: "#64748b", marginTop: "2px" }}>Purpose: {r.purpose || "Community Event"}</div>
+                              </td>
+                              <td style={{ padding: "12px 14px" }}>
+                                <div style={{ fontWeight: "700", color: "#0f172a", fontSize: "0.88rem" }}>
+                                  {r.renter_name}
+                                  <span style={{ marginLeft: "6px", background: r.renter_type === "MEMBER" ? "#dbeafe" : "#f1f5f9", color: r.renter_type === "MEMBER" ? "#1d4ed8" : "#475569", padding: "1px 6px", borderRadius: "10px", fontSize: "0.65rem", fontWeight: "800" }}>
+                                    {r.renter_type}
+                                  </span>
+                                </div>
+                                <div style={{ fontSize: "0.75rem", color: "#475569", marginTop: "2px" }}>📞 {r.renter_phone}</div>
+                              </td>
+                              <td style={{ padding: "12px 14px", fontSize: "0.82rem", color: "#334155" }}>
+                                <div>{r.rent_start_date ? new Date(r.rent_start_date).toLocaleDateString("en-IN", { day: "2-digit", month: "short" }) : "N/A"} ➔ {r.expected_return_date ? new Date(r.expected_return_date).toLocaleDateString("en-IN", { day: "2-digit", month: "short" }) : "N/A"}</div>
+                                <div style={{ fontSize: "0.72rem", color: "#64748b", marginTop: "2px" }}>({r.total_days} Day{r.total_days > 1 ? "s" : ""})</div>
+                              </td>
+                              <td style={{ padding: "12px 14px", fontSize: "0.88rem", fontWeight: "700", color: "#0f172a" }}>
+                                Rs. {Number(r.total_rent_amount || 0).toLocaleString("en-IN")}
+                              </td>
+                              <td style={{ padding: "12px 14px" }}>
+                                <span style={{
+                                  background: r.payment_status === "PAID" ? "#dcfce7" : r.payment_status === "PARTIAL" ? "#fef9c3" : "#fee2e2",
+                                  color: r.payment_status === "PAID" ? "#166534" : r.payment_status === "PARTIAL" ? "#854d0e" : "#991b1b",
+                                  padding: "2px 8px",
+                                  borderRadius: "10px",
+                                  fontSize: "0.72rem",
+                                  fontWeight: "800",
+                                }}>
+                                  {r.payment_status} (Rs. {r.paid_amount})
+                                </span>
+                                <div style={{ fontSize: "0.68rem", color: "#64748b", marginTop: "2px" }}>Mode: {r.payment_mode}</div>
+                              </td>
+                              <td style={{ padding: "12px 14px" }}>
+                                {r.status === "RETURNED" ? (
+                                  <span style={{ background: "#f1f5f9", color: "#475569", padding: "2px 8px", borderRadius: "10px", fontSize: "0.72rem", fontWeight: "800" }}>
+                                    ⚪ RETURNED
+                                  </span>
+                                ) : isOverdue ? (
+                                  <span style={{ background: "#fef2f2", color: "#dc2626", border: "1px solid #fca5a5", padding: "2px 8px", borderRadius: "10px", fontSize: "0.72rem", fontWeight: "800" }}>
+                                    🔴 OVERDUE
+                                  </span>
+                                ) : (
+                                  <span style={{ background: "#dcfce7", color: "#166534", padding: "2px 8px", borderRadius: "10px", fontSize: "0.72rem", fontWeight: "800" }}>
+                                    🟢 ACTIVE
+                                  </span>
+                                )}
+                              </td>
+                              <td style={{ padding: "12px 14px", textAlign: "center" }}>
+                                <div style={{ display: "inline-flex", gap: "6px", alignItems: "center" }}>
+                                  {r.status === "ACTIVE" && (isFullAdmin || isTreasurer || isEC) && (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleOpenReturnModal(r)}
+                                      style={{
+                                        background: "#166534",
+                                        color: "#ffffff",
+                                        border: "none",
+                                        padding: "5px 10px",
+                                        borderRadius: "6px",
+                                        fontSize: "0.75rem",
+                                        fontWeight: "700",
+                                        cursor: "pointer",
+                                      }}
+                                    >
+                                      📥 Return
+                                    </button>
+                                  )}
+                                  {r.status === "ACTIVE" && (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleSendWhatsAppRentReminder(r)}
+                                      style={{
+                                        background: "#25D366",
+                                        color: "#ffffff",
+                                        border: "none",
+                                        padding: "5px 10px",
+                                        borderRadius: "6px",
+                                        fontSize: "0.75rem",
+                                        fontWeight: "700",
+                                        cursor: "pointer",
+                                      }}
+                                      title="Send WhatsApp return reminder in Telugu"
+                                    >
+                                      💬 WhatsApp
+                                    </button>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
           </>
         )}
 
@@ -25972,6 +26725,590 @@ _This is an official computer-generated receipt._`;
                 {downloadingReport === "member-login-activity" ? "⏳ Generating PDF..." : "📥 Download Official PDF"}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* =====================================================
+          🎛️ MODAL: ADD / EDIT EQUIPMENT (ASSETS)
+      ===================================================== */}
+      {showAddAssetModal && (
+        <div className="modalBackdrop" style={{ zIndex: 10000 }}>
+          <div className="modalCard" style={{ maxWidth: "680px", width: "95%" }}>
+            <div className="modalHeader" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h3 style={{ margin: 0, fontSize: "1.25rem", color: "#1e293b", fontWeight: "800" }}>
+                {editingAssetItem ? "✏️ Edit Equipment Details & Pricing" : "➕ Add New Community Equipment"}
+              </h3>
+              <button
+                type="button"
+                className="closeBtn"
+                onClick={() => {
+                  setShowAddAssetModal(false);
+                  setEditingAssetItem(null);
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {assetActionMessage && (
+              <div style={{ margin: "10px 0", padding: "10px 14px", background: "#fef2f2", color: "#991b1b", borderRadius: "8px", fontSize: "0.85rem", fontWeight: "600" }}>
+                ⚠️ {assetActionMessage}
+              </div>
+            )}
+
+            <form onSubmit={handleSaveAsset}>
+              <div className="modalBody" style={{ maxHeight: "70vh", overflowY: "auto", padding: "16px 4px" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "14px" }}>
+                  <div style={{ gridColumn: "1 / -1" }}>
+                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                      Equipment Name *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Ahuja 500W Sound Box + Mixer / Wireless Mics"
+                      value={newAssetForm.name}
+                      onChange={(e) => setNewAssetForm({ ...newAssetForm, name: e.target.value })}
+                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem" }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                      Category *
+                    </label>
+                    <select
+                      value={newAssetForm.category}
+                      onChange={(e) => setNewAssetForm({ ...newAssetForm, category: e.target.value })}
+                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem", background: "#fff" }}
+                    >
+                      <option value="AUDIO_SOUND">🔊 Audio &amp; Sound Systems</option>
+                      <option value="LIGHTING_ELECTRICAL">💡 Lighting &amp; Electricals</option>
+                      <option value="UTENSILS_COOKING">🍲 Cooking &amp; Annadanam Vessels</option>
+                      <option value="EVENT_TENT_FURNITURE">🎪 Tents, Tarpaulins &amp; Stage</option>
+                      <option value="RELIGIOUS_POOJA">🪔 Religious &amp; Pooja Items</option>
+                      <option value="OTHER">📦 Other Equipment</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                      Quantity
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={newAssetForm.quantity}
+                      onChange={(e) => setNewAssetForm({ ...newAssetForm, quantity: e.target.value })}
+                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem" }}
+                    />
+                  </div>
+
+                  <div style={{ background: "#f8fafc", padding: "12px", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
+                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#64748b", marginBottom: "4px" }}>
+                      Market Rental Price (Rs/Day)
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="e.g. 1000"
+                      value={newAssetForm.market_rent_per_day}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        const half = val ? Math.round(parseFloat(val) / 2) : "";
+                        setNewAssetForm({
+                          ...newAssetForm,
+                          market_rent_per_day: val,
+                          hsy_rent_per_day: newAssetForm.hsy_rent_per_day ? newAssetForm.hsy_rent_per_day : half,
+                        });
+                      }}
+                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem" }}
+                    />
+                    <div style={{ fontSize: "0.72rem", color: "#64748b", marginTop: "3px" }}>Outside vendor rate</div>
+                  </div>
+
+                  <div style={{ background: "#f0fdf4", padding: "12px", borderRadius: "8px", border: "1px solid #86efac" }}>
+                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "800", color: "#166534", marginBottom: "4px" }}>
+                      HSY 50% Rent Price (Rs/Day) *
+                    </label>
+                    <input
+                      type="number"
+                      required
+                      placeholder="e.g. 500"
+                      value={newAssetForm.hsy_rent_per_day}
+                      onChange={(e) => setNewAssetForm({ ...newAssetForm, hsy_rent_per_day: e.target.value })}
+                      style={{ width: "100%", padding: "9px 12px", border: "1.5px solid #22c55e", borderRadius: "8px", fontSize: "0.95rem", fontWeight: "700", color: "#166534" }}
+                    />
+                    <div style={{ fontSize: "0.72rem", color: "#15803d", marginTop: "3px", fontWeight: "600" }}>Affordable community rate</div>
+                  </div>
+
+                  <div>
+                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                      Security Deposit (Rs)
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="e.g. 500 (Refundable)"
+                      value={newAssetForm.security_deposit}
+                      onChange={(e) => setNewAssetForm({ ...newAssetForm, security_deposit: e.target.value })}
+                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem" }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                      Purchase Cost / Asset Value (Rs)
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="e.g. 25000"
+                      value={newAssetForm.purchase_cost}
+                      onChange={(e) => setNewAssetForm({ ...newAssetForm, purchase_cost: e.target.value })}
+                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem" }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                      Condition
+                    </label>
+                    <select
+                      value={newAssetForm.condition}
+                      onChange={(e) => setNewAssetForm({ ...newAssetForm, condition: e.target.value })}
+                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem", background: "#fff" }}
+                    >
+                      <option value="EXCELLENT">✨ Excellent (Brand New / Perfect)</option>
+                      <option value="GOOD">🟢 Good (Working Smoothly)</option>
+                      <option value="FAIR">🟡 Fair (Usable with minor wear)</option>
+                      <option value="NEEDS_REPAIR">🔴 Needs Repair</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                      Storage Location
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. HSY Store Room, Vani Nagar"
+                      value={newAssetForm.location_stored}
+                      onChange={(e) => setNewAssetForm({ ...newAssetForm, location_stored: e.target.value })}
+                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem" }}
+                    />
+                  </div>
+
+                  <div style={{ gridColumn: "1 / -1" }}>
+                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                      Notes / Specifications
+                    </label>
+                    <textarea
+                      rows={2}
+                      placeholder="e.g. Accessories included, cables, special handling instructions..."
+                      value={newAssetForm.notes}
+                      onChange={(e) => setNewAssetForm({ ...newAssetForm, notes: e.target.value })}
+                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem" }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="modalFooter" style={{ paddingTop: "14px", borderTop: "1px solid #e2e8f0" }}>
+                <button
+                  type="button"
+                  className="btnCancel"
+                  onClick={() => {
+                    setShowAddAssetModal(false);
+                    setEditingAssetItem(null);
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btnSubmit"
+                  style={{ background: "#166534" }}
+                  disabled={assetActionLoading}
+                >
+                  {assetActionLoading ? "Saving..." : editingAssetItem ? "Update Equipment" : "+ Save Equipment"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* =====================================================
+          📤 MODAL: ISSUE EQUIPMENT ON RENT (BOOKING)
+      ===================================================== */}
+      {rentingAssetItem && (
+        <div className="modalBackdrop" style={{ zIndex: 10000 }}>
+          <div className="modalCard" style={{ maxWidth: "650px", width: "95%" }}>
+            <div className="modalHeader" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: "1.25rem", color: "#1e293b", fontWeight: "800" }}>
+                  📤 Rent Out: {rentingAssetItem.name}
+                </h3>
+                <div style={{ fontSize: "0.82rem", color: "#166534", marginTop: "3px", fontWeight: "700" }}>
+                  HSY 50% Rent Rate: Rs. {rentingAssetItem.hsy_rent_per_day} / Day &bull; Tag: {rentingAssetItem.asset_tag}
+                </div>
+              </div>
+              <button
+                type="button"
+                className="closeBtn"
+                onClick={() => setRentingAssetItem(null)}
+              >
+                ✕
+              </button>
+            </div>
+
+            {assetActionMessage && (
+              <div style={{ margin: "10px 0", padding: "10px 14px", background: "#fef2f2", color: "#991b1b", borderRadius: "8px", fontSize: "0.85rem", fontWeight: "600" }}>
+                ⚠️ {assetActionMessage}
+              </div>
+            )}
+
+            <form onSubmit={handleRentAssetSubmit}>
+              <div className="modalBody" style={{ maxHeight: "70vh", overflowY: "auto", padding: "16px 4px" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "14px" }}>
+                  <div style={{ gridColumn: "1 / -1" }}>
+                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                      Who is Renting? *
+                    </label>
+                    <div style={{ display: "flex", gap: "16px", marginTop: "4px" }}>
+                      <label style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "0.88rem", fontWeight: "700", cursor: "pointer" }}>
+                        <input
+                          type="radio"
+                          name="renter_type"
+                          value="MEMBER"
+                          checked={rentAssetForm.renter_type === "MEMBER"}
+                          onChange={() => setRentAssetForm({ ...rentAssetForm, renter_type: "MEMBER", renter_name: "", renter_phone: "" })}
+                        />
+                        👥 Committee Member (29 Members)
+                      </label>
+                      <label style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "0.88rem", fontWeight: "700", cursor: "pointer" }}>
+                        <input
+                          type="radio"
+                          name="renter_type"
+                          value="CITIZEN"
+                          checked={rentAssetForm.renter_type === "CITIZEN"}
+                          onChange={() => setRentAssetForm({ ...rentAssetForm, renter_type: "CITIZEN", user_id: "", renter_name: "", renter_phone: "" })}
+                        />
+                        👤 Local Citizen / Devotee
+                      </label>
+                    </div>
+                  </div>
+
+                  {rentAssetForm.renter_type === "MEMBER" && (
+                    <div style={{ gridColumn: "1 / -1" }}>
+                      <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                        Select Committee Member *
+                      </label>
+                      <select
+                        required
+                        value={rentAssetForm.user_id}
+                        onChange={(e) => {
+                          const uid = e.target.value;
+                          const m = (members || []).find((mem) => String(mem.id) === String(uid));
+                          setRentAssetForm({
+                            ...rentAssetForm,
+                            user_id: uid,
+                            renter_name: m ? m.name : "",
+                            renter_phone: m ? m.phone || "" : "",
+                          });
+                        }}
+                        style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem", background: "#fff" }}
+                      >
+                        <option value="">-- Choose from 29 Committee Members --</option>
+                        {(members || [])
+                          .filter((m) => m.role !== "SUPER_ADMIN")
+                          .map((m) => (
+                            <option key={m.id} value={m.id}>
+                              {m.name} ({m.member_id || "No ID"}) &bull; {m.role} &bull; {m.phone || "No Phone"}
+                            </option>
+                          ))}
+                      </select>
+                    </div>
+                  )}
+
+                  <div>
+                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                      Renter Name *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Ramesh Reddy"
+                      value={rentAssetForm.renter_name}
+                      onChange={(e) => setRentAssetForm({ ...rentAssetForm, renter_name: e.target.value })}
+                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem" }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                      Mobile Phone Number *
+                    </label>
+                    <input
+                      type="tel"
+                      required
+                      placeholder="10-digit mobile number"
+                      value={rentAssetForm.renter_phone}
+                      onChange={(e) => setRentAssetForm({ ...rentAssetForm, renter_phone: e.target.value })}
+                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem" }}
+                    />
+                  </div>
+
+                  <div style={{ gridColumn: "1 / -1" }}>
+                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                      Purpose / Event Details *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Ward-4 Ganesh Mandapam Stage / Free Annadanam Camp / Home Pooja"
+                      value={rentAssetForm.purpose}
+                      onChange={(e) => setRentAssetForm({ ...rentAssetForm, purpose: e.target.value })}
+                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem" }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                      Rent Start Date *
+                    </label>
+                    <input
+                      type="date"
+                      required
+                      value={rentAssetForm.rent_start_date}
+                      onChange={(e) => setRentAssetForm({ ...rentAssetForm, rent_start_date: e.target.value })}
+                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem" }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                      Expected Return Date *
+                    </label>
+                    <input
+                      type="date"
+                      required
+                      value={rentAssetForm.expected_return_date}
+                      onChange={(e) => setRentAssetForm({ ...rentAssetForm, expected_return_date: e.target.value })}
+                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem" }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                      Daily Rent (Rs)
+                    </label>
+                    <input
+                      type="number"
+                      required
+                      value={rentAssetForm.daily_rent}
+                      onChange={(e) => setRentAssetForm({ ...rentAssetForm, daily_rent: e.target.value })}
+                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem" }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                      Advance Amount Paid (Rs)
+                    </label>
+                    <input
+                      type="number"
+                      value={rentAssetForm.paid_amount}
+                      onChange={(e) => setRentAssetForm({ ...rentAssetForm, paid_amount: e.target.value })}
+                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem" }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                      Payment Mode
+                    </label>
+                    <select
+                      value={rentAssetForm.payment_mode}
+                      onChange={(e) => setRentAssetForm({ ...rentAssetForm, payment_mode: e.target.value })}
+                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem", background: "#fff" }}
+                    >
+                      <option value="CASH">💵 Cash at Office</option>
+                      <option value="UPI_QR">📱 UPI / QR Code</option>
+                      <option value="BANK_TRANSFER">🏦 Bank Transfer</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                      Security Deposit Collected (Rs)
+                    </label>
+                    <input
+                      type="number"
+                      value={rentAssetForm.deposit_collected}
+                      onChange={(e) => setRentAssetForm({ ...rentAssetForm, deposit_collected: e.target.value })}
+                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem" }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="modalFooter" style={{ paddingTop: "14px", borderTop: "1px solid #e2e8f0" }}>
+                <button
+                  type="button"
+                  className="btnCancel"
+                  onClick={() => setRentingAssetItem(null)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btnSubmit"
+                  style={{ background: "#166534" }}
+                  disabled={assetActionLoading}
+                >
+                  {assetActionLoading ? "Processing Booking..." : "Confirm Rental & Handover"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* =====================================================
+          📥 MODAL: RETURN EQUIPMENT (CHECK-IN)
+      ===================================================== */}
+      {returningRentalItem && (
+        <div className="modalBackdrop" style={{ zIndex: 10000 }}>
+          <div className="modalCard" style={{ maxWidth: "560px", width: "95%" }}>
+            <div className="modalHeader" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: "1.25rem", color: "#1e293b", fontWeight: "800" }}>
+                  📥 Return Item: {returningRentalItem.asset_name}
+                </h3>
+                <div style={{ fontSize: "0.82rem", color: "#64748b", marginTop: "3px" }}>
+                  Rented by: <strong>{returningRentalItem.renter_name}</strong> &bull; Code: {returningRentalItem.rental_code}
+                </div>
+              </div>
+              <button
+                type="button"
+                className="closeBtn"
+                onClick={() => setReturningRentalItem(null)}
+              >
+                ✕
+              </button>
+            </div>
+
+            {assetActionMessage && (
+              <div style={{ margin: "10px 0", padding: "10px 14px", background: "#fef2f2", color: "#991b1b", borderRadius: "8px", fontSize: "0.85rem", fontWeight: "600" }}>
+                ⚠️ {assetActionMessage}
+              </div>
+            )}
+
+            <form onSubmit={handleReturnAssetSubmit}>
+              <div className="modalBody" style={{ maxHeight: "70vh", overflowY: "auto", padding: "16px 4px" }}>
+                <div style={{ background: "#f8fafc", padding: "12px 14px", borderRadius: "8px", marginBottom: "14px", border: "1px solid #e2e8f0", fontSize: "0.85rem" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <span style={{ color: "#64748b" }}>Total Rent Due:</span>
+                    <strong style={{ color: "#0f172a" }}>Rs. {returningRentalItem.total_rent_amount}</strong>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: "4px" }}>
+                    <span style={{ color: "#64748b" }}>Advance Already Paid:</span>
+                    <strong style={{ color: "#16a34a" }}>Rs. {returningRentalItem.paid_amount}</strong>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: "4px" }}>
+                    <span style={{ color: "#64748b" }}>Security Deposit Held:</span>
+                    <strong style={{ color: "#0284c7" }}>Rs. {returningRentalItem.deposit_collected || 0}</strong>
+                  </div>
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+                  <div>
+                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                      Physical Condition upon Return *
+                    </label>
+                    <select
+                      value={returnAssetForm.return_condition}
+                      onChange={(e) => setReturnAssetForm({ ...returnAssetForm, return_condition: e.target.value })}
+                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem", background: "#fff" }}
+                    >
+                      <option value="GOOD">🟢 Good (All parts intact &amp; working)</option>
+                      <option value="EXCELLENT">✨ Excellent (Clean &amp; pristine)</option>
+                      <option value="FAIR">🟡 Fair (Minor cosmetic wear)</option>
+                      <option value="DAMAGED">🔴 Damaged (Requires repair / compensation)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                      Final Balance Collected (Rs)
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="0"
+                      value={returnAssetForm.final_paid_amount}
+                      onChange={(e) => setReturnAssetForm({ ...returnAssetForm, final_paid_amount: e.target.value })}
+                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem" }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                      Security Deposit Refunded (Rs)
+                    </label>
+                    <input
+                      type="number"
+                      value={returnAssetForm.deposit_refunded}
+                      onChange={(e) => setReturnAssetForm({ ...returnAssetForm, deposit_refunded: e.target.value })}
+                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem" }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                      Damage Penalty / Extra Charge (if any, Rs)
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="0"
+                      value={returnAssetForm.damage_charge}
+                      onChange={(e) => setReturnAssetForm({ ...returnAssetForm, damage_charge: e.target.value })}
+                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem" }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: "700", color: "#334155", marginBottom: "4px" }}>
+                      Return Remarks / Inspection Notes
+                    </label>
+                    <textarea
+                      rows={2}
+                      placeholder="e.g. Returned on time, inspected and verified in good working condition."
+                      value={returnAssetForm.remarks}
+                      onChange={(e) => setReturnAssetForm({ ...returnAssetForm, remarks: e.target.value })}
+                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "0.88rem" }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="modalFooter" style={{ paddingTop: "14px", borderTop: "1px solid #e2e8f0" }}>
+                <button
+                  type="button"
+                  className="btnCancel"
+                  onClick={() => setReturningRentalItem(null)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btnSubmit"
+                  style={{ background: "#166534" }}
+                  disabled={assetActionLoading}
+                >
+                  {assetActionLoading ? "Completing Return..." : "Complete Return & Record Revenue"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
