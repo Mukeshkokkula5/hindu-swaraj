@@ -1655,6 +1655,7 @@ export default function AdminPage() {
   const [adminSendEmail, setAdminSendEmail] = useState(true);
   const [adminResetLoading, setAdminResetLoading] = useState(false);
   const [adminResetMessage, setAdminResetMessage] = useState(null);
+  const [resendingLoginId, setResendingLoginId] = useState(null);
 
   // Digital Member ID Card States
   const [idCardProfile, setIdCardProfile] = useState(null);
@@ -4080,7 +4081,8 @@ export default function AdminPage() {
 
     setAdminResetLoading(true);
     try {
-      const res = await fetchAPI(`/members/${adminResetMember.id}/reset-password`, {
+      const targetId = adminResetMember.dbId || adminResetMember.id;
+      const res = await fetchAPI(`/members/${targetId}/reset-password`, {
         method: "POST",
         body: JSON.stringify({
           newPassword: adminNewPassword,
@@ -4106,6 +4108,34 @@ export default function AdminPage() {
       pwd += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     setAdminNewPassword(pwd);
+  };
+
+  const handleResendLoginDetails = async (item) => {
+    const targetId = item.dbId || item.id;
+    if (!targetId) return;
+
+    if (!item.email && !item.personal_email) {
+      alert(`⚠️ Cannot Send Email:\n\nMember "${item.name}" does not have a registered personal email on file.\n\nPlease click "Edit" on this member and add an email address first.`);
+      return;
+    }
+
+    const recipientEmail = item.email || item.personal_email;
+    const confirmSend = window.confirm(
+      `✉️ Resend Official Portal Login Details to:\n\n• Member: ${item.name}\n• Recipient Email: ${recipientEmail}\n• Username: ${item.association_id || item.username || item.id}\n• Member ID: ${item.member_id || item.id}\n\nProceed?`
+    );
+    if (!confirmSend) return;
+
+    setResendingLoginId(targetId);
+    try {
+      const res = await fetchAPI(`/members/resend-login/${targetId}`, {
+        method: "POST",
+      });
+      alert(res.message || `✅ Official login details sent successfully to ${recipientEmail}!`);
+    } catch (err) {
+      alert(`❌ Failed to send login details: ${err.message}`);
+    } finally {
+      setResendingLoginId(null);
+    }
   };
 
   // Complaint Management Functions & Handlers
@@ -9551,6 +9581,24 @@ _This is an official computer-generated receipt._`;
                                 title="Reset Member Password"
                               >
                                 🔑 Reset Password
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleResendLoginDetails(item)}
+                                disabled={resendingLoginId === (item.dbId || item.id)}
+                                style={{
+                                  background: "#eff6ff",
+                                  border: "1px solid #bfdbfe",
+                                  color: "#1d4ed8",
+                                  padding: "2px 8px",
+                                  borderRadius: "4px",
+                                  fontWeight: "700",
+                                  cursor: "pointer",
+                                  fontSize: "0.78rem",
+                                }}
+                                title="Resend Official Portal Login Details to Member Email"
+                              >
+                                {resendingLoginId === (item.dbId || item.id) ? "Sending..." : "✉️ Resend Login"}
                               </button>
                             </div>
                           ) : (
