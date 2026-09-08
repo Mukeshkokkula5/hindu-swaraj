@@ -33,6 +33,7 @@ const ALL_PERMISSION_ITEMS = [
   { key: "expenses", label: "Expense Registry & Bill Approvals", icon: "🧾", category: "Finance & Accounts", desc: "Record bills, submit reimbursement claims & manage approvals" },
   { key: "member_credit_loans", label: "MCP Emergency Welfare Loans", icon: "🤝", category: "Finance & Accounts", desc: "Member crisis credit support, EMI payment tracking & loan clearances" },
   { key: "reports", label: "Financial Statements & Balance Sheets", icon: "📑", category: "Finance & Accounts", desc: "Monthly income-expenditure statements & audit compliance reports" },
+  { key: "asset_rentals", label: "Asset Rentals & Association Inventory", icon: "🎛️", category: "Finance & Accounts", desc: "Track community equipment inventory, daily rentals, returns & equipment registers" },
 
   // 3. Community & Seva
   { key: "blood_seva", label: "Blood Seva & Donor Recognition", icon: "🩸", category: "Community & Seva", desc: "Emergency blood donor directory, donation drives & hero certificates" },
@@ -65,6 +66,7 @@ const DEFAULT_ROLE_PERMISSIONS = {
     "donations",
     "expenses",
     "reports",
+    "asset_rentals",
     "complaints",
     "suggestions",
     "volunteers",
@@ -88,6 +90,7 @@ const DEFAULT_ROLE_PERMISSIONS = {
     "donations",
     "expenses",
     "reports",
+    "asset_rentals",
     "complaints",
     "suggestions",
     "volunteers",
@@ -105,6 +108,7 @@ const DEFAULT_ROLE_PERMISSIONS = {
     "elections",
     "subscriptions",
     "donations",
+    "asset_rentals",
     "complaints",
     "suggestions",
     "volunteers",
@@ -122,6 +126,7 @@ const DEFAULT_ROLE_PERMISSIONS = {
     "elections",
     "subscriptions",
     "donations",
+    "asset_rentals",
     "complaints",
     "suggestions",
     "volunteers",
@@ -138,6 +143,7 @@ const DEFAULT_ROLE_PERMISSIONS = {
     "subscriptions",
     "member_credit_loans",
     "reports",
+    "asset_rentals",
     "meetings",
     "elections",
     "complaints",
@@ -153,6 +159,7 @@ const DEFAULT_ROLE_PERMISSIONS = {
     "subscriptions",
     "donations",
     "expenses",
+    "asset_rentals",
     "complaints",
     "suggestions",
     "volunteers",
@@ -166,6 +173,7 @@ const DEFAULT_ROLE_PERMISSIONS = {
     "donation_history",
     "subscriptions",
     "member_credit_loans",
+    "asset_rentals",
     "meetings",
     "elections",
     "complaints",
@@ -1027,6 +1035,9 @@ export default function AdminPage() {
   const isAuditor = normalizedRole === "VICE_PRESIDENT" || normalizedRole === "GENERAL_SECRETARY" || normalizedRole === "SECRETARY" || normalizedRole === "JOINT_SECRETARY";
   const isTreasurer = normalizedRole === "TREASURER";
   const isEC = normalizedRole === "EC_MEMBER" || normalizedRole === "EC" || normalizedRole === "EXECUTIVE_COMMITTEE" || normalizedRole === "EXECUTIVE";
+  const isJS = normalizedRole === "JOINT_SECRETARY";
+  const isVP = normalizedRole === "VICE_PRESIDENT";
+  const canManageAssets = isFullAdmin || isTreasurer || isEC || isGS || isJS || isVP;
   const isMemberOnly = normalizedRole === "MEMBER";
   const isVolunteer = normalizedRole === "VOLUNTEER";
   const isMember = isMemberOnly || isVolunteer;
@@ -1042,6 +1053,8 @@ export default function AdminPage() {
       case "GENERAL_SECRETARY":
       case "SECRETARY":
         return { title: "General Secretary", badge: "📋 General Secretary (Audit & Bill Passing)", bg: "#e0f2fe", color: "#0369a1", border: "#7dd3fc" };
+      case "JOINT_SECRETARY":
+        return { title: "Joint Secretary", badge: "📝 Joint Secretary (Office & Custody)", bg: "#e0f2fe", color: "#0284c7", border: "#7dd3fc" };
       case "TREASURER":
         return { title: "Treasurer", badge: "💰 Treasurer (Finances & Expenses)", bg: "#dcfce7", color: "#15803d", border: "#86efac" };
       case "EC_MEMBER":
@@ -7938,7 +7951,8 @@ _This is an official computer-generated receipt._`;
             hasTabAccess("donations") ||
             hasTabAccess("expenses") ||
             hasTabAccess("reports") ||
-            hasTabAccess("member_credit_loans")) && (
+            hasTabAccess("member_credit_loans") ||
+            hasTabAccess("asset_rentals")) && (
             <>
               <div
                 style={{
@@ -15240,7 +15254,7 @@ _This is an official computer-generated receipt._`;
                 </p>
               </div>
               <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
-                {(isFullAdmin || isTreasurer || isEC) && (
+                {canManageAssets && (
                   <button
                     type="button"
                     className="addBtn"
@@ -15503,7 +15517,7 @@ _This is an official computer-generated receipt._`;
                               </td>
                               <td style={{ padding: "12px 14px", textAlign: "center" }}>
                                 <div style={{ display: "inline-flex", gap: "6px", alignItems: "center" }}>
-                                  {a.status === "AVAILABLE" && (isFullAdmin || isTreasurer || isEC) && (
+                                  {a.status === "AVAILABLE" && canManageAssets && (
                                     <button
                                       type="button"
                                       onClick={() => handleOpenRentModal(a)}
@@ -15522,7 +15536,7 @@ _This is an official computer-generated receipt._`;
                                       📤 Rent Out
                                     </button>
                                   )}
-                                  {(isFullAdmin || isTreasurer) && (
+                                  {canManageAssets && (
                                     <button
                                       type="button"
                                       onClick={() => handleOpenAddAssetModal(a)}
@@ -15655,7 +15669,7 @@ _This is an official computer-generated receipt._`;
                               </td>
                               <td style={{ padding: "12px 14px", textAlign: "center" }}>
                                 <div style={{ display: "inline-flex", gap: "6px", alignItems: "center" }}>
-                                  {r.status === "ACTIVE" && (isFullAdmin || isTreasurer || isEC) && (
+                                  {r.status === "ACTIVE" && canManageAssets && (
                                     <button
                                       type="button"
                                       onClick={() => handleOpenReturnModal(r)}
