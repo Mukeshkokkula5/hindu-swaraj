@@ -1656,6 +1656,8 @@ export default function AdminPage() {
   const [adminResetLoading, setAdminResetLoading] = useState(false);
   const [adminResetMessage, setAdminResetMessage] = useState(null);
   const [resendingLoginId, setResendingLoginId] = useState(null);
+  const [memberLoginFilter, setMemberLoginFilter] = useState("ALL"); // "ALL" | "LOGGED_IN" | "NEVER_LOGGED_IN"
+  const [memberTableSearch, setMemberTableSearch] = useState("");
 
   // Digital Member ID Card States
   const [idCardProfile, setIdCardProfile] = useState(null);
@@ -1951,6 +1953,8 @@ export default function AdminPage() {
             address: m.address || "Jagtial, Telangana",
             member_id: m.member_id,
             association_id: m.association_id,
+            is_first_login: m.is_first_login,
+            last_active_at: m.last_active_at,
           })),
         );
       } catch (err) {
@@ -4136,6 +4140,20 @@ export default function AdminPage() {
     } finally {
       setResendingLoginId(null);
     }
+  };
+
+  const handleSendWhatsAppLoginReminder = (member) => {
+    const rawPhone = (member.phone || "").replace(/\D/g, "");
+    if (!rawPhone || rawPhone.length < 10) {
+      alert(`⚠️ Cannot send WhatsApp message: Member "${member.name}" does not have a valid 10-digit phone number.`);
+      return;
+    }
+    const cleanPhone = rawPhone.length === 10 ? `91${rawPhone}` : rawPhone;
+
+    const message = `🚩 *హిందూ స్వరాజ్ యూత్ వెల్ఫేర్ అసోసియేషన్ (HSYWA)* 🚩\n\nనమస్తే ${member.name} గారు,\nమా అసోసియేషన్ డిజిటల్ పోర్టల్ లో మీ సభ్యత్వ ఖాతా విజయవంతంగా సృష్టించబడింది.\n\n🆔 *సభ్యత్వ నంబర్:* ${member.member_id || member.id}\n👤 *లాగిన్ ID:* ${member.association_id || member.username || member.id}\n🌐 *లాగిన్ లింక్:* https://www.hinduswarajyouth.online/admin\n\nమీరు ఇంకా పోర్టల్ లోకి లాగిన్ అవ్వలేదని గమనించాము. దయచేసి పైన ఉన్న లింక్ ద్వారా లాగిన్ అవ్వండి.\n\n🔑 *పాస్‌వర్డ్:* ఒకవేళ మీకు పాస్‌వర్డ్ తెలియకపోతే, లాగిన్ పేజీలో "Forgot Password?" పై క్లిక్ చేసి మీ ఈమెయిల్ OTP ద్వారా సులభంగా కొత్త పాస్‌వర్డ్ సెట్ చేసుకోవచ్చు.\n\nఏమైనా సమస్యలు లేదా సహాయం కావాలంటే మాకు తెలియజేయగలరు.\n\nజై హింద్! 🇮🇳\n- ప్రెసిడెంట్ & కార్యవర్గం\nహిందూ స్వరాజ్ యూత్ వెల్ఫేర్ అసోసియేషన్, జగిత్యాల`;
+
+    const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+    window.open(waUrl, "_blank");
   };
 
   // Complaint Management Functions & Handlers
@@ -9435,200 +9453,454 @@ _This is an official computer-generated receipt._`;
           </>
         )}
 
-        {activeTab === "members" && (
-          <>
-            <div className="contentHeader">
-              <h2 className="pageTitle">Active Committee Members</h2>
-              {isFullAdmin && (
-                <button
-                  className="addBtn"
-                  onClick={() => {
-                    setEditingMember(null);
-                    setNewMember({
-                      name: "",
-                      email: "",
-                      role: "MEMBER",
-                      phone: "",
-                      status: "ACTIVE",
-                    });
-                    setShowMemberModal(true);
+        {activeTab === "members" && (() => {
+          const totalCount = members.length;
+          const loggedInCount = members.filter((m) => !m.is_first_login || !!m.last_active_at).length;
+          const neverLoggedInCount = members.filter((m) => m.is_first_login && !m.last_active_at).length;
+
+          const filteredMembers = members.filter((m) => {
+            const hasLoggedIn = !m.is_first_login || !!m.last_active_at;
+            if (memberLoginFilter === "LOGGED_IN" && !hasLoggedIn) return false;
+            if (memberLoginFilter === "NEVER_LOGGED_IN" && hasLoggedIn) return false;
+
+            if (memberTableSearch.trim()) {
+              const q = memberTableSearch.toLowerCase().trim();
+              const nameMatch = (m.name || "").toLowerCase().includes(q);
+              const idMatch = (m.id || "").toLowerCase().includes(q) || (m.member_id || "").toLowerCase().includes(q);
+              const phoneMatch = (m.phone || "").toLowerCase().includes(q);
+              const roleMatch = (m.role || "").toLowerCase().includes(q);
+              const userMatch = (m.association_id || m.username || "").toLowerCase().includes(q);
+              return nameMatch || idMatch || phoneMatch || roleMatch || userMatch;
+            }
+            return true;
+          });
+
+          return (
+            <>
+              <div className="contentHeader" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
+                <div>
+                  <h2 className="pageTitle" style={{ margin: 0 }}>Committee Members & Login Activity</h2>
+                  <p style={{ margin: "4px 0 0 0", fontSize: "0.88rem", color: "#64748b" }}>
+                    Track portal adoption, monitor who has logged in, and follow up with pending members.
+                  </p>
+                </div>
+                {isFullAdmin && (
+                  <button
+                    className="addBtn"
+                    onClick={() => {
+                      setEditingMember(null);
+                      setNewMember({
+                        name: "",
+                        email: "",
+                        role: "MEMBER",
+                        phone: "",
+                        status: "ACTIVE",
+                      });
+                      setShowMemberModal(true);
+                    }}
+                  >
+                    + Register Member
+                  </button>
+                )}
+              </div>
+
+              {/* 📊 KPI Activity Summary Cards */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "14px", marginBottom: "18px" }}>
+                <div
+                  onClick={() => setMemberLoginFilter("ALL")}
+                  style={{
+                    background: memberLoginFilter === "ALL" ? "#f8fafc" : "#ffffff",
+                    border: `2px solid ${memberLoginFilter === "ALL" ? "#3b82f6" : "#e2e8f0"}`,
+                    borderRadius: "12px",
+                    padding: "16px",
+                    cursor: "pointer",
+                    transition: "all 0.2s ease",
+                    boxShadow: "0 2px 6px rgba(0,0,0,0.04)",
                   }}
                 >
-                  + Register Member
-                </button>
-              )}
-            </div>
+                  <div style={{ fontSize: "0.82rem", fontWeight: "700", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                    Total Registered
+                  </div>
+                  <div style={{ fontSize: "1.85rem", fontWeight: "800", color: "#0f172a", marginTop: "4px" }}>
+                    {totalCount}
+                  </div>
+                  <div style={{ fontSize: "0.78rem", color: "#3b82f6", fontWeight: "600", marginTop: "4px" }}>
+                    All Committee & Members
+                  </div>
+                </div>
 
-            <div className="panelCard">
-              <div className="tableContainer">
-                <table className="adminTable">
-                  <thead>
-                    <tr>
-                      <th>Member ID</th>
-                      <th>Name</th>
-                      <th>Role</th>
-                      <th>Phone</th>
-                      <th>Status</th>
-                      <th style={{ textAlign: "center" }}>
-                        {isFullAdmin ? "Actions" : "Access"}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {members.map((item) => (
-                      <tr key={item.id}>
-                        <td style={{ fontWeight: "700", color: "var(--navy)" }}>
-                          {item.id}
-                        </td>
-                        <td style={{ fontWeight: "600" }}>
-                          <div style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
-                            <img
-                              src={
-                                item.photo_url?.startsWith("data:") || item.photo_url?.startsWith("http")
-                                  ? item.photo_url
-                                  : item.photo_url?.startsWith("/uploads/")
-                                  ? `${API_BASE_URL}${item.photo_url}`
-                                  : item.photo_url || "/images/leader-president.png"
-                              }
-                              alt={item.name}
-                              style={{
-                                width: "32px",
-                                height: "32px",
-                                borderRadius: "50%",
-                                objectFit: "cover",
-                                border: "1.5px solid #ea580c",
-                                flexShrink: 0,
-                              }}
-                              onError={(e) => {
-                                e.currentTarget.src = "/images/leader-president.png";
-                              }}
-                            />
-                            <span>{item.name}</span>
-                          </div>
-                        </td>
-                        <td
-                          style={{ fontWeight: "600", color: "var(--maroon)" }}
-                        >
-                          {item.role}
-                        </td>
-                        <td>{item.phone}</td>
-                        <td>
-                          <span className="badge badgeSuccess">
-                            {item.status}
-                          </span>
-                        </td>
-                        <td style={{ textAlign: "center" }}>
-                          {isFullAdmin ? (
-                            <div style={{ display: "inline-flex", gap: "10px", alignItems: "center", justifyContent: "center" }}>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setEditingMember(item);
-                                  setNewMember({
-                                    name: item.name,
-                                    email: item.email || "",
-                                    role: item.role,
-                                    phone: item.phone,
-                                    status: item.status,
-                                    photo_url: item.photo_url || "",
-                                  });
-                                  setShowMemberModal(true);
-                                }}
-                                style={{
-                                  background: "none",
-                                  border: "none",
-                                  color: "#2563eb",
-                                  fontWeight: "700",
-                                  cursor: "pointer",
-                                  fontSize: "0.82rem",
-                                }}
-                              >
-                                Edit
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleOpenIdCard(item)}
-                                style={{
-                                  background: "#f0fdf4",
-                                  border: "1px solid #bbf7d0",
-                                  color: "#16a34a",
-                                  padding: "2px 8px",
-                                  borderRadius: "4px",
-                                  fontWeight: "700",
-                                  cursor: "pointer",
-                                  fontSize: "0.78rem",
-                                }}
-                                title="View & Print Digital Member ID Card"
-                              >
-                                🪪 ID Card
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setAdminResetMember(item);
-                                  setAdminNewPassword("");
-                                  setAdminSendEmail(!!item.email);
-                                  setAdminResetMessage(null);
-                                }}
-                                style={{
-                                  background: "none",
-                                  border: "none",
-                                  color: "#ea580c",
-                                  fontWeight: "700",
-                                  cursor: "pointer",
-                                  fontSize: "0.82rem",
-                                }}
-                                title="Reset Member Password"
-                              >
-                                🔑 Reset Password
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleResendLoginDetails(item)}
-                                disabled={resendingLoginId === (item.dbId || item.id)}
-                                style={{
-                                  background: "#eff6ff",
-                                  border: "1px solid #bfdbfe",
-                                  color: "#1d4ed8",
-                                  padding: "2px 8px",
-                                  borderRadius: "4px",
-                                  fontWeight: "700",
-                                  cursor: "pointer",
-                                  fontSize: "0.78rem",
-                                }}
-                                title="Resend Official Portal Login Details to Member Email"
-                              >
-                                {resendingLoginId === (item.dbId || item.id) ? "Sending..." : "✉️ Resend Login"}
-                              </button>
-                            </div>
-                          ) : (
-                            <button
-                              type="button"
-                              onClick={() => handleOpenIdCard(item)}
-                              style={{
-                                background: "#f0fdf4",
-                                border: "1px solid #bbf7d0",
-                                color: "#16a34a",
-                                padding: "2px 8px",
-                                borderRadius: "4px",
-                                fontWeight: "700",
-                                cursor: "pointer",
-                                fontSize: "0.78rem",
-                              }}
-                              title="View & Print Digital Member ID Card"
-                            >
-                              🪪 ID Card
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <div
+                  onClick={() => setMemberLoginFilter("LOGGED_IN")}
+                  style={{
+                    background: memberLoginFilter === "LOGGED_IN" ? "#f0fdf4" : "#ffffff",
+                    border: `2px solid ${memberLoginFilter === "LOGGED_IN" ? "#22c55e" : "#bbf7d0"}`,
+                    borderRadius: "12px",
+                    padding: "16px",
+                    cursor: "pointer",
+                    transition: "all 0.2s ease",
+                    boxShadow: "0 2px 6px rgba(0,0,0,0.04)",
+                  }}
+                >
+                  <div style={{ fontSize: "0.82rem", fontWeight: "700", color: "#15803d", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                    🟢 Logged In / Active
+                  </div>
+                  <div style={{ fontSize: "1.85rem", fontWeight: "800", color: "#166534", marginTop: "4px" }}>
+                    {loggedInCount}
+                  </div>
+                  <div style={{ fontSize: "0.78rem", color: "#15803d", fontWeight: "600", marginTop: "4px" }}>
+                    Using portal actively ({totalCount > 0 ? Math.round((loggedInCount / totalCount) * 100) : 0}%)
+                  </div>
+                </div>
+
+                <div
+                  onClick={() => setMemberLoginFilter("NEVER_LOGGED_IN")}
+                  style={{
+                    background: memberLoginFilter === "NEVER_LOGGED_IN" ? "#fff7ed" : "#ffffff",
+                    border: `2px solid ${memberLoginFilter === "NEVER_LOGGED_IN" ? "#ea580c" : "#fed7aa"}`,
+                    borderRadius: "12px",
+                    padding: "16px",
+                    cursor: "pointer",
+                    transition: "all 0.2s ease",
+                    boxShadow: "0 2px 6px rgba(0,0,0,0.04)",
+                  }}
+                >
+                  <div style={{ fontSize: "0.82rem", fontWeight: "700", color: "#c2410c", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                    🟠 Never Logged In
+                  </div>
+                  <div style={{ fontSize: "1.85rem", fontWeight: "800", color: "#9a3412", marginTop: "4px" }}>
+                    {neverLoggedInCount}
+                  </div>
+                  <div style={{ fontSize: "0.78rem", color: "#c2410c", fontWeight: "600", marginTop: "4px" }}>
+                    Pending initial portal login
+                  </div>
+                </div>
               </div>
-            </div>
-          </>
-        )}
+
+              {/* 🔍 Filters & Search Bar */}
+              <div className="panelCard" style={{ marginBottom: "16px", padding: "14px 18px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
+                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                  <button
+                    type="button"
+                    onClick={() => setMemberLoginFilter("ALL")}
+                    style={{
+                      padding: "6px 14px",
+                      borderRadius: "20px",
+                      fontWeight: "700",
+                      fontSize: "0.82rem",
+                      cursor: "pointer",
+                      border: "1px solid",
+                      background: memberLoginFilter === "ALL" ? "#0f172a" : "#fff",
+                      color: memberLoginFilter === "ALL" ? "#fff" : "#475569",
+                      borderColor: memberLoginFilter === "ALL" ? "#0f172a" : "#cbd5e1",
+                    }}
+                  >
+                    All Members ({totalCount})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMemberLoginFilter("LOGGED_IN")}
+                    style={{
+                      padding: "6px 14px",
+                      borderRadius: "20px",
+                      fontWeight: "700",
+                      fontSize: "0.82rem",
+                      cursor: "pointer",
+                      border: "1px solid",
+                      background: memberLoginFilter === "LOGGED_IN" ? "#166534" : "#fff",
+                      color: memberLoginFilter === "LOGGED_IN" ? "#fff" : "#166534",
+                      borderColor: memberLoginFilter === "LOGGED_IN" ? "#166534" : "#86efac",
+                    }}
+                  >
+                    🟢 Logged In ({loggedInCount})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMemberLoginFilter("NEVER_LOGGED_IN")}
+                    style={{
+                      padding: "6px 14px",
+                      borderRadius: "20px",
+                      fontWeight: "700",
+                      fontSize: "0.82rem",
+                      cursor: "pointer",
+                      border: "1px solid",
+                      background: memberLoginFilter === "NEVER_LOGGED_IN" ? "#c2410c" : "#fff",
+                      color: memberLoginFilter === "NEVER_LOGGED_IN" ? "#fff" : "#c2410c",
+                      borderColor: memberLoginFilter === "NEVER_LOGGED_IN" ? "#c2410c" : "#fdba74",
+                    }}
+                  >
+                    🟠 Never Logged In ({neverLoggedInCount})
+                  </button>
+                </div>
+
+                <div style={{ minWidth: "260px" }}>
+                  <input
+                    type="text"
+                    className="inputField"
+                    placeholder="Search by name, ID, phone, role..."
+                    value={memberTableSearch}
+                    onChange={(e) => setMemberTableSearch(e.target.value)}
+                    style={{ padding: "7px 12px", fontSize: "0.84rem", borderRadius: "8px" }}
+                  />
+                </div>
+              </div>
+
+              {/* 📋 Members Table */}
+              <div className="panelCard">
+                <div className="tableContainer">
+                  <table className="adminTable">
+                    <thead>
+                      <tr>
+                        <th>Member ID</th>
+                        <th>Name</th>
+                        <th>Role</th>
+                        <th>Phone</th>
+                        <th>Portal Activity</th>
+                        <th>Status</th>
+                        <th style={{ textAlign: "center" }}>
+                          {isFullAdmin ? "Actions" : "Access"}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredMembers.length === 0 ? (
+                        <tr>
+                          <td colSpan={7} style={{ textAlign: "center", padding: "30px", color: "#64748b" }}>
+                            No members found matching the selected filter or search criteria.
+                          </td>
+                        </tr>
+                      ) : (
+                        filteredMembers.map((item) => {
+                          const hasLoggedIn = !item.is_first_login || !!item.last_active_at;
+                          return (
+                            <tr key={item.id}>
+                              <td style={{ fontWeight: "700", color: "var(--navy)" }}>
+                                {item.id}
+                              </td>
+                              <td style={{ fontWeight: "600" }}>
+                                <div style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
+                                  <img
+                                    src={
+                                      item.photo_url?.startsWith("data:") || item.photo_url?.startsWith("http")
+                                        ? item.photo_url
+                                        : item.photo_url?.startsWith("/uploads/")
+                                        ? `${API_BASE_URL}${item.photo_url}`
+                                        : item.photo_url || "/images/leader-president.png"
+                                    }
+                                    alt={item.name}
+                                    style={{
+                                      width: "32px",
+                                      height: "32px",
+                                      borderRadius: "50%",
+                                      objectFit: "cover",
+                                      border: "1.5px solid #ea580c",
+                                      flexShrink: 0,
+                                    }}
+                                    onError={(e) => {
+                                      e.currentTarget.src = "/images/leader-president.png";
+                                    }}
+                                  />
+                                  <div>
+                                    <div>{item.name}</div>
+                                    <div style={{ fontSize: "0.72rem", color: "#64748b", fontWeight: "normal" }}>
+                                      {item.email || "No email"}
+                                    </div>
+                                  </div>
+                                </div>
+                              </td>
+                              <td style={{ fontWeight: "600", color: "var(--maroon)" }}>
+                                {item.role}
+                              </td>
+                              <td>{item.phone || "N/A"}</td>
+                              <td>
+                                {hasLoggedIn ? (
+                                  <div>
+                                    <span
+                                      style={{
+                                        background: "#dcfce7",
+                                        color: "#166534",
+                                        border: "1px solid #86efac",
+                                        padding: "3px 9px",
+                                        borderRadius: "14px",
+                                        fontSize: "0.75rem",
+                                        fontWeight: "700",
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        gap: "4px",
+                                      }}
+                                    >
+                                      🟢 Logged In
+                                    </span>
+                                    {item.last_active_at && (
+                                      <div style={{ fontSize: "0.7rem", color: "#64748b", marginTop: "3px" }}>
+                                        Active: {new Date(item.last_active_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+                                      </div>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <div>
+                                    <span
+                                      style={{
+                                        background: "#ffedd5",
+                                        color: "#c2410c",
+                                        border: "1px solid #fed7aa",
+                                        padding: "3px 9px",
+                                        borderRadius: "14px",
+                                        fontSize: "0.75rem",
+                                        fontWeight: "700",
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        gap: "4px",
+                                      }}
+                                    >
+                                      🟠 Never Logged In
+                                    </span>
+                                    <div style={{ fontSize: "0.7rem", color: "#9a3412", marginTop: "3px" }}>
+                                      Pending First Login
+                                    </div>
+                                  </div>
+                                )}
+                              </td>
+                              <td>
+                                <span className="badge badgeSuccess">
+                                  {item.status}
+                                </span>
+                              </td>
+                              <td style={{ textAlign: "center" }}>
+                                {isFullAdmin ? (
+                                  <div style={{ display: "inline-flex", gap: "8px", alignItems: "center", justifyContent: "center", flexWrap: "wrap" }}>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setEditingMember(item);
+                                        setNewMember({
+                                          name: item.name,
+                                          email: item.email || "",
+                                          role: item.role,
+                                          phone: item.phone,
+                                          status: item.status,
+                                          photo_url: item.photo_url || "",
+                                        });
+                                        setShowMemberModal(true);
+                                      }}
+                                      style={{
+                                        background: "none",
+                                        border: "none",
+                                        color: "#2563eb",
+                                        fontWeight: "700",
+                                        cursor: "pointer",
+                                        fontSize: "0.82rem",
+                                      }}
+                                    >
+                                      Edit
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleOpenIdCard(item)}
+                                      style={{
+                                        background: "#f0fdf4",
+                                        border: "1px solid #bbf7d0",
+                                        color: "#16a34a",
+                                        padding: "2px 8px",
+                                        borderRadius: "4px",
+                                        fontWeight: "700",
+                                        cursor: "pointer",
+                                        fontSize: "0.78rem",
+                                      }}
+                                      title="View & Print Digital Member ID Card"
+                                    >
+                                      🪪 ID Card
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setAdminResetMember(item);
+                                        setAdminNewPassword("");
+                                        setAdminSendEmail(!!item.email);
+                                        setAdminResetMessage(null);
+                                      }}
+                                      style={{
+                                        background: "none",
+                                        border: "none",
+                                        color: "#ea580c",
+                                        fontWeight: "700",
+                                        cursor: "pointer",
+                                        fontSize: "0.82rem",
+                                      }}
+                                      title="Reset Member Password"
+                                    >
+                                      🔑 Reset Password
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleResendLoginDetails(item)}
+                                      disabled={resendingLoginId === (item.dbId || item.id)}
+                                      style={{
+                                        background: "#eff6ff",
+                                        border: "1px solid #bfdbfe",
+                                        color: "#1d4ed8",
+                                        padding: "2px 8px",
+                                        borderRadius: "4px",
+                                        fontWeight: "700",
+                                        cursor: "pointer",
+                                        fontSize: "0.78rem",
+                                      }}
+                                      title="Resend Official Portal Login Details to Member Email"
+                                    >
+                                      {resendingLoginId === (item.dbId || item.id) ? "Sending..." : "✉️ Resend Login"}
+                                    </button>
+
+                                    {/* 💬 Direct WhatsApp reminder for members who haven't logged in */}
+                                    {!hasLoggedIn && item.phone && (
+                                      <button
+                                        type="button"
+                                        onClick={() => handleSendWhatsAppLoginReminder(item)}
+                                        style={{
+                                          background: "#25d366",
+                                          border: "none",
+                                          color: "#fff",
+                                          padding: "2px 8px",
+                                          borderRadius: "4px",
+                                          fontWeight: "700",
+                                          cursor: "pointer",
+                                          fontSize: "0.78rem",
+                                        }}
+                                        title="Send WhatsApp reminder with login details & portal link"
+                                      >
+                                        💬 WhatsApp Ask
+                                      </button>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleOpenIdCard(item)}
+                                    style={{
+                                      background: "#f0fdf4",
+                                      border: "1px solid #bbf7d0",
+                                      color: "#16a34a",
+                                      padding: "2px 8px",
+                                      borderRadius: "4px",
+                                      fontWeight: "700",
+                                      cursor: "pointer",
+                                      fontSize: "0.78rem",
+                                    }}
+                                    title="View & Print Digital Member ID Card"
+                                  >
+                                    🪪 ID Card
+                                  </button>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </>
+          );
+        })()}
 
         {activeTab === "funds" && (
           <>
